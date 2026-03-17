@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - ND Lanches</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, button { padding: 10px; margin: 5px 0; display: block; width: 100%; max-width: 300px; }
+        .btn-aberto { background: #28a745; color: white; border: none; cursor: pointer; }
+        .btn-fechado { background: #dc3545; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🍔 Painel de Controle ND Lanches</h1>
+
+    <div class="card">
+        <h3>Segurança</h3>
+        <input type="password" id="adminKey" placeholder="Digite sua Chave Secreta">
+    </div>
+
+    <div class="card">
+        <h3>Status da Loja</h3>
+        <button id="btnStatus" onclick="toggleLoja()" class="btn-aberto">Loja Aberta</button>
+    </div>
+
+    <div class="card">
+        <h3>Novo Produto</h3>
+        <input type="text" id="nome" placeholder="Nome do Lanche">
+        <input type="number" id="preco" placeholder="Preço (ex: 25.00)">
+        <button onclick="salvarProduto()">Salvar Produto</button>
+    </div>
+
+    <script>
+        // Substitua pela URL que o Render te der após o deploy da API
+        const API_URL = "https://nd-lanches-api.onrender.com/api"; 
+
+        async function toggleLoja() {
+            const key = document.getElementById('adminKey').value;
+            // Aqui faremos a chamada PUT para a API
+            alert("Enviando comando para a API...");
+        }
+
+        async function salvarProduto() {
+            // Lógica para enviar o JSON do produto para o backend
+        }
+    </script>
+</body>
+</html>
