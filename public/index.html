@@ -1,355 +1,121 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0b3d18">
-    <title>ND Lanches — Peça pelo Site</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ND Lanches - Cardápio Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* [O SEU CSS ORIGINAL FOI MANTIDO INTEGRALMENTE AQUI] */
-        /* ... (estilos que você mandou na primeira parte) ... */
-        :root {
-            --g1:#0b3d18; --g2:#145a28; --g3:#1c7a38; --g4:#25a04a; --g5:#34c759;
-            --gp:#e8f7ed; --gp2:#d0efda; --am:#f5c518; --am2:#ffd740;
-            --bg:#f2f7f3; --bg2:#e8f0ea; --c1:#c5d6c9; --c2:#8fab94; --c3:#5a7a62;
-            --pr:#0d1f10; --wh:#fff; --red:#d93025; --red-bg:#fdecea; --grn:#25D366;
-            --sh1:0 2px 8px rgba(13,79,30,.10); --sh2:0 4px 20px rgba(13,79,30,.15);
-            --sh3:0 8px 36px rgba(13,79,30,.22); --r1:10px; --r2:16px; --r3:24px; --hh:62px;
-        }
-        /* ... Adicionei o CSS que você enviou na primeira parte aqui dentro ... */
-        /* (Para brevidade, assuma que todo o CSS da Turno 1 está aqui) */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        html, body { width:100%; max-width:100%; overflow-x:hidden; font-family:'Nunito',sans-serif; background:var(--bg); color:var(--pr); }
-        header { position:sticky; top:0; z-index:900; height:var(--hh); width:100%; background:linear-gradient(135deg,var(--g1),var(--g2) 60%,var(--g3)); box-shadow:0 2px 16px rgba(0,0,0,.22); }
-        .hdr { max-width:1160px; margin:0 auto; height:100%; display:flex; align-items:center; justify-content:space-between; padding:0 14px; gap:8px; }
-        .logo { display:flex; align-items:center; gap:9px; }
-        .logo-ico { width:38px; height:38px; background:var(--am); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:19px; }
-        .logo-nome { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; color:#fff; letter-spacing:2px; line-height:1; }
-        .status { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.18); border-radius:50px; padding:5px 12px; }
-        .status-dot { width:8px; height:8px; border-radius:50%; background:var(--g5); }
-        .status-dot.off { background:#f44336; }
-        .btn-hdr { display:flex; align-items:center; gap:6px; background:var(--am); color:var(--pr); border:none; border-radius:50px; padding:8px 14px; font-weight:800; cursor:pointer; position:relative; }
-        .hdr-badge { position:absolute; top:-6px; right:-6px; background:var(--red); color:#fff; width:19px; height:19px; border-radius:50%; font-size:.65rem; display:none; align-items:center; justify-content:center; border:2px solid var(--g2); }
-        .hdr-badge.on { display:flex; }
-        /* Hero, Grid, Card, Modais e Sidebar - Todos os estilos originais incluídos */
-        .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.52); z-index:1100; align-items:flex-end; justify-content:center; backdrop-filter:blur(4px); }
-        .overlay.on { display:flex; }
-        .modal { background:var(--wh); width:100%; max-width:490px; border-radius:var(--r3) var(--r3) 0 0; overflow-y:auto; padding-bottom: 20px; }
-        #toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--g1); color:#fff; padding:11px 20px; border-radius:50px; opacity:0; transition:.26s; z-index:3000; }
-        #toast.on { opacity:1; }
+        :root { --g1: #0b3d18; --g2: #145a28; --am: #f5c518; --bg: #f2f7f3; }
+        body { font-family: 'Nunito', sans-serif; margin: 0; background: var(--bg); }
+        
+        /* Header e Status */
+        header { background: var(--g1); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { font-family: 'Bebas Neue', cursive; margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
+        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-top: 10px; font-size: 0.9rem; }
+        .aberto { background: #28a745; }
+        .fechado { background: #dc3545; }
+
+        /* Categorias */
+        .tabs { display: flex; justify-content: center; gap: 10px; margin: 20px 0; position: sticky; top: 0; background: var(--bg); padding: 10px; z-index: 100; }
+        .tab-btn { padding: 10px 20px; border: none; border-radius: 25px; background: white; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tab-btn.active { background: var(--am); color: black; }
+
+        /* Grid de Produtos */
+        .container { max-width: 800px; margin: 0 auto; padding: 0 15px 100px; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .card { background: white; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; background: #eee; }
+        .info { flex: 1; }
+        .info h3 { margin: 0; color: var(--g1); font-size: 1.2rem; }
+        .info p { margin: 5px 0; font-size: 0.85rem; color: #666; }
+        .preco { font-weight: bold; color: var(--g2); font-size: 1.1rem; }
+        .add-btn { background: var(--g1); color: white; border: none; width: 35px; height: 35px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; }
+
+        /* Carrinho Flutuante */
+        .cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; background: var(--g1); color: white; padding: 15px; border-radius: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
-<div id="banner-fechado">🔴 LOJA FECHADA — Volte mais tarde para fazer seu pedido!</div>
-
 <header>
-    <div class="hdr">
-        <div class="logo">
-            <div class="logo-ico">🍔</div>
-            <div class="logo-txt">
-                <span class="logo-nome">ND Lanches</span>
-                <span class="logo-sub">Peça pelo site</span>
-            </div>
-        </div>
-        <div class="status" id="status-pill">
-            <div class="status-dot" id="status-dot"></div>
-            <span class="status-txt" id="status-txt">Carregando...</span>
-        </div>
-        <button class="btn-hdr" onclick="abrirCheckout()">
-            🛒 <span class="lbl">Carrinho</span>
-            <span class="hdr-badge" id="hdr-badge">0</span>
-        </button>
-    </div>
+    <h1>🍔 ND LANCHES</h1>
+    <div id="status-loja" class="status-badge">Verificando status...</div>
 </header>
 
-<section class="hero">
-    <div class="hero-in">
-        <div class="hero-chip">🔥 Peça agora com facilidade</div>
-        <h2>Monte seu <em>Lanche</em><br>do jeito que você ama</h2>
-    </div>
-</section>
-
-<div class="wrap">
-    <div class="col-cat">
-        <div class="filtros">
-            <div class="filtros-row" id="filtros-row">
-                <button class="f-btn on" onclick="filtrar('todos',this)">🍽️ Todos</button>
-                <button class="f-btn" onclick="filtrar('lanches',this)">🍔 Lanches</button>
-                <button class="f-btn" onclick="filtrar('porcoes',this)">🍟 Porções</button>
-                <button class="f-btn" onclick="filtrar('bebidas',this)">🥤 Bebidas</button>
-            </div>
-        </div>
-        <div id="secoes">
-            </div>
-    </div>
-
-    <aside class="sidebar">
-        <div class="cart-box">
-            <div class="cart-head"><span class="cart-head-tit">Seu Carrinho</span> <span class="cart-head-cnt" id="cart-cnt-desk">0 itens</span></div>
-            <div id="cart-empty" class="cart-empty"><p>Seu carrinho está vazio.</p></div>
-            <div id="cart-list" class="cart-list" style="display:none"></div>
-            <div id="cart-foot" class="cart-foot" style="display:none">
-                <div class="cart-total"><span class="ct-label">Total</span> <span class="ct-val" id="cart-total-desk">R$ 0,00</span></div>
-                <button class="btn-final" onclick="abrirCheckout()">✅ Finalizar Pedido</button>
-            </div>
-        </div>
-    </aside>
+<div class="tabs">
+    <button class="tab-btn active" onclick="filtrar('TODOS', this)">🏠 Todos</button>
+    <button class="tab-btn" onclick="filtrar('LANCHE', this)">🍔 Lanches</button>
+    <button class="tab-btn" onclick="filtrar('BEBIDA', this)">🥤 Bebidas</button>
+    <button class="tab-btn" onclick="filtrar('PORCAO', this)">🍟 Porções</button>
 </div>
 
-<button class="fab" id="fab" onclick="abrirCheckout()">
-    <div class="fab-l">🛒 <span class="fab-cnt" id="fab-cnt">0</span> <span>Ver Carrinho</span></div>
-    <div class="fab-r"><span class="fab-val" id="fab-val">R$ 0,00</span></div>
-</button>
-
-<div class="overlay" id="ov-prod" onclick="fecharOv('ov-prod')">
-    <div class="modal" onclick="event.stopPropagation()">
-        <div class="handle"></div>
-        <div class="m-hdr">
-            <span class="m-tit" id="mp-nome">Produto</span>
-            <button class="m-close" onclick="fecharOv('ov-prod')">✕</button>
+<div class="container">
+    <div id="menu-grid" class="grid">
         </div>
-        <div class="mp-thumb" id="mp-thumb">🍔</div>
-        <p class="mp-desc" id="mp-desc"></p>
-        <div class="mp-sec">
-            <div class="mp-sec-tit">Quantidade</div>
-            <div class="qtd">
-                <button class="qtd-btn" onclick="mudaQtd(-1)">−</button>
-                <span class="qtd-n" id="mp-qtd">1</span>
-                <button class="qtd-btn" onclick="mudaQtd(1)">+</button>
-            </div>
-        </div>
-        <div class="mp-sec" id="bloco-ads">
-            <div class="mp-sec-tit">Adicionais</div>
-            <div class="ads-grid" id="mp-ads"></div>
-        </div>
-        <div class="mp-sec" id="bloco-rem">
-            <div class="mp-sec-tit">Retirar ingredientes</div>
-            <div class="rem-flex" id="mp-rem"></div>
-        </div>
-        <div class="mp-sec">
-            <div class="mp-sec-tit">Observações</div>
-            <textarea class="obs-field" id="mp-obs" rows="2" placeholder="Ex: bem passado..."></textarea>
-        </div>
-        <div class="mp-total">
-            <span class="mp-total-label">Total do item</span>
-            <span class="mp-total-val">R$ <span id="mp-total-val">0,00</span></span>
-        </div>
-        <button class="btn-add-cart" onclick="confirmarItem()">🛒 Adicionar ao Carrinho</button>
-    </div>
 </div>
 
-<div class="overlay" id="ov-checkout" onclick="fecharOv('ov-checkout')">
-    <div class="modal" onclick="event.stopPropagation()">
-        <div class="m-hdr">
-            <span class="m-tit">Finalizar Pedido</span>
-            <button class="m-close" onclick="fecharOv('ov-checkout')">✕</button>
-        </div>
-        <div class="ck-sec">
-            <div class="ck-tit">🛵 Como quer receber?</div>
-            <div class="tipo-grid">
-                <div class="tipo-card on" id="tc-ret" onclick="selTipo('retirada')">🏃 Retirada</div>
-                <div class="tipo-card" id="tc-ent" onclick="selTipo('entrega')">🛵 Entrega</div>
-            </div>
-        </div>
-        <div class="ck-sec">
-            <div class="ck-tit">👤 Seus Dados</div>
-            <div class="campo"><label>Nome *</label><input type="text" id="f-nome"></div>
-            <div class="campo"><label>WhatsApp *</label><input type="tel" id="f-tel"></div>
-        </div>
-        <div id="sec-end" style="display:none" class="ck-sec">
-            <div class="ck-tit">📍 Endereço</div>
-            <div class="campo"><input type="text" id="f-rua" placeholder="Rua"></div>
-            <div class="campo-2"><input type="text" id="f-num" placeholder="Nº"><input type="text" id="f-bairro" placeholder="Bairro"></div>
-        </div>
-        <div class="ck-sec">
-            <div class="ck-tit">💳 Pagamento</div>
-            <div class="pag-grid">
-                <div class="pag-card on" id="pag-din" onclick="selPag('dinheiro')">💵 Dinheiro</div>
-                <div class="pag-card" id="pag-car" onclick="selPag('cartao')">💳 Cartão</div>
-                <div class="pag-card" id="pag-pix" onclick="selPag('pix')">⚡ PIX</div>
-            </div>
-        </div>
-        <button class="btn-wpp" id="btn-wpp" onclick="enviarWpp()">Enviar pelo WhatsApp</button>
-    </div>
+<div class="cart-bar" id="cartBar" style="display: none;">
+    <span>🛒 <span id="cartCount">0</span> itens</span>
+    <span id="cartTotal">R$ 0,00</span>
+    <strong>VER PEDIDO ></strong>
 </div>
-
-<div id="toast"></div>
 
 <script>
-    const CFG = { 
-        lojaAberta: true, 
-        whatsapp: '5517999999999', 
-        nome: 'ND Lanches',
-        API_URL: "https://nd-lanches-api.onrender.com/api"
-    };
-
-    let MENU = {}; // Será preenchido pela API ou pelo fallback
-    let carrinho = [];
-    let prodAtual = null, qtdAtual = 1, adsOn = [], remOff = [];
-    let tipoEntrega = 'retirada', formaPag = 'dinheiro';
-
-    async function init() {
-        await carregarCardapio();
-        syncCart();
-    }
+    const API_URL = "https://nd-lanches-api.onrender.com/api";
+    const LOJA_SLUG = "nd-lanches";
+    const LOJA_ID = 1;
+    let todosProdutos = [];
 
     async function carregarCardapio() {
         try {
-            const resLoja = await fetch(`${CFG.API_URL}/loja/nd-lanches`);
-            const dadosLoja = await resLoja.json();
-            CFG.lojaAberta = dadosLoja.aberto;
-            aplicarStatus();
+            // 1. Carregar Status
+            const resStatus = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
+            const aberto = await resStatus.json();
+            const badge = document.getElementById('status-loja');
+            badge.innerText = aberto ? "🟢 ABERTO AGORA" : "🔴 FECHADO NO MOMENTO";
+            badge.className = `status-badge ${aberto ? 'aberto' : 'fechado'}`;
 
-            const resProd = await fetch(`${CFG.API_URL}/produtos/loja/nd-lanches`);
-            const produtos = await resProd.json();
-            
-            // Organiza os produtos por categoria
-            MENU = produtos.reduce((acc, p) => {
-                const cat = p.categoria || 'lanches';
-                if (!acc[cat]) acc[cat] = { tit: cat.toUpperCase(), ico: '🍔', items: [] };
-                acc[cat].items.push(p);
-                return acc;
-            }, {});
-
-            renderMenu();
+            // 2. Carregar Produtos
+            const resProd = await fetch(`${API_URL}/produtos/loja/${LOJA_ID}`);
+            todosProdutos = await resProd.json();
+            renderizar(todosProdutos);
         } catch (e) {
-            console.error("Erro API:", e);
-            toast("Erro ao carregar cardápio online.");
+            console.error("Erro:", e);
         }
     }
 
-    function aplicarStatus() {
-        const dot = document.getElementById('status-dot');
-        const txt = document.getElementById('status-txt');
-        const banner = document.getElementById('banner-fechado');
-        if (!CFG.lojaAberta) {
-            dot.classList.add('off');
-            txt.textContent = 'Fechada';
-            banner.classList.add('on');
-        } else {
-            dot.classList.remove('off');
-            txt.textContent = 'Aberta';
-            banner.classList.remove('on');
-        }
-    }
-
-    function renderMenu() {
-        const container = document.getElementById('secoes');
-        container.innerHTML = Object.entries(MENU).map(([key, cat]) => `
-            <div class="secao" data-cat="${key}">
-                <div class="sec-hdr"><div class="sec-nome">${cat.tit}</div></div>
-                <div class="grid">${cat.items.map(p => `
-                    <div class="card">
-                        <div class="card-thumb">🍔</div>
-                        <div class="card-body">
-                            <div class="card-nome">${p.nome}</div>
-                            <div class="card-desc">${p.descricao || ''}</div>
-                            <div class="card-rodape">
-                                <span class="cp-val">R$ ${p.preco.toFixed(2)}</span>
-                                <button class="btn-pedir" onclick="abrirProd('${p.id}')">＋ Pedir</button>
-                            </div>
-                        </div>
-                    </div>`).join('')}
+    function renderizar(lista) {
+        const grid = document.getElementById('menu-grid');
+        grid.innerHTML = lista.map(p => `
+            <div class="card">
+                <img src="${p.imagemUrl || 'https://via.placeholder.com/100?text=Sem+Foto'}" alt="${p.nome}">
+                <div class="info">
+                    <h3>${p.emoji || ''} ${p.nome}</h3>
+                    <p>${p.descricao || ''}</p>
+                    <div class="preco">R$ ${p.preco.toFixed(2)}</div>
                 </div>
-            </div>`).join('');
+                <button class="add-btn" onclick="adicionar()">+</button>
+            </div>
+        `).join('');
     }
 
-    function abrirProd(id) {
-        // Busca o produto no objeto MENU
-        for(let cat in MENU) {
-            prodAtual = MENU[cat].items.find(i => i.id == id);
-            if(prodAtual) break;
-        }
-        if(!prodAtual) return;
+    function filtrar(cat, btn) {
+        // Estilo do botão
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-        qtdAtual = 1; adsOn = []; remOff = [];
-        document.getElementById('mp-nome').textContent = prodAtual.nome;
-        document.getElementById('mp-qtd').textContent = 1;
-        document.getElementById('mp-total-val').textContent = prodAtual.preco.toFixed(2);
-        abrirOv('ov-prod');
-    }
-
-    function mudaQtd(n) {
-        qtdAtual = Math.max(1, qtdAtual + n);
-        document.getElementById('mp-qtd').textContent = qtdAtual;
-        atualizarTotalMod();
-    }
-
-    function atualizarTotalMod() {
-        const total = (prodAtual.preco + adsOn.reduce((a,b)=>a+b.p,0)) * qtdAtual;
-        document.getElementById('mp-total-val').textContent = total.toFixed(2).replace('.',',');
-    }
-
-    function confirmarItem() {
-        carrinho.push({...prodAtual, qtd: qtdAtual, total: parseFloat(document.getElementById('mp-total-val').textContent.replace(',','.'))});
-        fecharOv('ov-prod');
-        syncCart();
-        toast("Adicionado!");
-    }
-
-    function syncCart() {
-        const total = carrinho.reduce((acc, i) => acc + i.total, 0);
-        const count = carrinho.reduce((acc, i) => acc + i.qtd, 0);
-        document.getElementById('hdr-badge').textContent = count;
-        document.getElementById('hdr-badge').classList.toggle('on', count > 0);
-        document.getElementById('fab').classList.toggle('on', count > 0);
-        document.getElementById('fab-cnt').textContent = count;
-        document.getElementById('fab-val').textContent = "R$ " + total.toFixed(2).replace('.',',');
-        
-        // Sidebar
-        const list = document.getElementById('cart-list');
-        if(count > 0) {
-            document.getElementById('cart-empty').style.display = 'none';
-            list.style.display = 'block';
-            document.getElementById('cart-foot').style.display = 'block';
-            document.getElementById('cart-total-desk').textContent = "R$ " + total.toFixed(2).replace('.',',');
-            list.innerHTML = carrinho.map((item, idx) => `
-                <div class="cart-item">
-                    <span>${item.qtd}x ${item.nome}</span>
-                    <span>R$ ${item.total.toFixed(2)}</span>
-                </div>`).join('');
+        // Lógica do filtro
+        if(cat === 'TODOS') {
+            renderizar(todosProdutos);
+        } else {
+            const filtrados = todosProdutos.filter(p => p.categoria === cat);
+            renderizar(filtrados);
         }
     }
 
-    function abrirCheckout() {
-        if(carrinho.length === 0) return toast("Carrinho vazio!");
-        abrirOv('ov-checkout');
-    }
-
-    function selTipo(t) {
-        tipoEntrega = t;
-        document.getElementById('tc-ret').classList.toggle('on', t==='retirada');
-        document.getElementById('tc-ent').classList.toggle('on', t==='entrega');
-        document.getElementById('sec-end').style.display = t==='entrega' ? 'block' : 'none';
-    }
-
-    function selPag(p) {
-        formaPag = p;
-        document.getElementById('pag-din').classList.toggle('on', p==='dinheiro');
-        document.getElementById('pag-car').classList.toggle('on', p==='cartao');
-        document.getElementById('pag-pix').classList.toggle('on', p==='pix');
-    }
-
-    function enviarWpp() {
-        const nome = document.getElementById('f-nome').value;
-        if(!nome) return toast("Digite seu nome");
-        
-        let msg = `*Novo Pedido - ${CFG.nome}*\nCliente: ${nome}\nTotal: ${document.getElementById('fab-val').textContent}`;
-        window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`);
-    }
-
-    function abrirOv(id) { document.getElementById(id).classList.add('on'); }
-    function fecharOv(id) { document.getElementById(id).classList.remove('on'); }
-    function toast(m) { 
-        const t = document.getElementById('toast'); 
-        t.textContent = m; t.classList.add('on'); 
-        setTimeout(()=>t.classList.remove('on'), 2000); 
-    }
-
-    window.onload = init;
+    window.onload = carregarCardapio;
 </script>
+
 </body>
 </html>
