@@ -6,18 +6,28 @@
     <title>Painel Admin - ND Lanches</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --g1:#0b3d18; --g2:#145a28; --am:#f5c518; --bg:#f2f7f3; }
+        :root { 
+            --g1: #0b3d18; 
+            --g2: #145a28; 
+            --g3: #1b7a36; /* Cor para o hover */
+            --am: #f5c518; 
+            --bg: #f2f7f3; 
+            --danger: #dc3545;
+        }
         body { font-family: 'Nunito', sans-serif; padding: 20px; background: var(--bg); color: #333; }
-        h1 { font-family: 'Bebas Neue', cursive; color: var(--g1); font-size: 3rem; text-align: center; }
+        h1 { font-family: 'Bebas Neue', cursive; color: var(--g1); font-size: 3rem; text-align: center; margin-bottom: 30px; }
         .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); max-width: 600px; margin-left: auto; margin-right: auto; }
         h3 { border-bottom: 2px solid var(--am); padding-bottom: 8px; margin-bottom: 15px; color: var(--g2); }
-        input { padding: 12px; margin: 8px 0; display: block; width: 100%; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { padding: 12px; background: var(--g1); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        button:hover { background: var(--g3); transform: scale(1.02); }
+        input { padding: 12px; margin: 8px 0; display: block; width: 100%; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1rem; }
+        button { padding: 12px; background: var(--g1); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; font-size: 1rem; }
+        button:hover { background: var(--g3); transform: scale(1.01); }
         .btn-status { font-size: 1.2rem; text-transform: uppercase; }
         .aberto { background: #28a745; }
-        .fechado { background: #dc3545; }
-        .prod-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .fechado { background: var(--danger); }
+        .prod-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
+        .prod-info { display: flex; flex-direction: column; }
+        .btn-delete { width: auto; padding: 6px 12px; background: var(--danger); font-size: 0.9rem; }
+        .btn-delete:hover { background: #a71d2a; }
     </style>
 </head>
 <body>
@@ -48,30 +58,45 @@
     </div>
 
     <script>
-        const API_URL = "https://nd-lanches-api.onrender.com/api"; // URL atualizada do seu Render
+        const API_URL = "https://nd-lanches-api.onrender.com/api"; 
+        const LOJA_ID = "nd-lanches";
         let lojaAberta = false;
 
+        // --- CARREGAR DADOS ---
         async function carregarDados() {
             try {
-                // Carregar Status
-                const resStatus = await fetch(`${API_URL}/loja/nd-lanches`);
+                // Status da Loja
+                const resStatus = await fetch(`${API_URL}/loja/${LOJA_ID}`);
                 const loja = await resStatus.json();
                 lojaAberta = loja.aberto;
                 atualizarBotaoStatus();
 
-                // Carregar Produtos
-                const resProd = await fetch(`${API_URL}/produtos/loja/nd-lanches`);
+                // Lista de Produtos
+                const resProd = await fetch(`${API_URL}/produtos/loja/${LOJA_ID}`);
                 const produtos = await resProd.json();
+                
                 const lista = document.getElementById('lista-produtos-admin');
+                if (produtos.length === 0) {
+                    lista.innerHTML = "<p>Nenhum produto cadastrado.</p>";
+                    return;
+                }
+
                 lista.innerHTML = produtos.map(p => `
                     <div class="prod-item">
-                        <span><strong>${p.nome}</strong> - R$ ${p.preco.toFixed(2)}</span>
-                        <button style="width:auto; padding:5px 10px; background:#ff4444" onclick="excluirProduto(${p.id})">Remover</button>
+                        <div class="prod-info">
+                            <strong>${p.nome}</strong>
+                            <span>R$ ${p.preco.toFixed(2)}</span>
+                        </div>
+                        <button class="btn-delete" onclick="excluirProduto(${p.id})">Remover</button>
                     </div>
                 `).join('');
-            } catch (e) { console.error("Erro ao carregar:", e); }
+            } catch (e) { 
+                console.error("Erro ao carregar:", e);
+                document.getElementById('lista-produtos-admin').innerText = "Erro ao conectar com o servidor.";
+            }
         }
 
+        // --- ALTERNAR STATUS (ABERTO/FECHADO) ---
         function atualizarBotaoStatus() {
             const btn = document.getElementById('btnStatus');
             btn.innerText = lojaAberta ? "LOJA ESTÁ: ABERTA" : "LOJA ESTÁ: FECHADA";
@@ -81,31 +106,87 @@
         async function alternarStatus() {
             const novaOpcao = !lojaAberta;
             const key = document.getElementById('adminKey').value;
-            await fetch(`${API_URL}/loja/nd-lanches/status?aberto=${novaOpcao}`, {
-                method: 'PUT',
-                headers: { 'Admin-Key': key }
-            });
-            lojaAberta = novaOpcao;
-            atualizarBotaoStatus();
+            
+            try {
+                const res = await fetch(`${API_URL}/loja/${LOJA_ID}/status?aberto=${novaOpcao}`, {
+                    method: 'PUT',
+                    headers: { 'Admin-Key': key }
+                });
+
+                if (res.ok) {
+                    lojaAberta = novaOpcao;
+                    atualizarBotaoStatus();
+                } else {
+                    alert("Erro! Verifique sua Chave Admin.");
+                }
+            } catch (e) { alert("Erro de conexão."); }
         }
 
+        // --- SALVAR PRODUTO ---
         async function salvarProduto() {
-            const produto = {
-                nome: document.getElementById('nome').value,
-                descricao: document.getElementById('descricao').value,
-                preco: parseFloat(document.getElementById('preco').value),
-                imagemUrl: document.getElementById('imagem').value,
-                disponivel: true
-            };
+            const nomeInput = document.getElementById('nome');
+            const descInput = document.getElementById('descricao');
+            const precoInput = document.getElementById('preco');
+            const imgInput = document.getElementById('imagem');
             const key = document.getElementById('adminKey').value;
 
-            const res = await fetch(`${API_URL}/produtos/loja/nd-lanches`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
-                body: JSON.stringify(produto)
-            });
+            const produto = {
+                nome: nomeInput.value,
+                descricao: descInput.value,
+                preco: parseFloat(precoInput.value),
+                imagemUrl: imgInput.value,
+                disponivel: true,
+                lojaId: LOJA_ID
+            };
 
-            if (res.ok) { alert("Sucesso!"); carregarDados(); }
+            if (!produto.nome || !produto.preco) {
+                alert("Nome e Preço são obrigatórios!");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/produtos/loja/${LOJA_ID}`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Admin-Key': key 
+                    },
+                    body: JSON.stringify(produto)
+                });
+
+                if (res.ok) { 
+                    alert("Produto cadastrado!"); 
+                    // Limpar campos
+                    nomeInput.value = "";
+                    descInput.value = "";
+                    precoInput.value = "";
+                    imgInput.value = "";
+                    carregarDados(); 
+                } else {
+                    alert("Erro ao salvar! Verifique a Chave Admin.");
+                }
+            } catch (e) { alert("Erro ao conectar com a API."); }
+        }
+
+        // --- EXCLUIR PRODUTO ---
+        async function excluirProduto(id) {
+            if (!confirm("Tem certeza que deseja remover este item?")) return;
+
+            const key = document.getElementById('adminKey').value;
+
+            try {
+                const res = await fetch(`${API_URL}/produtos/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Admin-Key': key }
+                });
+
+                if (res.ok) {
+                    alert("Produto removido!");
+                    carregarDados();
+                } else {
+                    alert("Erro ao excluir! Verifique a Chave Admin.");
+                }
+            } catch (e) { alert("Erro ao conectar com a API."); }
         }
 
         window.onload = carregarDados;
