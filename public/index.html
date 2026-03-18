@@ -71,41 +71,48 @@
         try {
             // 1. Carregar Status
             const resStatus = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
-            const aberto = await resStatus.json();
-            const badge = document.getElementById('status-loja');
-            badge.innerText = aberto ? "🟢 ABERTO AGORA" : "🔴 FECHADO NO MOMENTO";
-            badge.className = `status-badge ${aberto ? 'aberto' : 'fechado'}`;
+            if (resStatus.ok) {
+                const aberto = await resStatus.json();
+                const badge = document.getElementById('status-loja');
+                badge.innerText = aberto ? "🟢 ABERTO AGORA" : "🔴 FECHADO NO MOMENTO";
+                badge.className = `status-badge ${aberto ? 'aberto' : 'fechado'}`;
+            }
 
             // 2. Carregar Produtos
             const resProd = await fetch(`${API_URL}/produtos/loja/${LOJA_ID}`);
-            todosProdutos = await resProd.json();
-            renderizar(todosProdutos);
+            if (resProd.ok) {
+                todosProdutos = await resProd.json();
+                renderizar(todosProdutos);
+            }
         } catch (e) {
-            console.error("Erro:", e);
+            console.error("Erro ao conectar na API:", e);
         }
     }
 
     function renderizar(lista) {
         const grid = document.getElementById('menu-grid');
+        if (!lista || lista.length === 0) {
+            grid.innerHTML = "<p style='text-align:center; padding:20px;'>Nenhum item disponível nesta categoria.</p>";
+            return;
+        }
+
         grid.innerHTML = lista.map(p => `
             <div class="card">
-                <img src="${p.imagemUrl || 'https://via.placeholder.com/100?text=Sem+Foto'}" alt="${p.nome}">
+                <img src="${p.imagemUrl && p.imagemUrl.trim() !== '' ? p.imagemUrl : 'https://via.placeholder.com/100?text=ND+Lanches'}" alt="${p.nome}">
                 <div class="info">
                     <h3>${p.emoji || ''} ${p.nome}</h3>
-                    <p>${p.descricao || ''}</p>
+                    <p>${p.descricao || 'Sem descrição disponível.'}</p>
                     <div class="preco">R$ ${p.preco.toFixed(2)}</div>
                 </div>
-                <button class="add-btn" onclick="adicionar()">+</button>
+                <button class="add-btn" onclick="alert('Item adicionado!')">+</button>
             </div>
         `).join('');
     }
 
     function filtrar(cat, btn) {
-        // Estilo do botão
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        // Lógica do filtro
         if(cat === 'TODOS') {
             renderizar(todosProdutos);
         } else {
@@ -116,6 +123,5 @@
 
     window.onload = carregarCardapio;
 </script>
-
 </body>
 </html>
