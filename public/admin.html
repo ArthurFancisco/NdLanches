@@ -9,7 +9,7 @@
         :root { 
             --g1: #0b3d18; 
             --g2: #145a28; 
-            --g3: #1b7a36; /* Cor para o hover */
+            --g3: #1b7a36; 
             --am: #f5c518; 
             --bg: #f2f7f3; 
             --danger: #dc3545;
@@ -35,7 +35,7 @@
 
     <div class="card">
         <h3>Segurança</h3>
-        <input type="password" id="adminKey" placeholder="Chave Secreta do Admin" value="sua-chave-secreta-123">
+        <input type="password" id="adminKey" placeholder="Chave Secreta do Admin" value="arthur123">
     </div>
 
     <div class="card">
@@ -47,7 +47,7 @@
         <h3>Cadastrar Novo Lanche</h3>
         <input type="text" id="nome" placeholder="Ex: X-Salada Especial">
         <input type="text" id="descricao" placeholder="Ingredientes: Pão, Carne, Queijo...">
-        <input type="number" step="0.01" id="preco" placeholder="Preço (ex: 25.50)">
+        <input type="number" id="preco" step="0.01" placeholder="Preço (ex: 25.50)">
         <input type="text" id="imagem" placeholder="Link da Imagem (URL)">
         <button onclick="salvarProduto()">➕ Adicionar ao Cardápio</button>
     </div>
@@ -59,24 +59,26 @@
 
     <script>
         const API_URL = "https://nd-lanches-api.onrender.com/api"; 
-        const LOJA_ID = "nd-lanches";
+        const LOJA_SLUG = "nd-lanches"; // Usado para o status
+        const LOJA_ID_NUM = 1;         // Usado para listar produtos
         let lojaAberta = false;
 
-        // --- CARREGAR DADOS ---
         async function carregarDados() {
             try {
-                // Status da Loja
-                const resStatus = await fetch(`${API_URL}/loja/${LOJA_ID}`);
-                const loja = await resStatus.json();
-                lojaAberta = loja.aberto;
-                atualizarBotaoStatus();
+                // 1. Buscar Status (LojaController)
+                const resStatus = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
+                if(resStatus.ok) {
+                    const data = await resStatus.json();
+                    lojaAberta = data; // O retorno é um boolean simples
+                    atualizarBotaoStatus();
+                }
 
-                // Lista de Produtos
-                const resProd = await fetch(`${API_URL}/produtos/loja/${LOJA_ID}`);
+                // 2. Buscar Produtos (ProdutoController)
+                const resProd = await fetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
                 const produtos = await resProd.json();
                 
                 const lista = document.getElementById('lista-produtos-admin');
-                if (produtos.length === 0) {
+                if (!produtos || produtos.length === 0) {
                     lista.innerHTML = "<p>Nenhum produto cadastrado.</p>";
                     return;
                 }
@@ -96,7 +98,6 @@
             }
         }
 
-        // --- ALTERNAR STATUS (ABERTO/FECHADO) ---
         function atualizarBotaoStatus() {
             const btn = document.getElementById('btnStatus');
             btn.innerText = lojaAberta ? "LOJA ESTÁ: ABERTA" : "LOJA ESTÁ: FECHADA";
@@ -108,21 +109,26 @@
             const key = document.getElementById('adminKey').value;
             
             try {
-                const res = await fetch(`${API_URL}/loja/${LOJA_ID}/status?aberto=${novaOpcao}`, {
+                // Rota: PUT /api/produtos/status (conforme seu ProdutoController)
+                const res = await fetch(`${API_URL}/produtos/status`, {
                     method: 'PUT',
-                    headers: { 'Admin-Key': key }
+                    headers: { 
+                        'Admin-Key': key,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify(novaOpcao)
                 });
 
                 if (res.ok) {
                     lojaAberta = novaOpcao;
                     atualizarBotaoStatus();
+                    alert("Status alterado com sucesso!");
                 } else {
                     alert("Erro! Verifique sua Chave Admin.");
                 }
             } catch (e) { alert("Erro de conexão."); }
         }
 
-        // --- SALVAR PRODUTO ---
         async function salvarProduto() {
             const nomeInput = document.getElementById('nome');
             const descInput = document.getElementById('descricao');
@@ -136,16 +142,16 @@
                 preco: parseFloat(precoInput.value),
                 imagemUrl: imgInput.value,
                 disponivel: true,
-                lojaId: LOJA_ID
+                loja: { id: LOJA_ID_NUM } // Ajustado para o formato esperado pelo Spring
             };
 
-            if (!produto.nome || !produto.preco) {
+            if (!produto.nome || isNaN(produto.preco)) {
                 alert("Nome e Preço são obrigatórios!");
                 return;
             }
 
             try {
-                const res = await fetch(`${API_URL}/produtos/loja/${LOJA_ID}`, {
+                const res = await fetch(`${API_URL}/produtos`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json', 
@@ -156,11 +162,7 @@
 
                 if (res.ok) { 
                     alert("Produto cadastrado!"); 
-                    // Limpar campos
-                    nomeInput.value = "";
-                    descInput.value = "";
-                    precoInput.value = "";
-                    imgInput.value = "";
+                    nomeInput.value = ""; descInput.value = ""; precoInput.value = ""; imgInput.value = "";
                     carregarDados(); 
                 } else {
                     alert("Erro ao salvar! Verifique a Chave Admin.");
@@ -168,10 +170,8 @@
             } catch (e) { alert("Erro ao conectar com a API."); }
         }
 
-        // --- EXCLUIR PRODUTO ---
         async function excluirProduto(id) {
             if (!confirm("Tem certeza que deseja remover este item?")) return;
-
             const key = document.getElementById('adminKey').value;
 
             try {
@@ -184,9 +184,9 @@
                     alert("Produto removido!");
                     carregarDados();
                 } else {
-                    alert("Erro ao excluir! Verifique a Chave Admin.");
+                    alert("Erro ao excluir!");
                 }
-            } catch (e) { alert("Erro ao conectar com a API."); }
+            } catch (e) { alert("Erro de conexão."); }
         }
 
         window.onload = carregarDados;
