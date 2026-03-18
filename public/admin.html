@@ -26,8 +26,8 @@
         .fechado { background: var(--danger); }
         .prod-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
         .prod-info { display: flex; flex-direction: column; }
-        .btn-delete { width: auto; padding: 6px 12px; background: var(--danger); font-size: 0.9rem; }
-        .btn-delete:hover { background: #a71d2a; }
+        .btn-delete { width: auto; padding: 6px 12px; background: var(--danger); font-size: 0.9rem; margin-left: 5px;}
+        .btn-edit { width: auto; padding: 6px 12px; background: var(--am); color: #000; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -44,12 +44,13 @@
     </div>
 
     <div class="card">
-        <h3>Cadastrar Novo Lanche</h3>
+        <h3 id="formTitle">Cadastrar Novo Lanche</h3>
         <input type="text" id="nome" placeholder="Ex: X-Salada Especial">
         <input type="text" id="descricao" placeholder="Ingredientes: Pão, Carne, Queijo...">
         <input type="number" id="preco" step="0.01" placeholder="Preço (ex: 25.50)">
         <input type="text" id="imagem" placeholder="Link da Imagem (URL)">
-        <button onclick="salvarProduto()">➕ Adicionar ao Cardápio</button>
+        <button id="btnSalvar" onclick="salvarProduto()">➕ Adicionar ao Cardápio</button>
+        <button id="btnCancelar" onclick="cancelarEdicao()" style="display:none; margin-top:10px; background:#666;">Cancelar Edição</button>
     </div>
 
     <div class="card">
@@ -59,21 +60,19 @@
 
     <script>
         const API_URL = "https://nd-lanches-api.onrender.com/api"; 
-        const LOJA_SLUG = "nd-lanches"; // Usado para o status
-        const LOJA_ID_NUM = 1;         // Usado para listar produtos
+        const LOJA_SLUG = "nd-lanches";
+        const LOJA_ID_NUM = 1;
         let lojaAberta = false;
+        let idEdicao = null;
 
         async function carregarDados() {
             try {
-                // 1. Buscar Status (LojaController)
                 const resStatus = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
                 if(resStatus.ok) {
-                    const data = await resStatus.json();
-                    lojaAberta = data; // O retorno é um boolean simples
+                    lojaAberta = await resStatus.json();
                     atualizarBotaoStatus();
                 }
 
-                // 2. Buscar Produtos (ProdutoController)
                 const resProd = await fetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
                 const produtos = await resProd.json();
                 
@@ -89,13 +88,40 @@
                             <strong>${p.nome}</strong>
                             <span>R$ ${p.preco.toFixed(2)}</span>
                         </div>
-                        <button class="btn-delete" onclick="excluirProduto(${p.id})">Remover</button>
+                        <div>
+                            <button class="btn-edit" onclick='prepararEdicao(${JSON.stringify(p)})'>Editar</button>
+                            <button class="btn-delete" onclick="excluirProduto(${p.id})">Remover</button>
+                        </div>
                     </div>
                 `).join('');
             } catch (e) { 
                 console.error("Erro ao carregar:", e);
                 document.getElementById('lista-produtos-admin').innerText = "Erro ao conectar com o servidor.";
             }
+        }
+
+        function prepararEdicao(p) {
+            idEdicao = p.id;
+            document.getElementById('nome').value = p.nome;
+            document.getElementById('descricao').value = p.descricao;
+            document.getElementById('preco').value = p.preco;
+            document.getElementById('imagem').value = p.imagemUrl;
+            
+            document.getElementById('formTitle').innerText = "📝 Editando: " + p.nome;
+            document.getElementById('btnSalvar').innerText = "💾 Salvar Alterações";
+            document.getElementById('btnCancelar').style.display = "block";
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function cancelarEdicao() {
+            idEdicao = null;
+            document.getElementById('nome').value = "";
+            document.getElementById('descricao').value = "";
+            document.getElementById('preco').value = "";
+            document.getElementById('imagem').value = "";
+            document.getElementById('formTitle').innerText = "Cadastrar Novo Lanche";
+            document.getElementById('btnSalvar').innerText = "➕ Adicionar ao Cardápio";
+            document.getElementById('btnCancelar').style.display = "none";
         }
 
         function atualizarBotaoStatus() {
@@ -107,85 +133,57 @@
         async function alternarStatus() {
             const novaOpcao = !lojaAberta;
             const key = document.getElementById('adminKey').value;
-            
             try {
-                // Rota: PUT /api/produtos/status (conforme seu ProdutoController)
                 const res = await fetch(`${API_URL}/produtos/status`, {
                     method: 'PUT',
-                    headers: { 
-                        'Admin-Key': key,
-                        'Content-Type': 'application/json' 
-                    },
+                    headers: { 'Admin-Key': key, 'Content-Type': 'application/json' },
                     body: JSON.stringify(novaOpcao)
                 });
-
                 if (res.ok) {
                     lojaAberta = novaOpcao;
                     atualizarBotaoStatus();
-                    alert("Status alterado com sucesso!");
-                } else {
-                    alert("Erro! Verifique sua Chave Admin.");
-                }
+                } else { alert("Erro na chave admin!"); }
             } catch (e) { alert("Erro de conexão."); }
         }
 
         async function salvarProduto() {
-            const nomeInput = document.getElementById('nome');
-            const descInput = document.getElementById('descricao');
-            const precoInput = document.getElementById('preco');
-            const imgInput = document.getElementById('imagem');
             const key = document.getElementById('adminKey').value;
-
             const produto = {
-                nome: nomeInput.value,
-                descricao: descInput.value,
-                preco: parseFloat(precoInput.value),
-                imagemUrl: imgInput.value,
+                nome: document.getElementById('nome').value,
+                descricao: document.getElementById('descricao').value,
+                preco: parseFloat(document.getElementById('preco').value),
+                imagemUrl: document.getElementById('imagem').value,
                 disponivel: true,
-                loja: { id: LOJA_ID_NUM } // Ajustado para o formato esperado pelo Spring
+                loja: { id: LOJA_ID_NUM }
             };
 
-            if (!produto.nome || isNaN(produto.preco)) {
-                alert("Nome e Preço são obrigatórios!");
-                return;
-            }
+            const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
+            const metodo = idEdicao ? 'PUT' : 'POST';
 
             try {
-                const res = await fetch(`${API_URL}/produtos`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'Admin-Key': key 
-                    },
+                const res = await fetch(url, {
+                    method: metodo,
+                    headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
                     body: JSON.stringify(produto)
                 });
 
                 if (res.ok) { 
-                    alert("Produto cadastrado!"); 
-                    nomeInput.value = ""; descInput.value = ""; precoInput.value = ""; imgInput.value = "";
+                    alert(idEdicao ? "Atualizado!" : "Cadastrado!");
+                    cancelarEdicao();
                     carregarDados(); 
-                } else {
-                    alert("Erro ao salvar! Verifique a Chave Admin.");
-                }
-            } catch (e) { alert("Erro ao conectar com a API."); }
+                } else { alert("Erro ao salvar! Verifique a chave."); }
+            } catch (e) { alert("Erro de conexão."); }
         }
 
         async function excluirProduto(id) {
-            if (!confirm("Tem certeza que deseja remover este item?")) return;
+            if (!confirm("Remover este item?")) return;
             const key = document.getElementById('adminKey').value;
-
             try {
                 const res = await fetch(`${API_URL}/produtos/${id}`, {
                     method: 'DELETE',
                     headers: { 'Admin-Key': key }
                 });
-
-                if (res.ok) {
-                    alert("Produto removido!");
-                    carregarDados();
-                } else {
-                    alert("Erro ao excluir!");
-                }
+                if (res.ok) { carregarDados(); }
             } catch (e) { alert("Erro de conexão."); }
         }
 
