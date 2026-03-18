@@ -2,48 +2,113 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin - ND Lanches</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input, button { padding: 10px; margin: 5px 0; display: block; width: 100%; max-width: 300px; }
-        .btn-aberto { background: #28a745; color: white; border: none; cursor: pointer; }
-        .btn-fechado { background: #dc3545; color: white; border: none; cursor: pointer; }
+        :root { --g1:#0b3d18; --g2:#145a28; --am:#f5c518; --bg:#f2f7f3; }
+        body { font-family: 'Nunito', sans-serif; padding: 20px; background: var(--bg); color: #333; }
+        h1 { font-family: 'Bebas Neue', cursive; color: var(--g1); font-size: 3rem; text-align: center; }
+        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); max-width: 600px; margin-left: auto; margin-right: auto; }
+        h3 { border-bottom: 2px solid var(--am); padding-bottom: 8px; margin-bottom: 15px; color: var(--g2); }
+        input { padding: 12px; margin: 8px 0; display: block; width: 100%; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { padding: 12px; background: var(--g1); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        button:hover { background: var(--g3); transform: scale(1.02); }
+        .btn-status { font-size: 1.2rem; text-transform: uppercase; }
+        .aberto { background: #28a745; }
+        .fechado { background: #dc3545; }
+        .prod-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
-    <h1>🍔 Painel de Controle ND Lanches</h1>
+    <h1>🍔 Painel Admin ND Lanches</h1>
 
     <div class="card">
         <h3>Segurança</h3>
-        <input type="password" id="adminKey" placeholder="Digite sua Chave Secreta">
+        <input type="password" id="adminKey" placeholder="Chave Secreta do Admin" value="sua-chave-secreta-123">
     </div>
 
     <div class="card">
         <h3>Status da Loja</h3>
-        <button id="btnStatus" onclick="toggleLoja()" class="btn-aberto">Loja Aberta</button>
+        <button id="btnStatus" onclick="alternarStatus()" class="btn-status">Carregando...</button>
     </div>
 
     <div class="card">
-        <h3>Novo Produto</h3>
-        <input type="text" id="nome" placeholder="Nome do Lanche">
-        <input type="number" id="preco" placeholder="Preço (ex: 25.00)">
-        <button onclick="salvarProduto()">Salvar Produto</button>
+        <h3>Cadastrar Novo Lanche</h3>
+        <input type="text" id="nome" placeholder="Ex: X-Salada Especial">
+        <input type="text" id="descricao" placeholder="Ingredientes: Pão, Carne, Queijo...">
+        <input type="number" step="0.01" id="preco" placeholder="Preço (ex: 25.50)">
+        <input type="text" id="imagem" placeholder="Link da Imagem (URL)">
+        <button onclick="salvarProduto()">➕ Adicionar ao Cardápio</button>
+    </div>
+
+    <div class="card">
+        <h3>Produtos Atuais</h3>
+        <div id="lista-produtos-admin">Carregando produtos...</div>
     </div>
 
     <script>
-        // Substitua pela URL que o Render te der após o deploy da API
-        const API_URL = "https://nd-lanches-api.onrender.com/api"; 
+        const API_URL = "https://nd-lanches-api.onrender.com/api"; // URL atualizada do seu Render
+        let lojaAberta = false;
 
-        async function toggleLoja() {
+        async function carregarDados() {
+            try {
+                // Carregar Status
+                const resStatus = await fetch(`${API_URL}/loja/nd-lanches`);
+                const loja = await resStatus.json();
+                lojaAberta = loja.aberto;
+                atualizarBotaoStatus();
+
+                // Carregar Produtos
+                const resProd = await fetch(`${API_URL}/produtos/loja/nd-lanches`);
+                const produtos = await resProd.json();
+                const lista = document.getElementById('lista-produtos-admin');
+                lista.innerHTML = produtos.map(p => `
+                    <div class="prod-item">
+                        <span><strong>${p.nome}</strong> - R$ ${p.preco.toFixed(2)}</span>
+                        <button style="width:auto; padding:5px 10px; background:#ff4444" onclick="excluirProduto(${p.id})">Remover</button>
+                    </div>
+                `).join('');
+            } catch (e) { console.error("Erro ao carregar:", e); }
+        }
+
+        function atualizarBotaoStatus() {
+            const btn = document.getElementById('btnStatus');
+            btn.innerText = lojaAberta ? "LOJA ESTÁ: ABERTA" : "LOJA ESTÁ: FECHADA";
+            btn.className = `btn-status ${lojaAberta ? 'aberto' : 'fechado'}`;
+        }
+
+        async function alternarStatus() {
+            const novaOpcao = !lojaAberta;
             const key = document.getElementById('adminKey').value;
-            // Aqui faremos a chamada PUT para a API
-            alert("Enviando comando para a API...");
+            await fetch(`${API_URL}/loja/nd-lanches/status?aberto=${novaOpcao}`, {
+                method: 'PUT',
+                headers: { 'Admin-Key': key }
+            });
+            lojaAberta = novaOpcao;
+            atualizarBotaoStatus();
         }
 
         async function salvarProduto() {
-            // Lógica para enviar o JSON do produto para o backend
+            const produto = {
+                nome: document.getElementById('nome').value,
+                descricao: document.getElementById('descricao').value,
+                preco: parseFloat(document.getElementById('preco').value),
+                imagemUrl: document.getElementById('imagem').value,
+                disponivel: true
+            };
+            const key = document.getElementById('adminKey').value;
+
+            const res = await fetch(`${API_URL}/produtos/loja/nd-lanches`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
+                body: JSON.stringify(produto)
+            });
+
+            if (res.ok) { alert("Sucesso!"); carregarDados(); }
         }
+
+        window.onload = carregarDados;
     </script>
 </body>
 </html>
