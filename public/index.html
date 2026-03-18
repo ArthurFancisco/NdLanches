@@ -4,81 +4,748 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ND Lanches - Cardápio Digital</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { --g1: #0b3d18; --g2: #145a28; --am: #f5c518; --bg: #f2f7f3; }
-        body { font-family: 'Nunito', sans-serif; margin: 0; background: var(--bg); }
-        
-        /* Header e Status */
-        header { background: var(--g1); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h1 { font-family: 'Bebas Neue', cursive; margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
-        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-top: 10px; font-size: 0.9rem; }
-        .aberto { background: #28a745; }
-        .fechado { background: #dc3545; }
+        :root {
+            --g1: #0b3d18;
+            --g2: #145a28;
+            --g3: #1b7a36;
+            --am: #f5c518;
+            --am-dark: #d4a800;
+            --bg: #f0f4f1;
+            --white: #ffffff;
+            --text: #1a1a1a;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.10);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.18);
+            --radius: 18px;
+            --radius-sm: 10px;
+        }
 
-        /* Categorias */
-        .tabs { display: flex; justify-content: center; gap: 10px; margin: 20px 0; position: sticky; top: 0; background: var(--bg); padding: 10px; z-index: 100; }
-        .tab-btn { padding: 10px 20px; border: none; border-radius: 25px; background: white; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .tab-btn.active { background: var(--am); color: black; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Grid de Produtos */
-        .container { max-width: 800px; margin: 0 auto; padding: 0 15px 100px; }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .card { background: white; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; background: #eee; }
-        .info { flex: 1; }
-        .info h3 { margin: 0; color: var(--g1); font-size: 1.2rem; }
-        .info p { margin: 5px 0; font-size: 0.85rem; color: #666; }
-        .preco { font-weight: bold; color: var(--g2); font-size: 1.1rem; }
-        .add-btn { background: var(--g1); color: white; border: none; width: 35px; height: 35px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-        /* Carrinho Flutuante */
-        .cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; background: var(--g1); color: white; padding: 15px; border-radius: 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        /* ===== HEADER ===== */
+        header {
+            background: var(--g1);
+            color: white;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-bg-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at 20% 50%, rgba(245,197,24,0.08) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, rgba(255,255,255,0.04) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .header-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 28px 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-logo-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--am);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 16px rgba(245,197,24,0.35);
+            flex-shrink: 0;
+        }
+
+        .header-titles h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2.2rem;
+            letter-spacing: 3px;
+            line-height: 1;
+            color: white;
+        }
+
+        .header-titles span {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        #status-loja {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            transition: all 0.4s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        .aberto { background: rgba(40,167,69,0.2); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+        .fechado { background: rgba(220,53,69,0.2); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+
+        /* ===== TABS ===== */
+        .tabs-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg);
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            max-width: 860px;
+            margin: 0 auto;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 20px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            background: var(--white);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.88rem;
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-muted);
+            transition: all 0.25s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--g2);
+            color: var(--g2);
+        }
+
+        .tab-btn.active {
+            background: var(--g1);
+            border-color: var(--g1);
+            color: white;
+            box-shadow: 0 4px 14px rgba(11,61,24,0.3);
+        }
+
+        .tab-icon { font-size: 1rem; }
+
+        /* ===== CONTAINER & GRID ===== */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 24px 16px 140px;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            color: var(--g1);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--am);
+            display: inline-block;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        @media (min-width: 600px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            cursor: default;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-img-wrap {
+            width: 110px;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e8f4eb, #d4eada);
+        }
+
+        .card-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover .card-img-wrap img {
+            transform: scale(1.06);
+        }
+
+        .card-emoji-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.6rem;
+            min-height: 110px;
+        }
+
+        .card-body {
+            flex: 1;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-top h3 {
+            color: var(--g1);
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 5px;
+        }
+
+        .card-top p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .preco {
+            font-weight: 800;
+            color: var(--g2);
+            font-size: 1.15rem;
+        }
+
+        .add-btn {
+            width: 36px;
+            height: 36px;
+            background: var(--g1);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .add-btn:hover {
+            background: var(--g3);
+            transform: scale(1.1);
+        }
+
+        .add-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: var(--border);
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* ===== LOADING SKELETON ===== */
+        .skeleton-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            height: 110px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .skeleton-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%);
+            animation: shimmer 1.4s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ===== CART BAR ===== */
+        .cart-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            width: calc(100% - 32px);
+            max-width: 540px;
+            background: var(--g1);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 200;
+        }
+
+        .cart-bar.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .cart-bar:hover {
+            background: var(--g2);
+        }
+
+        .cart-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cart-badge {
+            background: var(--am);
+            color: var(--g1);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .cart-label {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .cart-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .cart-total {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .cart-cta {
+            background: var(--am);
+            color: var(--g1);
+            padding: 7px 16px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* ===== MODAL CARRINHO ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 540px;
+            border-radius: 28px 28px 0 0;
+            padding: 24px 20px 32px;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0);
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            margin: 0 auto 20px;
+        }
+
+        .modal-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            color: var(--g1);
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cart-item-emoji { font-size: 1.5rem; }
+
+        .cart-item-info { flex: 1; }
+
+        .cart-item-name { font-weight: 700; font-size: 0.95rem; }
+
+        .cart-item-price { font-size: 0.85rem; color: var(--text-muted); }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--g1);
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover { border-color: var(--g1); background: var(--g1); color: white; }
+
+        .qty-num { font-weight: 800; min-width: 20px; text-align: center; }
+
+        .modal-footer {
+            margin-top: 20px;
+        }
+
+        .modal-subtotal {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .modal-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--g1);
+            margin-bottom: 20px;
+            padding-top: 12px;
+            border-top: 2px solid var(--border);
+        }
+
+        .btn-whatsapp {
+            width: 100%;
+            padding: 16px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-whatsapp:hover { background: #1da851; }
+
+        .btn-limpar {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-limpar:hover { border-color: #dc3545; color: #dc3545; }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--g1);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 400;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ===== CART ITEM PULSE ===== */
+        @keyframes addPop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.25); }
+            100% { transform: scale(1); }
+        }
+
+        .add-btn.pop { animation: addPop 0.3s ease; }
+
+        /* ===== RESPONSIVO HEADER ===== */
+        @media (max-width: 480px) {
+            .header-titles h1 { font-size: 1.8rem; }
+            #status-loja { font-size: 0.75rem; padding: 7px 12px; }
+        }
     </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
-    <h1>🍔 ND LANCHES</h1>
-    <div id="status-loja" class="status-badge">Verificando status...</div>
+    <div class="header-bg-pattern"></div>
+    <div class="header-inner">
+        <div class="header-brand">
+            <div class="header-logo-icon">🍔</div>
+            <div class="header-titles">
+                <h1>ND LANCHES</h1>
+                <span>Cardápio Digital</span>
+            </div>
+        </div>
+        <div id="status-loja">
+            <div class="status-dot"></div>
+            Verificando...
+        </div>
+    </div>
 </header>
 
-<div class="tabs">
-    <button class="tab-btn active" onclick="filtrar('TODOS', this)">🏠 Todos</button>
-    <button class="tab-btn" onclick="filtrar('LANCHE', this)">🍔 Lanches</button>
-    <button class="tab-btn" onclick="filtrar('BEBIDA', this)">🥤 Bebidas</button>
-    <button class="tab-btn" onclick="filtrar('PORCAO', this)">🍟 Porções</button>
+<!-- TABS -->
+<div class="tabs-wrapper">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="filtrar('TODOS', this)">
+            <span class="tab-icon">🏠</span> Todos
+        </button>
+        <button class="tab-btn" onclick="filtrar('LANCHE', this)">
+            <span class="tab-icon">🍔</span> Lanches
+        </button>
+        <button class="tab-btn" onclick="filtrar('BEBIDA', this)">
+            <span class="tab-icon">🥤</span> Bebidas
+        </button>
+        <button class="tab-btn" onclick="filtrar('PORCAO', this)">
+            <span class="tab-icon">🍟</span> Porções
+        </button>
+        <button class="tab-btn" onclick="filtrar('SOBREMESA', this)">
+            <span class="tab-icon">🍦</span> Sobremesas
+        </button>
+    </div>
 </div>
 
+<!-- MENU -->
 <div class="container">
     <div id="menu-grid" class="grid">
-        </div>
+        <!-- skeletons de loading -->
+        <div class="skeleton-card" style="background: linear-gradient(90deg, #e8eee9 25%, #f4f7f4 50%, #e8eee9 75%);"></div>
+        <div class="skeleton-card" style="background: linear-gradient(90deg, #e8eee9 25%, #f4f7f4 50%, #e8eee9 75%);"></div>
+        <div class="skeleton-card" style="background: linear-gradient(90deg, #e8eee9 25%, #f4f7f4 50%, #e8eee9 75%);"></div>
+    </div>
 </div>
 
-<div class="cart-bar" id="cartBar" style="display: none;">
-    <span>🛒 <span id="cartCount">0</span> itens</span>
-    <span id="cartTotal">R$ 0,00</span>
-    <strong>VER PEDIDO ></strong>
+<!-- CART BAR -->
+<div class="cart-bar" id="cartBar" onclick="abrirModal()">
+    <div class="cart-left">
+        <span class="cart-badge" id="cartCount">0</span>
+        <span class="cart-label">Ver pedido</span>
+    </div>
+    <div class="cart-right">
+        <span class="cart-total" id="cartTotal">R$ 0,00</span>
+        <span class="cart-cta">Abrir <i class="fa-solid fa-chevron-up fa-xs"></i></span>
+    </div>
 </div>
+
+<!-- MODAL CARRINHO -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModalFora(event)">
+    <div class="modal" id="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title">🛒 Seu Pedido</div>
+        <div id="cartItemsList"></div>
+        <div class="modal-footer">
+            <div class="modal-subtotal">
+                <span>Subtotal</span>
+                <span id="modalSubtotal">R$ 0,00</span>
+            </div>
+            <div class="modal-total">
+                <span>Total</span>
+                <span id="modalTotal">R$ 0,00</span>
+            </div>
+            <button class="btn-whatsapp" onclick="enviarWhatsApp()">
+                <i class="fa-brands fa-whatsapp fa-lg"></i>
+                Enviar Pedido pelo WhatsApp
+            </button>
+            <button class="btn-limpar" onclick="limparCarrinho()">
+                <i class="fa-solid fa-trash-can"></i> Limpar carrinho
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
     const API_URL = "https://nd-lanches-api.onrender.com/api";
     const LOJA_SLUG = "nd-lanches";
     const LOJA_ID = 1;
-    let todosProdutos = [];
+    const WHATSAPP_NUM = ""; // Preencha o número se a API retornar pelo /status
 
+    let todosProdutos = [];
+    let carrinho = []; // [{ produto, qtd }]
+
+    // ===== CARREGAR CARDÁPIO =====
     async function carregarCardapio() {
         try {
-            // 1. Carregar Status
             const resStatus = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
             if (resStatus.ok) {
                 const aberto = await resStatus.json();
                 const badge = document.getElementById('status-loja');
-                badge.innerText = aberto ? "🟢 ABERTO AGORA" : "🔴 FECHADO NO MOMENTO";
-                badge.className = `status-badge ${aberto ? 'aberto' : 'fechado'}`;
+                badge.innerHTML = `<div class="status-dot"></div>${aberto ? 'Aberto agora' : 'Fechado'}`;
+                badge.className = `${aberto ? 'aberto' : 'fechado'}`;
             }
 
-            // 2. Carregar Produtos
             const resProd = await fetch(`${API_URL}/produtos/loja/${LOJA_ID}`);
             if (resProd.ok) {
                 todosProdutos = await resProd.json();
@@ -86,39 +753,173 @@
             }
         } catch (e) {
             console.error("Erro ao conectar na API:", e);
+            document.getElementById('menu-grid').innerHTML = `
+                <div class="empty-state" style="grid-column:1/-1">
+                    <i class="fa-solid fa-wifi"></i>
+                    <p>Erro ao conectar. Tente novamente.</p>
+                </div>`;
         }
     }
 
+    // ===== RENDERIZAR PRODUTOS =====
     function renderizar(lista) {
         const grid = document.getElementById('menu-grid');
         if (!lista || lista.length === 0) {
-            grid.innerHTML = "<p style='text-align:center; padding:20px;'>Nenhum item disponível nesta categoria.</p>";
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column:1/-1">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <p>Nenhum item disponível nesta categoria.</p>
+                </div>`;
             return;
         }
 
-        grid.innerHTML = lista.map(p => `
+        grid.innerHTML = lista.map(p => {
+            const temImagem = p.imagemUrl && p.imagemUrl.trim() !== '';
+            const imgHtml = temImagem
+                ? `<img src="${p.imagemUrl}" alt="${p.nome}" onerror="this.parentElement.innerHTML='<div class=\'card-emoji-placeholder\'>${p.emoji || '🍔'}</div>'">`
+                : `<div class="card-emoji-placeholder">${p.emoji || '🍔'}</div>`;
+
+            return `
             <div class="card">
-                <img src="${p.imagemUrl && p.imagemUrl.trim() !== '' ? p.imagemUrl : 'https://via.placeholder.com/100?text=ND+Lanches'}" alt="${p.nome}">
-                <div class="info">
-                    <h3>${p.emoji || ''} ${p.nome}</h3>
-                    <p>${p.descricao || 'Sem descrição disponível.'}</p>
-                    <div class="preco">R$ ${p.preco.toFixed(2)}</div>
+                <div class="card-img-wrap">${imgHtml}</div>
+                <div class="card-body">
+                    <div class="card-top">
+                        <h3>${p.nome}</h3>
+                        <p>${p.descricao || 'Peça o seu agora!'}</p>
+                    </div>
+                    <div class="card-bottom">
+                        <div class="preco">R$ ${p.preco.toFixed(2)}</div>
+                        <button class="add-btn" onclick="adicionarAoCarrinho(${p.id}, this)" title="Adicionar ao pedido">
+                            <i class="fa-solid fa-plus fa-sm"></i>
+                        </button>
+                    </div>
                 </div>
-                <button class="add-btn" onclick="alert('Item adicionado!')">+</button>
+            </div>`;
+        }).join('');
+    }
+
+    // ===== FILTRAR =====
+    function filtrar(cat, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderizar(cat === 'TODOS' ? todosProdutos : todosProdutos.filter(p => p.categoria === cat));
+    }
+
+    // ===== CARRINHO =====
+    function adicionarAoCarrinho(id, btn) {
+        const produto = todosProdutos.find(p => p.id === id);
+        if (!produto) return;
+
+        const item = carrinho.find(i => i.produto.id === id);
+        if (item) {
+            item.qtd++;
+        } else {
+            carrinho.push({ produto, qtd: 1 });
+        }
+
+        btn.classList.remove('pop');
+        void btn.offsetWidth;
+        btn.classList.add('pop');
+
+        atualizarCartUI();
+        mostrarToast(`${produto.emoji || '✅'} ${produto.nome} adicionado!`);
+    }
+
+    function removerDoCarrinho(id) {
+        const item = carrinho.find(i => i.produto.id === id);
+        if (!item) return;
+        if (item.qtd > 1) {
+            item.qtd--;
+        } else {
+            carrinho = carrinho.filter(i => i.produto.id !== id);
+        }
+        atualizarCartUI();
+        renderizarModal();
+    }
+
+    function limparCarrinho() {
+        if (!confirm('Limpar todo o carrinho?')) return;
+        carrinho = [];
+        atualizarCartUI();
+        fecharModal();
+    }
+
+    function totalCarrinho() {
+        return carrinho.reduce((acc, i) => acc + i.produto.preco * i.qtd, 0);
+    }
+
+    function totalItens() {
+        return carrinho.reduce((acc, i) => acc + i.qtd, 0);
+    }
+
+    function atualizarCartUI() {
+        const total = totalCarrinho();
+        const qtd = totalItens();
+
+        document.getElementById('cartCount').textContent = qtd;
+        document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2)}`;
+
+        const bar = document.getElementById('cartBar');
+        if (qtd > 0) {
+            bar.classList.add('visible');
+        } else {
+            bar.classList.remove('visible');
+            fecharModal();
+        }
+    }
+
+    // ===== MODAL =====
+    function abrirModal() {
+        if (carrinho.length === 0) return;
+        renderizarModal();
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function fecharModal() {
+        document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    function fecharModalFora(e) {
+        if (e.target === document.getElementById('modalOverlay')) fecharModal();
+    }
+
+    function renderizarModal() {
+        const total = totalCarrinho();
+        document.getElementById('modalSubtotal').textContent = `R$ ${total.toFixed(2)}`;
+        document.getElementById('modalTotal').textContent = `R$ ${total.toFixed(2)}`;
+
+        document.getElementById('cartItemsList').innerHTML = carrinho.map(i => `
+            <div class="cart-item">
+                <span class="cart-item-emoji">${i.produto.emoji || '🍽️'}</span>
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${i.produto.nome}</div>
+                    <div class="cart-item-price">R$ ${(i.produto.preco * i.qtd).toFixed(2)}</div>
+                </div>
+                <div class="cart-item-controls">
+                    <button class="qty-btn" onclick="removerDoCarrinho(${i.produto.id})">−</button>
+                    <span class="qty-num">${i.qtd}</span>
+                    <button class="qty-btn" onclick="adicionarAoCarrinho(${i.produto.id}, this)">+</button>
+                </div>
             </div>
         `).join('');
     }
 
-    function filtrar(cat, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    // ===== WHATSAPP =====
+    function enviarWhatsApp() {
+        if (carrinho.length === 0) return;
+        const linhas = carrinho.map(i => `• ${i.qtd}x ${i.produto.nome} - R$ ${(i.produto.preco * i.qtd).toFixed(2)}`);
+        const total = totalCarrinho().toFixed(2);
+        const msg = `Olá! Gostaria de fazer um pedido no ND Lanches:\n\n${linhas.join('\n')}\n\n*Total: R$ ${total}*`;
+        const url = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+    }
 
-        if(cat === 'TODOS') {
-            renderizar(todosProdutos);
-        } else {
-            const filtrados = todosProdutos.filter(p => p.categoria === cat);
-            renderizar(filtrados);
-        }
+    // ===== TOAST =====
+    function mostrarToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
     }
 
     window.onload = carregarCardapio;
