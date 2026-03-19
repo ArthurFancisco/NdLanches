@@ -44,7 +44,7 @@
         .tab-btn.active { background: var(--g1); border-color: var(--g1); color: white; box-shadow: 0 4px 14px rgba(11,61,24,0.3); }
 
         /* GRID */
-        .container { max-width: 860px; margin: 0 auto; padding: 24px 16px 140px; }
+        .container { max-width: 860px; margin: 0 auto; padding: 24px 16px 140px; position: relative; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
         @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
 
@@ -62,6 +62,72 @@
         .preco { font-weight: 800; color: var(--g2); font-size: 1.15rem; }
         .add-btn { width: 36px; height: 36px; background: var(--g1); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
         .add-btn:hover { background: var(--g3); transform: scale(1.1); }
+
+        /* ===== OVERLAY LOJA FECHADA ===== */
+        .fechado-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 250;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .fechado-overlay.ativo { display: flex; }
+
+        .fechado-card {
+            background: white;
+            border-radius: 28px;
+            padding: 40px 32px;
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes popIn { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+
+        .fechado-icon {
+            width: 80px;
+            height: 80px;
+            background: #fef2f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.2rem;
+        }
+
+        .fechado-card h2 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            color: var(--g1);
+            margin-bottom: 10px;
+        }
+
+        .fechado-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+
+        .fechado-msg-custom {
+            display: none;
+            background: #f0f9f3;
+            border: 1px solid #c6e8d0;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            color: var(--g2);
+            font-weight: 700;
+            margin-top: 14px;
+        }
+        .fechado-msg-custom.vis { display: block; }
 
         /* SKELETONS */
         .skeleton-card { background: linear-gradient(90deg, #e8eee9 25%, #f4f7f4 50%, #e8eee9 75%); border-radius: var(--radius); height: 110px; border: 1px solid var(--border); }
@@ -93,7 +159,7 @@
         .section-label i { font-size: 0.75rem; }
         .custom-section { margin-bottom: 24px; }
 
-        /* CHIPS INGREDIENTES */
+        /* CHIPS */
         .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
         .chip { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 50px; border: 2px solid var(--border); background: white; font-size: 0.84rem; font-weight: 700; color: var(--text); cursor: pointer; transition: all 0.2s; user-select: none; }
         .chip i { font-size: 0.7rem; width: 14px; height: 14px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -127,7 +193,7 @@
         .cm-total-label { font-weight: 700; color: var(--text-muted); font-size: 0.9rem; }
         .cm-total-val { font-weight: 800; font-size: 1.25rem; color: var(--g1); }
         .btn-confirmar { width: 100%; padding: 15px; background: var(--g1); color: white; border: none; border-radius: var(--radius-sm); font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
-        .btn-confirmar:hover { background: var(--g3); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(11,61,24,0.25); }
+        .btn-confirmar:hover { background: var(--g3); transform: translateY(-1px); }
 
         /* MODAL CARRINHO */
         .cart-title { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; letter-spacing: 2px; color: var(--g1); margin-bottom: 18px; }
@@ -141,6 +207,46 @@
         .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; color: var(--g1); transition: all 0.2s; }
         .qty-btn:hover { border-color: var(--g1); background: var(--g1); color: white; }
         .qty-num { font-weight: 800; min-width: 20px; text-align: center; }
+
+        /* ===== CAMPO NOME DO CLIENTE ===== */
+        .nome-cliente-wrap {
+            background: #f0f9f3;
+            border: 2px solid #c6e8d0;
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        .nome-cliente-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--g2);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nome-cliente-input {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+            background: white;
+        }
+        .nome-cliente-input:focus { border-color: var(--g2); }
+        .nome-cliente-hint {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
         .cart-subtotal { display: flex; justify-content: space-between; font-size: 1rem; margin-top: 16px; margin-bottom: 8px; color: var(--text-muted); }
         .cart-total-row { display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 800; color: var(--g1); margin-bottom: 18px; padding-top: 12px; border-top: 2px solid var(--border); }
         .btn-whatsapp { width: 100%; padding: 16px; background: #25D366; color: white; border: none; border-radius: var(--radius-sm); font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s; }
@@ -156,6 +262,7 @@
         @media (max-width: 480px) {
             .header-titles h1 { font-size: 1.8rem; }
             #status-loja { font-size: 0.74rem; padding: 7px 12px; }
+            .fechado-card { padding: 30px 20px; }
         }
     </style>
 </head>
@@ -193,6 +300,18 @@
     </div>
 </div>
 
+<!-- ===== OVERLAY: LOJA FECHADA ===== -->
+<div class="fechado-overlay" id="fechadoOverlay">
+    <div class="fechado-card">
+        <div class="fechado-icon">🔒</div>
+        <h2>Loja Fechada</h2>
+        <p>Estamos fora do horário de atendimento no momento.</p>
+        <p>Assim que abrirmos, você poderá fazer seu pedido aqui!</p>
+        <div class="fechado-msg-custom" id="fechadoMsgCustom"></div>
+    </div>
+</div>
+
+<!-- CART BAR (só aparece se loja aberta) -->
 <div class="cart-bar" id="cartBar" onclick="abrirModalCarrinho()">
     <div class="cart-left">
         <span class="cart-badge" id="cartCount">0</span>
@@ -248,6 +367,23 @@
   <div class="modal" id="cartModal">
     <div class="modal-handle"></div>
     <div class="cart-title">🛒 Seu Pedido</div>
+
+    <!-- CAMPO NOME DO CLIENTE -->
+    <div class="nome-cliente-wrap">
+        <div class="nome-cliente-label">
+            <i class="fa-solid fa-user fa-xs"></i> Seu nome
+        </div>
+        <input
+            type="text"
+            id="nomeCliente"
+            class="nome-cliente-input"
+            placeholder="Ex: João Silva"
+            maxlength="60"
+            autocomplete="name"
+        >
+        <div class="nome-cliente-hint">Para identificarmos seu pedido quando estiver pronto 👋</div>
+    </div>
+
     <div id="cartItemsList"></div>
     <div>
         <div class="cart-subtotal"><span>Subtotal</span><span id="cartSubtotal">R$ 0,00</span></div>
@@ -270,6 +406,7 @@
     const LOJA_ID      = 1;
     const WHATSAPP_NUM = ""; // Ex: "5517999999999"
 
+    let lojaAberta      = false;
     let todosProdutos   = [];
     let todosAdicionais = [];
     let carrinho        = [];
@@ -283,10 +420,8 @@
         try {
             const rS = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
             if (rS.ok) {
-                const ab = await rS.json();
-                const b  = document.getElementById('status-loja');
-                b.innerHTML = `<div class="status-dot"></div>${ab ? 'Aberto agora' : 'Fechado'}`;
-                b.className = ab ? 'aberto' : 'fechado';
+                lojaAberta = await rS.json();
+                atualizarStatusUI(lojaAberta);
             }
 
             const rP = await fetch(`${API_URL}/produtos/loja/${LOJA_ID}`);
@@ -302,6 +437,26 @@
         }
     }
 
+    /* ===== CONTROLE DE STATUS DA LOJA ===== */
+    function atualizarStatusUI(aberto) {
+        const badge = document.getElementById('status-loja');
+        badge.innerHTML = `<div class="status-dot"></div>${aberto ? 'Aberto agora' : 'Fechado'}`;
+        badge.className = aberto ? 'aberto' : 'fechado';
+
+        // Mostra ou oculta o overlay de loja fechada
+        const overlay = document.getElementById('fechadoOverlay');
+        if (aberto) {
+            overlay.classList.remove('ativo');
+        } else {
+            overlay.classList.add('ativo');
+
+            // Se a loja tiver mensagem personalizada, exibe
+            // (você pode buscar da API futuramente — por ora usa mensagem padrão)
+            const msg = document.getElementById('fechadoMsgCustom');
+            msg.classList.remove('vis');
+        }
+    }
+
     /* ===================== RENDERIZAR ===================== */
     function renderizar(lista) {
         const g = document.getElementById('menu-grid');
@@ -314,7 +469,7 @@
                 ? `<img src="${p.imagemUrl}" alt="${p.nome}" onerror="this.parentElement.innerHTML='<div class=\\'card-emoji-placeholder\\'>${p.emoji||'🍔'}</div>'">`
                 : `<div class="card-emoji-placeholder">${p.emoji||'🍔'}</div>`;
             return `
-            <div class="card" onclick="abrirCustom(${p.id})">
+            <div class="card" onclick="tentarAbrir(${p.id})">
                 <div class="card-img-wrap">${img}</div>
                 <div class="card-body">
                     <div class="card-top">
@@ -323,13 +478,22 @@
                     </div>
                     <div class="card-bottom">
                         <div class="preco">R$ ${p.preco.toFixed(2)}</div>
-                        <button class="add-btn" onclick="event.stopPropagation();abrirCustom(${p.id})">
+                        <button class="add-btn" onclick="event.stopPropagation();tentarAbrir(${p.id})">
                             <i class="fa-solid fa-plus fa-sm"></i>
                         </button>
                     </div>
                 </div>
             </div>`;
         }).join('');
+    }
+
+    /* Bloqueia interação se loja fechada */
+    function tentarAbrir(id) {
+        if (!lojaAberta) {
+            document.getElementById('fechadoOverlay').classList.add('ativo');
+            return;
+        }
+        abrirCustom(id);
     }
 
     function filtrar(cat, btn) {
@@ -480,7 +644,10 @@
         const total = totalCarrinho(), qtd = totalItens();
         document.getElementById('cartCount').textContent = qtd;
         document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2)}`;
-        document.getElementById('cartBar').classList.toggle('visible', qtd > 0);
+        // Cart bar só aparece se loja aberta
+        if (lojaAberta) {
+            document.getElementById('cartBar').classList.toggle('visible', qtd > 0);
+        }
     }
 
     function mudarQtdCarrinho(idx, delta) {
@@ -501,6 +668,10 @@
     /* ===================== MODAL CARRINHO ===================== */
     function abrirModalCarrinho() {
         if (!carrinho.length) return;
+        if (!lojaAberta) {
+            document.getElementById('fechadoOverlay').classList.add('ativo');
+            return;
+        }
         renderizarCarrinho();
         document.getElementById('cartOverlay').classList.add('open');
     }
@@ -537,20 +708,37 @@
 
     /* ===================== WHATSAPP + REGISTRAR PEDIDO ===================== */
     async function enviarWhatsApp() {
+        // Segurança extra: bloqueia se loja fechou durante a sessão
+        if (!lojaAberta) {
+            fecharModal('cartOverlay');
+            document.getElementById('fechadoOverlay').classList.add('ativo');
+            return;
+        }
+
         if (!carrinho.length) return;
+
+        // Valida nome do cliente
+        const nomeCliente = document.getElementById('nomeCliente').value.trim();
+        if (!nomeCliente) {
+            document.getElementById('nomeCliente').focus();
+            document.getElementById('nomeCliente').style.borderColor = '#ef4444';
+            mostrarToast('⚠️ Por favor, informe seu nome!');
+            setTimeout(() => document.getElementById('nomeCliente').style.borderColor = '', 2000);
+            return;
+        }
 
         const btn = document.getElementById('btnWhatsapp');
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-lg"></i> Registrando...';
 
-        // 1. Monta itens para salvar no banco
+        // Monta itens para salvar no banco
         const itens = carrinho.map(item => ({
-            nome:      item.produto.nome,
-            emoji:     item.produto.emoji || '',
-            qtd:       item.qtd,
-            precoUnit: item.precoUnit,
-            subtotal:  item.precoUnit * item.qtd,
-            removidos: item.ingredRemovidos || [],
+            nome:       item.produto.nome,
+            emoji:      item.produto.emoji || '',
+            qtd:        item.qtd,
+            precoUnit:  item.precoUnit,
+            subtotal:   item.precoUnit * item.qtd,
+            removidos:  item.ingredRemovidos || [],
             adicionais: (item.adicSel || []).map(a => ({
                 nome:  a.adic.nome,
                 qtd:   a.qtd,
@@ -559,34 +747,33 @@
             obs: item.obs || ''
         }));
 
-        // 2. Observação geral resumida
         const obsLinhas = carrinho.flatMap(item => {
             const l = [];
             if (item.ingredRemovidos?.length)
                 l.push(`${item.produto.nome}: sem ${item.ingredRemovidos.join(', ')}`);
-            if (item.obs)
-                l.push(`${item.produto.nome}: ${item.obs}`);
+            if (item.obs) l.push(`${item.produto.nome}: ${item.obs}`);
             return l;
         });
 
-        // 3. Registra na API (não bloqueia o WhatsApp se falhar)
+        // Registra na API
         try {
             await fetch(`${API_URL}/pedidos`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    total:       totalCarrinho(),
-                    itensJson:   JSON.stringify(itens),
-                    observacao:  obsLinhas.join(' | ') || null,
-                    status:      'RECEBIDO',
-                    loja:        { id: LOJA_ID }
+                    nomeCliente:  nomeCliente,
+                    total:        totalCarrinho(),
+                    itensJson:    JSON.stringify(itens),
+                    observacao:   obsLinhas.join(' | ') || null,
+                    status:       'RECEBIDO',
+                    loja:         { id: LOJA_ID }
                 })
             });
         } catch (e) {
             console.warn('Pedido não registrado na API:', e);
         }
 
-        // 4. Monta mensagem e abre WhatsApp (sempre acontece)
+        // Monta mensagem WhatsApp com nome do cliente
         const linhas = carrinho.map(item => {
             let l = `• ${item.qtd}x ${item.produto.nome} — R$ ${(item.precoUnit*item.qtd).toFixed(2)}`;
             if (item.ingredRemovidos?.length) l += `\n  🚫 Sem: ${item.ingredRemovidos.join(', ')}`;
@@ -595,7 +782,7 @@
             return l;
         });
 
-        const msg = `Olá! Gostaria de fazer um pedido:\n\n${linhas.join('\n\n')}\n\n*Total: R$ ${totalCarrinho().toFixed(2)}*`;
+        const msg = `Olá! Meu nome é *${nomeCliente}* e gostaria de fazer um pedido:\n\n${linhas.join('\n\n')}\n\n*Total: R$ ${totalCarrinho().toFixed(2)}*`;
         window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
 
         btn.disabled = false;
