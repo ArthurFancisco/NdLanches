@@ -3,220 +3,625 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - ND Lanches</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <title>Admin Dashboard - ND Lanches</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { 
-            --g1: #0b3d18; 
-            --g2: #145a28; 
-            --g3: #1b7a36; 
-            --am: #f5c518; 
-            --bg: #f2f7f3; 
-            --danger: #dc3545;
+        :root {
+            --g1:#0b3d18; --g2:#145a28; --g3:#1b7a36;
+            --am:#f5c518; --am-dark:#d4a800;
+            --bg:#0f1a12; --surface:#162119; --surface2:#1e2e22;
+            --border:rgba(255,255,255,0.08);
+            --text:#e8f0ea; --text-muted:#7a9b80;
+            --danger:#ef4444; --success:#22c55e;
+            --radius:16px; --radius-sm:10px;
+            --shadow:0 8px 32px rgba(0,0,0,0.3);
         }
-        body { font-family: 'Nunito', sans-serif; padding: 20px; background: var(--bg); color: #333; }
-        h1 { font-family: 'Bebas Neue', cursive; color: var(--g1); font-size: 3rem; text-align: center; margin-bottom: 30px; }
-        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); max-width: 600px; margin-left: auto; margin-right: auto; }
-        h3 { border-bottom: 2px solid var(--am); padding-bottom: 8px; margin-bottom: 15px; color: var(--g2); }
-        input { padding: 12px; margin: 8px 0; display: block; width: 100%; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1rem; }
-        button { padding: 12px; background: var(--g1); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; font-size: 1rem; }
-        button:hover { background: var(--g3); transform: scale(1.01); }
-        .btn-status { font-size: 1.2rem; text-transform: uppercase; }
-        .aberto { background: #28a745; }
-        .fechado { background: var(--danger); }
-        .prod-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
-        .prod-info { display: flex; flex-direction: column; }
-        .btn-delete { width: auto; padding: 6px 12px; background: var(--danger); font-size: 0.9rem; margin-left: 5px;}
-        .btn-edit { width: auto; padding: 6px 12px; background: var(--am); color: #000; font-size: 0.9rem; }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+        /* TOPBAR */
+        .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+        .topbar-brand{display:flex;align-items:center;gap:12px;}
+        .topbar-icon{width:38px;height:38px;background:var(--am);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+        .topbar-title{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:2px;}
+        .topbar-title span{color:var(--am);}
+        .key-wrap{position:relative;display:flex;align-items:center;}
+        .key-wrap i{position:absolute;left:12px;color:var(--text-muted);font-size:.85rem;}
+        #adminKey{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 14px 9px 36px;border-radius:50px;font-family:'Nunito',sans-serif;font-size:.88rem;width:200px;outline:none;transition:border-color .2s;}
+        #adminKey:focus{border-color:var(--am);}
+
+        /* LAYOUT */
+        .dashboard{max-width:1200px;margin:0 auto;padding:28px 20px 0;display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:22px;align-items:start;}
+        @media(max-width:900px){.dashboard{grid-template-columns:1fr 1fr;}}
+        @media(max-width:620px){.dashboard{grid-template-columns:1fr;} #adminKey{width:140px;}}
+
+        /* PANELS */
+        .panel{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+        .panel-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+        .panel-header h2{font-family:'Bebas Neue',cursive;font-size:1.25rem;letter-spacing:1.5px;display:flex;align-items:center;gap:9px;}
+        .panel-header h2 i{color:var(--am);font-size:.95rem;}
+        .panel-body{padding:18px 20px;}
+
+        /* STATUS */
+        .status-display{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--radius-sm);padding:16px;margin-bottom:14px;border:1px solid var(--border);}
+        .status-led{width:13px;height:13px;border-radius:50%;background:#555;transition:all .3s;}
+        .status-led.on{background:var(--success);box-shadow:0 0 12px rgba(34,197,94,.5);animation:ledPulse 2s infinite;}
+        .status-led.off{background:var(--danger);}
+        @keyframes ledPulse{0%,100%{box-shadow:0 0 8px rgba(34,197,94,.4)}50%{box-shadow:0 0 18px rgba(34,197,94,.7)}}
+        .status-info{display:flex;align-items:center;gap:12px;}
+        .status-text strong{display:block;font-size:.95rem;font-weight:800;}
+        .status-text span{font-size:.78rem;color:var(--text-muted);}
+        .btn-toggle{padding:9px 20px;border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;transition:all .25s;}
+        .btn-toggle.abrir{background:var(--success);color:white;}
+        .btn-toggle.fechar{background:var(--danger);color:white;}
+        .btn-toggle:disabled{opacity:.6;cursor:not-allowed;}
+
+        /* FORMS */
+        .form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+        .form-group label{font-size:.75rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
+        .form-group input,.form-group select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 13px;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:.91rem;outline:none;transition:border-color .2s;width:100%;}
+        .form-group input:focus,.form-group select:focus{border-color:var(--am);}
+        .form-group select option{background:#1e2e22;}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .btn-save{width:100%;padding:12px;background:var(--am);color:var(--g1);border:none;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .22s;margin-top:4px;}
+        .btn-save:hover{background:var(--am-dark);transform:translateY(-1px);}
+        .btn-cancel{width:100%;padding:10px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:8px;transition:all .2s;}
+        .btn-cancel:hover{border-color:var(--danger);color:var(--danger);}
+        .edit-banner{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:14px;font-size:.83rem;font-weight:700;color:var(--am);display:none;align-items:center;gap:8px;}
+        .edit-banner.vis{display:flex;}
+
+        /* LISTAS */
+        .prod-count{background:var(--am);color:var(--g1);font-size:.72rem;font-weight:800;padding:2px 9px;border-radius:50px;}
+        #lista-produtos-admin{max-height:500px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent;}
+        .prod-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+        .prod-item:last-child{border-bottom:none;}
+        .prod-emoji{width:40px;height:40px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+        .prod-info{flex:1;min-width:0;}
+        .prod-info strong{display:block;font-size:.92rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .prod-meta{display:flex;gap:8px;margin-top:3px;}
+        .prod-price{font-size:.84rem;font-weight:700;color:var(--am);}
+        .prod-cat{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:50px;color:var(--text-muted);}
+        .prod-actions{display:flex;gap:7px;}
+        .btn-ic{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;transition:all .2s;}
+        .btn-ic.edit{background:rgba(245,197,24,.12);color:var(--am);}
+        .btn-ic.edit:hover{background:var(--am);color:var(--g1);}
+        .btn-ic.del{background:rgba(239,68,68,.1);color:var(--danger);}
+        .btn-ic.del:hover{background:var(--danger);color:white;}
+        .empty-adm{text-align:center;padding:36px 16px;color:var(--text-muted);}
+        .empty-adm i{font-size:2.2rem;margin-bottom:10px;display:block;}
+        .sec-div{display:flex;align-items:center;gap:10px;margin-bottom:12px;margin-top:4px;}
+        .sec-div span{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);white-space:nowrap;}
+        .sec-div::after{content:'';flex:1;height:1px;background:var(--border);}
+        #lista-adicionais{max-height:460px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent;}
+        .adic-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+        .adic-item:last-child{border-bottom:none;}
+        .adic-em{width:38px;height:38px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+        .adic-info-col{flex:1;min-width:0;}
+        .adic-info-col strong{display:block;font-size:.9rem;font-weight:800;}
+        .adic-info-col span{font-size:.82rem;font-weight:700;color:var(--am);}
+
+        /* PEDIDOS */
+        .filtro-btn{padding:7px 14px;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:all .2s;}
+        .filtro-btn.ativo{background:var(--am);border:2px solid var(--am);color:var(--g1);}
+        .filtro-btn.inativo{background:transparent;border:2px solid var(--border);color:var(--text-muted);}
+        .resumo-dia{background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:7px 16px;font-size:.82rem;font-weight:700;color:var(--text-muted);}
+        #lista-pedidos{max-height:600px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent;}
+        .pedido-card{padding:16px 20px;border-bottom:1px solid var(--border);transition:background .15s;}
+        .pedido-card:hover{background:var(--surface2);}
+        .pedido-card:last-child{border-bottom:none;}
+        .pedido-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+        .pedido-id{font-size:.75rem;color:var(--text-muted);font-weight:700;}
+        .pedido-hora{font-size:.75rem;color:var(--text-muted);}
+        .pedido-valor{font-weight:800;font-size:1rem;color:var(--am);}
+        .status-badge{padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border:none;transition:opacity .2s;font-family:'Nunito',sans-serif;}
+        .status-badge:hover{opacity:.8;}
+        .status-RECEBIDO{background:rgba(59,130,246,.15);color:#60a5fa;}
+        .status-PREPARO{background:rgba(245,197,24,.15);color:var(--am);}
+        .status-PRONTO{background:rgba(34,197,94,.15);color:var(--success);}
+        .status-ENTREGUE{background:rgba(107,114,128,.15);color:var(--text-muted);}
+        .status-CANCELADO{background:rgba(239,68,68,.15);color:var(--danger);}
+        .pedido-itens{display:flex;flex-direction:column;gap:4px;}
+        .pedido-item-linha{font-size:.85rem;color:var(--text);display:flex;gap:8px;}
+        .pedido-item-mods{font-size:.78rem;color:var(--text-muted);padding-left:20px;line-height:1.6;}
+        .pedido-obs{margin-top:6px;font-size:.8rem;color:var(--text-muted);font-style:italic;padding:6px 10px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--border);}
+        .btn-del-pedido{background:rgba(239,68,68,.1);color:var(--danger);border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:all .2s;flex-shrink:0;}
+        .btn-del-pedido:hover{background:var(--danger);color:white;}
+
+        /* FEEDBACK */
+        .feedback{position:fixed;bottom:26px;right:22px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:13px 18px;border-radius:var(--radius-sm);font-weight:700;font-size:.88rem;box-shadow:var(--shadow);opacity:0;transform:translateY(14px);pointer-events:none;transition:all .3s;z-index:500;display:flex;align-items:center;gap:9px;max-width:300px;}
+        .feedback.show{opacity:1;transform:translateY(0);}
+        .feedback.ok i{color:var(--success);}
+        .feedback.err i{color:var(--danger);}
+
+        /* SKELETON */
+        .skel{background:var(--surface2);border-radius:6px;animation:skelA 1.2s infinite ease-in-out;}
+        @keyframes skelA{0%,100%{opacity:.5}50%{opacity:1}}
+        .skel-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
     </style>
 </head>
 <body>
-    <h1>🍔 Painel Admin ND Lanches</h1>
 
-    <div class="card">
-        <h3>Segurança</h3>
-        <input type="password" id="adminKey" placeholder="Chave Secreta do Admin" value="arthur123">
+<div class="topbar">
+    <div class="topbar-brand">
+        <div class="topbar-icon">🍔</div>
+        <div class="topbar-title">ND <span>ADMIN</span></div>
     </div>
-
-    <div class="card">
-        <h3>Status da Loja</h3>
-        <button id="btnStatus" onclick="alternarStatus()" class="btn-status">Carregando...</button>
+    <div class="key-wrap">
+        <i class="fa-solid fa-key"></i>
+        <input type="password" id="adminKey" placeholder="Chave admin" value="arthur123">
     </div>
-
-    <div class="card">
-    <h3 id="formTitle">Cadastrar Novo Produto</h3>
-    <input type="text" id="nome" placeholder="Ex: Coca-Cola 2L">
-    <input type="text" id="descricao" placeholder="Descrição ou ingredientes...">
-    <input type="number" id="preco" step="0.01" placeholder="Preço (ex: 12.00)">
-    
-    <select id="categoria" style="padding: 12px; margin: 8px 0; width: 100%; border-radius: 8px; border: 1px solid #ddd; font-size: 1rem;">
-        <option value="LANCHE">🍔 LANCHE</option>
-        <option value="BEBIDA">🥤 BEBIDA</option>
-        <option value="PORCAO">🍟 PORÇÃO</option>
-        <option value="SOBREMESA">🍦 SOBREMESA</option>
-    </select>
-
-    <input type="text" id="imagem" placeholder="Link da Imagem (URL)">
-    <button id="btnSalvar" onclick="salvarProduto()">➕ Salvar no Cardápio</button>
-    <button id="btnCancelar" onclick="cancelarEdicao()" style="display:none; margin-top:10px; background:#666;">Cancelar Edição</button>
 </div>
 
-    <div class="card">
-        <h3>Produtos Atuais</h3>
-        <div id="lista-produtos-admin">Carregando produtos...</div>
-    </div>
+<!-- DASHBOARD: 3 colunas -->
+<div class="dashboard">
 
-<script>
-    const API_URL = "https://nd-lanches-api.onrender.com/api"; 
-    const LOJA_SLUG = "nd-lanches";
-    const LOJA_ID_NUM = 1;
-    let lojaAberta = false;
-    let idEdicao = null;
-
-    async function carregarDados() {
-        try {
-            // 1. Buscar Status da Loja
-            const resStatus = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
-            if(resStatus.ok) {
-                lojaAberta = await resStatus.json();
-                atualizarBotaoStatus();
-            }
-
-            // 2. Buscar Produtos
-            const resProd = await fetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
-            if(resProd.ok) {
-                const produtos = await resProd.json();
-                const lista = document.getElementById('lista-produtos-admin');
-                
-                if (!produtos || produtos.length === 0) {
-                    lista.innerHTML = "<p>Nenhum produto cadastrado.</p>";
-                    return;
-                }
-
-                lista.innerHTML = produtos.map(p => `
-                    <div class="prod-item">
-                        <div class="prod-info">
-                            <strong>${p.nome}</strong>
-                            <span>R$ ${p.preco.toFixed(2)}</span>
-                        </div>
-                        <div>
-                            <button class="btn-edit" onclick='prepararEdicao(${JSON.stringify(p)})'>Editar</button>
-                            <button class="btn-delete" onclick="excluirProduto(${p.id})">Remover</button>
+    <!-- COL 1: Status + Form Produto -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="panel">
+            <div class="panel-header"><h2><i class="fa-solid fa-circle-dot"></i> Status da Loja</h2></div>
+            <div class="panel-body">
+                <div class="status-display">
+                    <div class="status-info">
+                        <div class="status-led" id="statusLed"></div>
+                        <div class="status-text">
+                            <strong id="statusLabel">Carregando...</strong>
+                            <span id="statusSub">Aguardando</span>
                         </div>
                     </div>
-                `).join('');
-            }
-        } catch (e) { 
-            console.error("Erro ao carregar:", e);
-            document.getElementById('btnStatus').innerText = "ERRO DE CONEXÃO";
+                    <button class="btn-toggle" id="btnStatus" onclick="alternarStatus()" disabled>Aguarde</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header"><h2><i class="fa-solid fa-burger"></i> <span id="formTitle">Novo Produto</span></h2></div>
+            <div class="panel-body">
+                <div class="edit-banner" id="editBanner"><i class="fa-solid fa-pencil fa-xs"></i> Modo edição</div>
+                <div class="form-group"><label>Nome</label><input type="text" id="nome" placeholder="Ex: X-Burguer Especial"></div>
+                <div class="form-group"><label>Descrição / Ingredientes</label>
+                    <input type="text" id="descricao" placeholder="Ex: Pão, hambúrguer, queijo, alface, tomate"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Preço (R$)</label><input type="number" id="preco" step="0.01" min="0" placeholder="0,00"></div>
+                    <div class="form-group"><label>Categoria</label>
+                        <select id="categoria">
+                            <option value="LANCHE">🍔 Lanche</option>
+                            <option value="BEBIDA">🥤 Bebida</option>
+                            <option value="PORCAO">🍟 Porção</option>
+                            <option value="SOBREMESA">🍦 Sobremesa</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Emoji</label><input type="text" id="emoji" placeholder="🍔" maxlength="4"></div>
+                    <div class="form-group"><label>URL Imagem</label><input type="text" id="imagem" placeholder="https://..."></div>
+                </div>
+                <button class="btn-save" id="btnSalvar" onclick="salvarProduto()">
+                    <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>
+                </button>
+                <button class="btn-cancel" id="btnCancelar" onclick="cancelarEdicao()" style="display:none">
+                    <i class="fa-solid fa-xmark fa-xs"></i> Cancelar edição
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COL 2: Form Adicional + Lista Adicionais -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="panel">
+            <div class="panel-header"><h2><i class="fa-solid fa-circle-plus"></i> <span id="adicFormTitle">Novo Adicional</span></h2></div>
+            <div class="panel-body">
+                <div class="edit-banner" id="adicEditBanner"><i class="fa-solid fa-pencil fa-xs"></i> Editando adicional</div>
+                <div class="form-group"><label>Nome do adicional</label>
+                    <input type="text" id="adic-nome" placeholder="Ex: Bacon extra, Queijo duplo"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Preço (R$)</label>
+                        <input type="number" id="adic-preco" step="0.01" min="0" placeholder="0,00"></div>
+                    <div class="form-group"><label>Emoji</label>
+                        <input type="text" id="adic-emoji" placeholder="🥓" maxlength="4"></div>
+                </div>
+                <button class="btn-save" onclick="salvarAdic()">
+                    <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="adicBtnLabel">Salvar Adicional</span>
+                </button>
+                <button class="btn-cancel" id="adicCancelar" onclick="cancelarEdicaoAdic()" style="display:none">
+                    <i class="fa-solid fa-xmark fa-xs"></i> Cancelar
+                </button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-list"></i> Adicionais</h2>
+                <span class="prod-count" id="adicCount">–</span>
+            </div>
+            <div class="panel-body">
+                <div id="lista-adicionais">
+                    <div class="skel-row"><div class="skel" style="width:38px;height:38px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:60%;margin-bottom:7px"></div><div class="skel" style="height:12px;width:30%"></div></div></div>
+                    <div class="skel-row"><div class="skel" style="width:38px;height:38px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:70%;margin-bottom:7px"></div><div class="skel" style="height:12px;width:35%"></div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COL 3: Lista Produtos -->
+    <div class="panel">
+        <div class="panel-header">
+            <h2><i class="fa-solid fa-list-ul"></i> Produtos</h2>
+            <span class="prod-count" id="prodCount">–</span>
+        </div>
+        <div class="panel-body">
+            <div id="lista-produtos-admin">
+                <div class="skel-row"><div class="skel" style="width:40px;height:40px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:55%;margin-bottom:7px"></div><div class="skel" style="height:11px;width:35%"></div></div></div>
+                <div class="skel-row"><div class="skel" style="width:40px;height:40px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:72%;margin-bottom:7px"></div><div class="skel" style="height:11px;width:30%"></div></div></div>
+                <div class="skel-row"><div class="skel" style="width:40px;height:40px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:60%;margin-bottom:7px"></div><div class="skel" style="height:11px;width:25%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- PEDIDOS — full width abaixo do dashboard -->
+<div style="max-width:1200px;margin:22px auto 60px;padding:0 20px">
+    <div class="panel">
+        <div class="panel-header">
+            <h2><i class="fa-solid fa-receipt"></i> Pedidos</h2>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <div style="display:flex;gap:6px">
+                    <button class="filtro-btn ativo" id="filtro-hoje" onclick="filtrarPedidos('hoje',this)">Hoje</button>
+                    <button class="filtro-btn inativo" id="filtro-todos" onclick="filtrarPedidos('todos',this)">Todos</button>
+                </div>
+                <div class="resumo-dia">
+                    <span id="pedidos-qtd">0</span> pedidos ·
+                    <span style="color:var(--am)" id="pedidos-receita">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body" style="padding:0">
+            <div id="lista-pedidos">
+                <div style="text-align:center;padding:40px;color:var(--text-muted)">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:12px;display:block"></i>
+                    Carregando pedidos...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="feedback" id="feedback">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="feedbackMsg">OK</span>
+</div>
+
+<script>
+    const API_URL     = "https://nd-lanches-api.onrender.com/api";
+    const LOJA_SLUG   = "nd-lanches";
+    const LOJA_ID_NUM = 1;
+    let lojaAberta   = false;
+    let idEdicao     = null;
+    let adicEdicaoId = null;
+    let filtroPedidos = 'hoje';
+
+    const STATUS_PROX  = { RECEBIDO:'PREPARO', PREPARO:'PRONTO', PRONTO:'ENTREGUE', ENTREGUE:'ENTREGUE', CANCELADO:'CANCELADO' };
+    const STATUS_LABEL = { RECEBIDO:'📥 Recebido', PREPARO:'🔥 Em preparo', PRONTO:'✅ Pronto', ENTREGUE:'🏍️ Entregue', CANCELADO:'❌ Cancelado' };
+
+    /* ===================== CARREGAR ===================== */
+    async function carregarDados() {
+        try {
+            const rS = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
+            if (rS.ok) { lojaAberta = await rS.json(); atualizarBotaoStatus(); }
+
+            const rP = await fetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
+            if (rP.ok) renderizarProdutos(await rP.json());
+
+            const rA = await fetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
+            if (rA.ok) renderizarAdics(await rA.json());
+
+            await carregarPedidos();
+
+        } catch (e) {
+            console.error(e);
+            feedback("Erro ao conectar com a API", false);
         }
     }
 
+    /* ===================== STATUS ===================== */
     function atualizarBotaoStatus() {
         const btn = document.getElementById('btnStatus');
-        btn.innerText = lojaAberta ? "LOJA ESTÁ: ABERTA" : "LOJA ESTÁ: FECHADA";
-        btn.className = `btn-status ${lojaAberta ? 'aberto' : 'fechado'}`;
+        document.getElementById('statusLed').className    = `status-led ${lojaAberta?'on':'off'}`;
+        document.getElementById('statusLabel').textContent = lojaAberta ? 'Loja Aberta' : 'Loja Fechada';
+        document.getElementById('statusSub').textContent   = lojaAberta ? 'Aceitando pedidos' : 'Fora do horário';
+        btn.disabled  = false;
+        btn.className = `btn-toggle ${lojaAberta?'fechar':'abrir'}`;
+        btn.innerHTML = lojaAberta
+            ? '<i class="fa-solid fa-circle-stop fa-xs"></i> Fechar loja'
+            : '<i class="fa-solid fa-circle-play fa-xs"></i> Abrir loja';
     }
 
     async function alternarStatus() {
-        const novaOpcao = !lojaAberta;
-        const key = document.getElementById('adminKey').value;
-        const btn = document.getElementById('btnStatus');
-        
-        btn.innerText = "SALVANDO...";
-
+        const nova = !lojaAberta, key = document.getElementById('adminKey').value;
+        const btn  = document.getElementById('btnStatus');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-xs"></i> Salvando...';
         try {
-            // AJUSTE: Enviando para a rota de status da LOJA
-            const res = await fetch(`${API_URL}/loja/status`, {
-                method: 'PUT',
-                headers: { 
-                    'Admin-Key': key, 
-                    'Content-Type': 'application/json' 
-                },
-                body: JSON.stringify(novaOpcao)
+            const r = await fetch(`${API_URL}/loja/status`, {
+                method:'PUT', headers:{'Admin-Key':key,'Content-Type':'application/json'}, body:JSON.stringify(nova)
             });
+            if (r.ok) { lojaAberta = nova; atualizarBotaoStatus(); feedback(`Loja ${lojaAberta?'aberta':'fechada'}!`, true); }
+            else       { feedback("Erro! Verifique a chave.", false); atualizarBotaoStatus(); }
+        } catch { feedback("Erro de conexão.", false); atualizarBotaoStatus(); }
+    }
 
-            if (res.ok) {
-                lojaAberta = novaOpcao;
-                atualizarBotaoStatus();
-                alert("Status atualizado com sucesso!");
-            } else { 
-                alert("Erro! Verifique a Chave Admin ou se a rota existe no Java."); 
-                atualizarBotaoStatus();
-            }
-        } catch (e) { 
-            alert("Erro de conexão."); 
-            atualizarBotaoStatus();
-        }
+    /* ===================== PRODUTOS ===================== */
+    function renderizarProdutos(prods) {
+        document.getElementById('prodCount').textContent = prods?.length || 0;
+        const lista = document.getElementById('lista-produtos-admin');
+        if (!prods?.length) { lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto.</p></div>`; return; }
+        const cats = {LANCHE:'🍔 Lanches',BEBIDA:'🥤 Bebidas',PORCAO:'🍟 Porções',SOBREMESA:'🍦 Sobremesas'};
+        const grupos = {};
+        prods.forEach(p => { (grupos[p.categoria||'OUTROS'] ??= []).push(p); });
+        lista.innerHTML = Object.entries(grupos).map(([cat, itens]) =>
+            `<div class="sec-div"><span>${cats[cat]||cat}</span></div>` +
+            itens.map(p => `
+            <div class="prod-item">
+                <div class="prod-emoji">${p.emoji||'🍽️'}</div>
+                <div class="prod-info">
+                    <strong title="${p.nome}">${p.nome}</strong>
+                    <div class="prod-meta">
+                        <span class="prod-price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
+                        <span class="prod-cat">${p.categoria}</span>
+                    </div>
+                </div>
+                <div class="prod-actions">
+                    <button class="btn-ic edit" onclick='prepararEdicao(${JSON.stringify(p)})'><i class="fa-solid fa-pen fa-xs"></i></button>
+                    <button class="btn-ic del" onclick="excluirProduto(${p.id})"><i class="fa-solid fa-trash fa-xs"></i></button>
+                </div>
+            </div>`).join('')
+        ).join('');
     }
 
     function prepararEdicao(p) {
         idEdicao = p.id;
-        document.getElementById('nome').value = p.nome;
-        document.getElementById('descricao').value = p.descricao;
-        document.getElementById('preco').value = p.preco;
-        document.getElementById('imagem').value = p.imagemUrl || "";
-        document.getElementById('categoria').value = p.categoria;
-        
-        document.getElementById('formTitle').innerText = "📝 Editando: " + p.nome;
-        document.getElementById('btnSalvar').innerText = "💾 Salvar Alterações";
-        document.getElementById('btnCancelar').style.display = "block";
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        document.getElementById('nome').value      = p.nome||'';
+        document.getElementById('descricao').value = p.descricao||'';
+        document.getElementById('preco').value     = p.preco||'';
+        document.getElementById('imagem').value    = p.imagemUrl||'';
+        document.getElementById('categoria').value = p.categoria||'LANCHE';
+        document.getElementById('emoji').value     = p.emoji||'';
+        document.getElementById('formTitle').textContent      = p.nome;
+        document.getElementById('btnSalvarLabel').textContent = 'Salvar Alterações';
+        document.getElementById('btnCancelar').style.display  = 'block';
+        document.getElementById('editBanner').classList.add('vis');
+        document.querySelector('.panel:has(#btnSalvar)').scrollIntoView({behavior:'smooth',block:'start'});
     }
 
     function cancelarEdicao() {
         idEdicao = null;
-        document.getElementById('nome').value = "";
-        document.getElementById('descricao').value = "";
-        document.getElementById('preco').value = "";
-        document.getElementById('imagem').value = "";
-        document.getElementById('formTitle').innerText = "Cadastrar Novo Lanche";
-        document.getElementById('btnSalvar').innerText = "➕ Adicionar ao Cardápio";
-        document.getElementById('btnCancelar').style.display = "none";
+        ['nome','descricao','preco','imagem','emoji'].forEach(id => document.getElementById(id).value='');
+        document.getElementById('categoria').value            = 'LANCHE';
+        document.getElementById('formTitle').textContent      = 'Novo Produto';
+        document.getElementById('btnSalvarLabel').textContent = 'Salvar no Cardápio';
+        document.getElementById('btnCancelar').style.display  = 'none';
+        document.getElementById('editBanner').classList.remove('vis');
     }
 
     async function salvarProduto() {
-        const key = document.getElementById('adminKey').value;
+        const key  = document.getElementById('adminKey').value;
+        const nome = document.getElementById('nome').value.trim();
+        const prec = parseFloat(document.getElementById('preco').value);
+        const cat  = document.getElementById('categoria').value;
+        if (!nome || isNaN(prec)) { feedback("Preencha nome e preço.", false); return; }
+        const emojiMap = {LANCHE:'🍔',BEBIDA:'🥤',PORCAO:'🍟',SOBREMESA:'🍦'};
         const produto = {
-            nome: document.getElementById('nome').value,
-            descricao: document.getElementById('descricao').value,
-            preco: parseFloat(document.getElementById('preco').value),
-            imagemUrl: document.getElementById('imagem').value,
-            categoria: document.getElementById('categoria').value,
-            ativo: true,
-            ordem: 0,
-            emoji: document.getElementById('categoria').value === 'BEBIDA' ? "🥤" : "🍔", 
+            nome, preco: prec, categoria: cat, ativo: true, ordem: 0,
+            descricao: document.getElementById('descricao').value.trim(),
+            imagemUrl: document.getElementById('imagem').value.trim(),
+            emoji: document.getElementById('emoji').value.trim() || emojiMap[cat] || '🍽️',
             loja: { id: LOJA_ID_NUM }
         };
-
         const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
-        const metodo = idEdicao ? 'PUT' : 'POST';
-
+        const btn = document.getElementById('btnSalvar');
+        btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin fa-xs"></i> Salvando...';
         try {
-            const res = await fetch(url, {
-                method: metodo,
-                headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
-                body: JSON.stringify(produto)
-            });
-
-            if (res.ok) { 
-                alert(idEdicao ? "Atualizado!" : "Cadastrado!");
-                cancelarEdicao();
-                carregarDados(); 
-            } else { alert("Erro ao salvar! Verifique a chave."); }
-        } catch (e) { alert("Erro de conexão."); }
+            const r = await fetch(url,{method:idEdicao?'PUT':'POST',headers:{'Content-Type':'application/json','Admin-Key':key},body:JSON.stringify(produto)});
+            if (r.ok) { feedback(idEdicao?'Produto atualizado!':'Produto cadastrado!', true); cancelarEdicao(); carregarDados(); }
+            else       { feedback("Erro ao salvar.", false); }
+        } catch { feedback("Erro de conexão.", false); }
+        finally { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk fa-xs"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>'; }
     }
 
     async function excluirProduto(id) {
-        if (!confirm("Remover este item?")) return;
+        if (!confirm("Remover este produto?")) return;
         const key = document.getElementById('adminKey').value;
         try {
-            const res = await fetch(`${API_URL}/produtos/${id}`, {
-                method: 'DELETE',
-                headers: { 'Admin-Key': key }
+            const r = await fetch(`${API_URL}/produtos/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
+            if (r.ok) { feedback("Removido!", true); carregarDados(); }
+            else       { feedback("Erro ao remover.", false); }
+        } catch { feedback("Erro de conexão.", false); }
+    }
+
+    /* ===================== ADICIONAIS ===================== */
+    function renderizarAdics(adics) {
+        document.getElementById('adicCount').textContent = adics?.length || 0;
+        const lista = document.getElementById('lista-adicionais');
+        if (!adics?.length) { lista.innerHTML=`<div class="empty-adm"><i class="fa-solid fa-circle-plus"></i><p>Nenhum adicional.</p></div>`; return; }
+        lista.innerHTML = adics.map(a => `
+        <div class="adic-item">
+            <div class="adic-em">${a.emoji||'➕'}</div>
+            <div class="adic-info-col">
+                <strong>${a.nome}</strong>
+                <span>+ R$ ${parseFloat(a.preco).toFixed(2)}</span>
+            </div>
+            <div class="prod-actions">
+                <button class="btn-ic edit" onclick='prepararEdicaoAdic(${JSON.stringify(a)})'><i class="fa-solid fa-pen fa-xs"></i></button>
+                <button class="btn-ic del" onclick="excluirAdic(${a.id})"><i class="fa-solid fa-trash fa-xs"></i></button>
+            </div>
+        </div>`).join('');
+    }
+
+    function prepararEdicaoAdic(a) {
+        adicEdicaoId = a.id;
+        document.getElementById('adic-nome').value  = a.nome||'';
+        document.getElementById('adic-preco').value = a.preco||'';
+        document.getElementById('adic-emoji').value = a.emoji||'';
+        document.getElementById('adicFormTitle').textContent = a.nome;
+        document.getElementById('adicBtnLabel').textContent  = 'Salvar Alterações';
+        document.getElementById('adicCancelar').style.display = 'block';
+        document.getElementById('adicEditBanner').classList.add('vis');
+    }
+
+    function cancelarEdicaoAdic() {
+        adicEdicaoId = null;
+        ['adic-nome','adic-preco','adic-emoji'].forEach(id => document.getElementById(id).value='');
+        document.getElementById('adicFormTitle').textContent   = 'Novo Adicional';
+        document.getElementById('adicBtnLabel').textContent    = 'Salvar Adicional';
+        document.getElementById('adicCancelar').style.display  = 'none';
+        document.getElementById('adicEditBanner').classList.remove('vis');
+    }
+
+    async function salvarAdic() {
+        const key  = document.getElementById('adminKey').value;
+        const nome = document.getElementById('adic-nome').value.trim();
+        const prec = parseFloat(document.getElementById('adic-preco').value);
+        if (!nome || isNaN(prec)) { feedback("Preencha nome e preço do adicional.", false); return; }
+        const payload = {
+            nome, preco: prec,
+            emoji: document.getElementById('adic-emoji').value.trim() || '➕',
+            ativo: true,
+            loja: { id: LOJA_ID_NUM }
+        };
+        const url = adicEdicaoId ? `${API_URL}/adicionais/${adicEdicaoId}` : `${API_URL}/adicionais`;
+        try {
+            const r = await fetch(url,{method:adicEdicaoId?'PUT':'POST',headers:{'Content-Type':'application/json','Admin-Key':key},body:JSON.stringify(payload)});
+            if (r.ok) { feedback(adicEdicaoId?'Adicional atualizado!':'Adicional cadastrado!',true); cancelarEdicaoAdic(); carregarDados(); }
+            else       { feedback("Erro ao salvar adicional.", false); }
+        } catch { feedback("Erro de conexão.", false); }
+    }
+
+    async function excluirAdic(id) {
+        if (!confirm("Remover este adicional?")) return;
+        const key = document.getElementById('adminKey').value;
+        try {
+            const r = await fetch(`${API_URL}/adicionais/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
+            if (r.ok) { feedback("Adicional removido!",true); carregarDados(); }
+            else       { feedback("Erro ao remover.",false); }
+        } catch { feedback("Erro de conexão.",false); }
+    }
+
+    /* ===================== PEDIDOS ===================== */
+    async function carregarPedidos() {
+        const key  = document.getElementById('adminKey').value;
+        const rota = filtroPedidos === 'hoje'
+            ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje`
+            : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
+        try {
+            const r = await fetch(rota, { headers: { 'Admin-Key': key } });
+            if (r.ok) renderizarPedidos(await r.json());
+            else renderizarPedidos([]);
+        } catch (e) { console.error(e); }
+    }
+
+    function filtrarPedidos(tipo, btn) {
+        filtroPedidos = tipo;
+        document.querySelectorAll('.filtro-btn').forEach(b => {
+            b.className = 'filtro-btn inativo';
+        });
+        btn.className = 'filtro-btn ativo';
+        carregarPedidos();
+    }
+
+    async function avancarStatus(id, statusAtual) {
+        const prox = STATUS_PROX[statusAtual];
+        if (prox === statusAtual) return;
+        const key = document.getElementById('adminKey').value;
+        try {
+            await fetch(`${API_URL}/pedidos/${id}/status`, {
+                method:'PATCH',
+                headers:{'Content-Type':'application/json','Admin-Key':key},
+                body: JSON.stringify({ status: prox })
             });
-            if (res.ok) { carregarDados(); }
-        } catch (e) { alert("Erro de conexão."); }
+            carregarPedidos();
+        } catch { feedback('Erro ao atualizar status.', false); }
+    }
+
+    async function excluirPedido(id) {
+        if (!confirm('Remover este pedido do histórico?')) return;
+        const key = document.getElementById('adminKey').value;
+        try {
+            await fetch(`${API_URL}/pedidos/${id}`, { method:'DELETE', headers:{'Admin-Key':key} });
+            carregarPedidos();
+        } catch { feedback('Erro ao remover pedido.', false); }
+    }
+
+    function renderizarPedidos(pedidos) {
+        const total = pedidos.reduce((s, p) => s + parseFloat(p.total), 0);
+        document.getElementById('pedidos-qtd').textContent    = pedidos.length;
+        document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
+
+        const lista = document.getElementById('lista-pedidos');
+        if (!pedidos.length) {
+            lista.innerHTML = `
+                <div class="empty-adm" style="padding:40px">
+                    <i class="fa-solid fa-receipt"></i>
+                    <p>Nenhum pedido ${filtroPedidos === 'hoje' ? 'hoje' : 'registrado'}</p>
+                </div>`;
+            return;
+        }
+
+        lista.innerHTML = pedidos.map(p => {
+            let itens = [];
+            try { itens = JSON.parse(p.itensJson || '[]'); } catch {}
+
+            const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+            const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
+
+            const itensHtml = itens.map(item => {
+                let html = `<div class="pedido-item-linha">
+                    <span style="font-weight:800">${item.qtd}x</span>
+                    <span>${item.emoji||''} ${item.nome}</span>
+                    <span style="margin-left:auto;color:var(--am);font-weight:700">R$ ${parseFloat(item.subtotal||0).toFixed(2)}</span>
+                </div>`;
+                const mods = [];
+                if (item.removidos?.length)   mods.push(`🚫 Sem: ${item.removidos.join(', ')}`);
+                if (item.adicionais?.length)   item.adicionais.forEach(a => mods.push(`➕ +${a.qtd}x ${a.nome}`));
+                if (item.obs)                  mods.push(`💬 ${item.obs}`);
+                if (mods.length) html += `<div class="pedido-item-mods">${mods.join('<br>')}</div>`;
+                return html;
+            }).join('');
+
+            return `
+            <div class="pedido-card">
+                <div class="pedido-top">
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                        <span class="pedido-id">#${p.id}</span>
+                        <span class="pedido-hora">${data} às ${hora}</span>
+                        ${p.nomeCliente ? `<span style="font-size:.8rem;font-weight:700">${p.nomeCliente}</span>` : ''}
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span class="pedido-valor">R$ ${parseFloat(p.total).toFixed(2)}</span>
+                        <button class="status-badge status-${p.status}"
+                            onclick="avancarStatus(${p.id},'${p.status}')"
+                            title="Clique para avançar">
+                            ${STATUS_LABEL[p.status]||p.status}
+                        </button>
+                        <button class="btn-del-pedido" onclick="excluirPedido(${p.id})">
+                            <i class="fa-solid fa-trash fa-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="pedido-itens">${itensHtml}</div>
+                ${p.observacao ? `<div class="pedido-obs">💬 ${p.observacao}</div>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    /* ===================== FEEDBACK ===================== */
+    function feedback(msg, ok=true) {
+        const el  = document.getElementById('feedback');
+        const ico = el.querySelector('i');
+        document.getElementById('feedbackMsg').textContent = msg;
+        el.className = `feedback ${ok?'ok':'err'} show`;
+        ico.className = ok ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation';
+        setTimeout(() => el.classList.remove('show'), 3000);
     }
 
     window.onload = carregarDados;
