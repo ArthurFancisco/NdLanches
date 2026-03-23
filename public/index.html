@@ -407,9 +407,17 @@
     const WHATSAPP_NUM = ""; // Ex: "5517999999999"
 
     let lojaAberta      = false;
-    let todosProdutos   = [];
-    let todosAdicionais = [];
-    let carrinho        = [];
+    /* ===================== ESTADO DO CARRINHO ===================== */
+let todosProdutos = [];
+let todosAdicionais = [];
+
+// Tenta carregar o carrinho do navegador. Se não existir, começa vazio []
+let carrinho = JSON.parse(localStorage.getItem('nd_lanches_cart')) || [];
+
+// Função para salvar o estado atual na "memória" do navegador
+function salvarCarrinho() {
+    localStorage.setItem('nd_lanches_cart', JSON.stringify(carrinho));
+}
 
     let prodAtual   = null;
     let ingrsAtivos = {};
