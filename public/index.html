@@ -35,6 +35,51 @@
         .aberto { background: rgba(40,167,69,0.2); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
         .fechado { background: rgba(220,53,69,0.2); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
 
+        /* ===== BANNER DE PROMOÇÃO ===== */
+        #banner-promo { display: none; }
+        #banner-promo.vis { display: block; }
+        .banner-wrap { max-width: 860px; margin: 0 auto; padding: 14px 16px 0; }
+
+        .banner-card {
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            animation: bannerSlide 0.5s cubic-bezier(0.34,1.2,0.64,1);
+        }
+        @keyframes bannerSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+
+        /* Variantes de cor */
+        .banner-amarelo { background: #fffbeb; border: 1.5px solid #fcd34d; }
+        .banner-verde   { background: #f0fdf4; border: 1.5px solid #86efac; }
+        .banner-vermelho{ background: #fef2f2; border: 1.5px solid #fca5a5; }
+        .banner-azul    { background: #eff6ff; border: 1.5px solid #93c5fd; }
+
+        .banner-emoji { font-size: 1.8rem; flex-shrink: 0; }
+        .banner-texto { flex: 1; }
+        .banner-titulo {
+            font-weight: 800;
+            font-size: 0.95rem;
+            line-height: 1.2;
+        }
+        .banner-amarelo .banner-titulo { color: #92400e; }
+        .banner-verde   .banner-titulo { color: #14532d; }
+        .banner-vermelho.banner-titulo { color: #7f1d1d; }
+        .banner-azul    .banner-titulo { color: #1e3a5f; }
+
+        .banner-desc {
+            font-size: 0.82rem;
+            margin-top: 3px;
+            opacity: 0.8;
+        }
+        .banner-amarelo .banner-desc { color: #92400e; }
+        .banner-verde   .banner-desc { color: #14532d; }
+        .banner-vermelho .banner-desc { color: #7f1d1d; }
+        .banner-azul    .banner-desc { color: #1e3a5f; }
+
         /* TABS */
         .tabs-wrapper { position: sticky; top: 0; z-index: 100; background: var(--bg); padding: 14px 16px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); }
         .tabs { display: flex; gap: 8px; max-width: 860px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
@@ -44,7 +89,7 @@
         .tab-btn.active { background: var(--g1); border-color: var(--g1); color: white; box-shadow: 0 4px 14px rgba(11,61,24,0.3); }
 
         /* GRID */
-        .container { max-width: 860px; margin: 0 auto; padding: 24px 16px 140px; position: relative; }
+        .container { max-width: 860px; margin: 0 auto; padding: 24px 16px 140px; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
         @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
 
@@ -63,70 +108,15 @@
         .add-btn { width: 36px; height: 36px; background: var(--g1); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
         .add-btn:hover { background: var(--g3); transform: scale(1.1); }
 
-        /* ===== OVERLAY LOJA FECHADA ===== */
-        .fechado-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 250;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(6px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+        /* OVERLAY LOJA FECHADA */
+        .fechado-overlay { display: none; position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 20px; }
         .fechado-overlay.ativo { display: flex; }
-
-        .fechado-card {
-            background: white;
-            border-radius: 28px;
-            padding: 40px 32px;
-            text-align: center;
-            max-width: 380px;
-            width: 100%;
-            box-shadow: var(--shadow-lg);
-            animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-        }
+        .fechado-card { background: white; border-radius: 28px; padding: 40px 32px; text-align: center; max-width: 380px; width: 100%; box-shadow: var(--shadow-lg); animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
         @keyframes popIn { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
-
-        .fechado-icon {
-            width: 80px;
-            height: 80px;
-            background: #fef2f2;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 2.2rem;
-        }
-
-        .fechado-card h2 {
-            font-family: 'Bebas Neue', cursive;
-            font-size: 2rem;
-            letter-spacing: 2px;
-            color: var(--g1);
-            margin-bottom: 10px;
-        }
-
-        .fechado-card p {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 6px;
-        }
-
-        .fechado-msg-custom {
-            display: none;
-            background: #f0f9f3;
-            border: 1px solid #c6e8d0;
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
-            font-size: 0.88rem;
-            color: var(--g2);
-            font-weight: 700;
-            margin-top: 14px;
-        }
+        .fechado-icon { width: 80px; height: 80px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.2rem; }
+        .fechado-card h2 { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 2px; color: var(--g1); margin-bottom: 10px; }
+        .fechado-card p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 6px; }
+        .fechado-msg-custom { display: none; background: #f0f9f3; border: 1px solid #c6e8d0; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.88rem; color: var(--g2); font-weight: 700; margin-top: 14px; }
         .fechado-msg-custom.vis { display: block; }
 
         /* SKELETONS */
@@ -158,8 +148,6 @@
         .section-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .section-label i { font-size: 0.75rem; }
         .custom-section { margin-bottom: 24px; }
-
-        /* CHIPS */
         .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
         .chip { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 50px; border: 2px solid var(--border); background: white; font-size: 0.84rem; font-weight: 700; color: var(--text); cursor: pointer; transition: all 0.2s; user-select: none; }
         .chip i { font-size: 0.7rem; width: 14px; height: 14px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -167,8 +155,6 @@
         .chip.removed { background: #fef2f2; border-color: #fca5a5; color: #dc2626; text-decoration: line-through; }
         .chip.removed i { background: #fca5a5; color: #dc2626; }
         .chip-hint { font-size: 0.76rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
-
-        /* ADICIONAIS */
         .adicionais-grid { display: flex; flex-direction: column; gap: 8px; }
         .adic-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: white; cursor: pointer; transition: all 0.2s; }
         .adic-row:hover { border-color: #a7c4af; }
@@ -182,13 +168,9 @@
         .adic-add-btn:hover { border-color: var(--g1); background: var(--g1); color: white; }
         .adic-qtd-num { font-weight: 800; min-width: 18px; text-align: center; font-size: 0.92rem; }
         .adic-empty { text-align: center; padding: 18px; color: var(--text-muted); font-size: 0.88rem; }
-
-        /* OBSERVAÇÃO */
         .obs-area { width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); font-family: 'Nunito', sans-serif; font-size: 0.9rem; color: var(--text); resize: none; outline: none; transition: border-color 0.2s; background: white; }
         .obs-area:focus { border-color: var(--g2); }
         .obs-counter { font-size: 0.74rem; color: var(--text-muted); text-align: right; margin-top: 4px; }
-
-        /* PREÇO TOTAL */
         .cm-total-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0 16px; border-top: 2px solid var(--bg); margin-top: 4px; }
         .cm-total-label { font-weight: 700; color: var(--text-muted); font-size: 0.9rem; }
         .cm-total-val { font-weight: 800; font-size: 1.25rem; color: var(--g1); }
@@ -208,44 +190,28 @@
         .qty-btn:hover { border-color: var(--g1); background: var(--g1); color: white; }
         .qty-num { font-weight: 800; min-width: 20px; text-align: center; }
 
-        /* ===== CAMPO NOME DO CLIENTE ===== */
-        .nome-cliente-wrap {
-            background: #f0f9f3;
-            border: 2px solid #c6e8d0;
-            border-radius: var(--radius-sm);
-            padding: 14px;
-            margin-bottom: 16px;
-        }
-        .nome-cliente-label {
-            font-size: 0.72rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--g2);
-            margin-bottom: 8px;
-            display: flex;
+        /* CAMPO NOME DO CLIENTE */
+        .nome-cliente-wrap { background: #f0f9f3; border: 2px solid #c6e8d0; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px; }
+        .nome-cliente-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--g2); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .nome-cliente-input { width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); outline: none; transition: border-color 0.2s; background: white; }
+        .nome-cliente-input:focus { border-color: var(--g2); }
+        .nome-cliente-hint { font-size: 0.74rem; color: var(--text-muted); margin-top: 6px; }
+
+        /* CARRINHO PERSISTIDO — aviso de restauração */
+        .cart-restored-badge {
+            display: none;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 50px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 14px;
             align-items: center;
             gap: 6px;
         }
-        .nome-cliente-input {
-            width: 100%;
-            padding: 11px 14px;
-            border-radius: var(--radius-sm);
-            border: 2px solid var(--border);
-            font-family: 'Nunito', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text);
-            outline: none;
-            transition: border-color 0.2s;
-            background: white;
-        }
-        .nome-cliente-input:focus { border-color: var(--g2); }
-        .nome-cliente-hint {
-            font-size: 0.74rem;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
+        .cart-restored-badge.vis { display: flex; }
 
         .cart-subtotal { display: flex; justify-content: space-between; font-size: 1rem; margin-top: 16px; margin-bottom: 8px; color: var(--text-muted); }
         .cart-total-row { display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 800; color: var(--g1); margin-bottom: 18px; padding-top: 12px; border-top: 2px solid var(--border); }
@@ -282,6 +248,19 @@
     </div>
 </header>
 
+<!-- BANNER DE PROMOÇÃO -->
+<div id="banner-promo">
+    <div class="banner-wrap">
+        <div class="banner-card" id="banner-card">
+            <span class="banner-emoji" id="banner-emoji">🔥</span>
+            <div class="banner-texto">
+                <div class="banner-titulo" id="banner-titulo"></div>
+                <div class="banner-desc" id="banner-desc"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="tabs-wrapper">
     <div class="tabs">
         <button class="tab-btn active" onclick="filtrar('TODOS',this)"><span>🏠</span> Todos</button>
@@ -300,7 +279,7 @@
     </div>
 </div>
 
-<!-- ===== OVERLAY: LOJA FECHADA ===== -->
+<!-- OVERLAY: LOJA FECHADA -->
 <div class="fechado-overlay" id="fechadoOverlay">
     <div class="fechado-card">
         <div class="fechado-icon">🔒</div>
@@ -311,7 +290,6 @@
     </div>
 </div>
 
-<!-- CART BAR (só aparece se loja aberta) -->
 <div class="cart-bar" id="cartBar" onclick="abrirModalCarrinho()">
     <div class="cart-left">
         <span class="cart-badge" id="cartCount">0</span>
@@ -325,7 +303,7 @@
 
 <!-- MODAL: CUSTOMIZAR PRODUTO -->
 <div class="modal-overlay" id="customOverlay" onclick="fecharModalFora(event,'customOverlay')">
-  <div class="modal" id="customModal">
+  <div class="modal">
     <div class="modal-handle"></div>
     <div class="cm-header">
         <div class="cm-emoji-box" id="cm-emoji">🍔</div>
@@ -368,19 +346,16 @@
     <div class="modal-handle"></div>
     <div class="cart-title">🛒 Seu Pedido</div>
 
-    <!-- CAMPO NOME DO CLIENTE -->
+    <!-- Aviso de carrinho restaurado -->
+    <div class="cart-restored-badge" id="cartRestoredBadge">
+        <i class="fa-solid fa-rotate-left fa-xs"></i> Seu pedido anterior foi restaurado!
+    </div>
+
+    <!-- NOME DO CLIENTE -->
     <div class="nome-cliente-wrap">
-        <div class="nome-cliente-label">
-            <i class="fa-solid fa-user fa-xs"></i> Seu nome
-        </div>
-        <input
-            type="text"
-            id="nomeCliente"
-            class="nome-cliente-input"
-            placeholder="Ex: João Silva"
-            maxlength="60"
-            autocomplete="name"
-        >
+        <div class="nome-cliente-label"><i class="fa-solid fa-user fa-xs"></i> Seu nome</div>
+        <input type="text" id="nomeCliente" class="nome-cliente-input"
+            placeholder="Ex: João Silva" maxlength="60" autocomplete="name">
         <div class="nome-cliente-hint">Para identificarmos seu pedido quando estiver pronto 👋</div>
     </div>
 
@@ -405,19 +380,13 @@
     const LOJA_SLUG    = "nd-lanches";
     const LOJA_ID      = 1;
     const WHATSAPP_NUM = ""; // Ex: "5517999999999"
+    const CART_KEY     = `ndlanches_cart_${LOJA_ID}`; // chave no localStorage
 
     let lojaAberta      = false;
-    /* ===================== ESTADO DO CARRINHO ===================== */
-let todosProdutos = [];
-let todosAdicionais = [];
-
-// Tenta carregar o carrinho do navegador. Se não existir, começa vazio []
-let carrinho = JSON.parse(localStorage.getItem('nd_lanches_cart')) || [];
-
-// Função para salvar o estado atual na "memória" do navegador
-function salvarCarrinho() {
-    localStorage.setItem('nd_lanches_cart', JSON.stringify(carrinho));
-}
+    let todosProdutos   = [];
+    let todosAdicionais = [];
+    let carrinho        = [];
+    let carrinhoRestaurado = false;
 
     let prodAtual   = null;
     let ingrsAtivos = {};
@@ -425,6 +394,9 @@ function salvarCarrinho() {
 
     /* ===================== CARREGAR ===================== */
     async function carregarCardapio() {
+        // Tenta restaurar o carrinho ANTES de carregar a API
+        restaurarCarrinho();
+
         try {
             const rS = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
             if (rS.ok) {
@@ -438,31 +410,42 @@ function salvarCarrinho() {
             const rA = await fetch(`${API_URL}/adicionais/loja/${LOJA_ID}`);
             if (rA.ok) todosAdicionais = await rA.json();
 
+            // Banners de promoção
+            const rB = await fetch(`${API_URL}/banners/loja/${LOJA_ID}/ativos`);
+            if (rB.ok) {
+                const banners = await rB.json();
+                if (banners.length > 0) renderizarBanner(banners[0]);
+            }
+
         } catch (e) {
             console.error(e);
             document.getElementById('menu-grid').innerHTML =
                 `<div class="empty-state"><i class="fa-solid fa-wifi"></i><p>Erro ao conectar.</p></div>`;
         }
+
+        // Atualiza UI do carrinho após restaurar e carregar produtos
+        atualizarCartUI();
     }
 
-    /* ===== CONTROLE DE STATUS DA LOJA ===== */
+    /* ===== BANNER ===== */
+    function renderizarBanner(b) {
+        const wrap  = document.getElementById('banner-promo');
+        const card  = document.getElementById('banner-card');
+        document.getElementById('banner-emoji').textContent  = b.emoji || '🔥';
+        document.getElementById('banner-titulo').textContent = b.titulo || '';
+        document.getElementById('banner-desc').textContent   = b.descricao || '';
+
+        // Remove classes de cor anteriores e aplica a correta
+        card.className = `banner-card banner-${b.cor || 'amarelo'}`;
+        wrap.classList.add('vis');
+    }
+
+    /* ===== STATUS DA LOJA ===== */
     function atualizarStatusUI(aberto) {
         const badge = document.getElementById('status-loja');
         badge.innerHTML = `<div class="status-dot"></div>${aberto ? 'Aberto agora' : 'Fechado'}`;
         badge.className = aberto ? 'aberto' : 'fechado';
-
-        // Mostra ou oculta o overlay de loja fechada
-        const overlay = document.getElementById('fechadoOverlay');
-        if (aberto) {
-            overlay.classList.remove('ativo');
-        } else {
-            overlay.classList.add('ativo');
-
-            // Se a loja tiver mensagem personalizada, exibe
-            // (você pode buscar da API futuramente — por ora usa mensagem padrão)
-            const msg = document.getElementById('fechadoMsgCustom');
-            msg.classList.remove('vis');
-        }
+        document.getElementById('fechadoOverlay').classList.toggle('ativo', !aberto);
     }
 
     /* ===================== RENDERIZAR ===================== */
@@ -495,12 +478,8 @@ function salvarCarrinho() {
         }).join('');
     }
 
-    /* Bloqueia interação se loja fechada */
     function tentarAbrir(id) {
-        if (!lojaAberta) {
-            document.getElementById('fechadoOverlay').classList.add('ativo');
-            return;
-        }
+        if (!lojaAberta) { document.getElementById('fechadoOverlay').classList.add('ativo'); return; }
         abrirCustom(id);
     }
 
@@ -518,7 +497,6 @@ function salvarCarrinho() {
         adicQtd     = {};
         document.getElementById('obs-texto').value = '';
         document.getElementById('obs-count').textContent = '0';
-
         document.getElementById('cm-emoji').textContent      = prodAtual.emoji || '🍔';
         document.getElementById('cm-nome').textContent       = prodAtual.nome;
         document.getElementById('cm-preco-base').textContent = `a partir de R$ ${prodAtual.preco.toFixed(2)}`;
@@ -529,9 +507,7 @@ function salvarCarrinho() {
             ingrs.forEach(i => ingrsAtivos[i] = true);
             renderChips(ingrs);
             secI.style.display = 'block';
-        } else {
-            secI.style.display = 'none';
-        }
+        } else { secI.style.display = 'none'; }
 
         renderAdicionais();
         atualizarTotal();
@@ -552,8 +528,7 @@ function salvarCarrinho() {
             ingrs.map(i => {
                 const rem = !ingrsAtivos[i];
                 return `<div class="chip ${rem?'removed':''}" onclick="toggleIngr('${i.replace(/'/g,"\\'")}')">
-                    ${i}
-                    <i class="fa-solid ${rem?'fa-xmark':'fa-check'} fa-xs"></i>
+                    ${i}<i class="fa-solid ${rem?'fa-xmark':'fa-check'} fa-xs"></i>
                 </div>`;
             }).join('');
     }
@@ -631,15 +606,9 @@ function salvarCarrinho() {
         }).filter(Boolean);
         const obs = document.getElementById('obs-texto').value.trim();
 
-        carrinho.push({
-            produto: prodAtual, qtd: 1,
-            precoUnit: calcTotal(),
-            ingredRemovidos: removidos,
-            adicSel: adics,
-            obs
-        });
-
+        carrinho.push({ produto: prodAtual, qtd: 1, precoUnit: calcTotal(), ingredRemovidos: removidos, adicSel: adics, obs });
         fecharModal('customOverlay');
+        salvarCarrinho();
         atualizarCartUI();
         mostrarToast(`${prodAtual.emoji||'✅'} ${prodAtual.nome} adicionado!`);
     }
@@ -652,15 +621,13 @@ function salvarCarrinho() {
         const total = totalCarrinho(), qtd = totalItens();
         document.getElementById('cartCount').textContent = qtd;
         document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2)}`;
-        // Cart bar só aparece se loja aberta
-        if (lojaAberta) {
-            document.getElementById('cartBar').classList.toggle('visible', qtd > 0);
-        }
+        if (lojaAberta) document.getElementById('cartBar').classList.toggle('visible', qtd > 0);
     }
 
     function mudarQtdCarrinho(idx, delta) {
         carrinho[idx].qtd = Math.max(0, carrinho[idx].qtd + delta);
         if (carrinho[idx].qtd === 0) carrinho.splice(idx, 1);
+        salvarCarrinho();
         atualizarCartUI();
         if (!carrinho.length) { fecharModal('cartOverlay'); return; }
         renderizarCarrinho();
@@ -669,18 +636,71 @@ function salvarCarrinho() {
     function limparCarrinho() {
         if (!confirm('Limpar todo o carrinho?')) return;
         carrinho = [];
+        carrinhoRestaurado = false;
+        salvarCarrinho();
         atualizarCartUI();
         fecharModal('cartOverlay');
+    }
+
+    /* ===== PERSISTÊNCIA DO CARRINHO (localStorage) ===== */
+    function salvarCarrinho() {
+        try {
+            // Serializa somente os dados necessários (sem referências circulares)
+            const dados = carrinho.map(i => ({
+                produto: {
+                    id: i.produto.id, nome: i.produto.nome,
+                    preco: i.produto.preco, emoji: i.produto.emoji,
+                    descricao: i.produto.descricao, categoria: i.produto.categoria
+                },
+                qtd:             i.qtd,
+                precoUnit:       i.precoUnit,
+                ingredRemovidos: i.ingredRemovidos,
+                adicSel:         i.adicSel.map(a => ({
+                    qtd:  a.qtd,
+                    adic: { id: a.adic.id, nome: a.adic.nome, preco: a.adic.preco, emoji: a.adic.emoji }
+                })),
+                obs: i.obs
+            }));
+            localStorage.setItem(CART_KEY, JSON.stringify({ itens: dados, ts: Date.now() }));
+        } catch (e) { console.warn('Não foi possível salvar carrinho:', e); }
+    }
+
+    function restaurarCarrinho() {
+        try {
+            const raw = localStorage.getItem(CART_KEY);
+            if (!raw) return;
+
+            const { itens, ts } = JSON.parse(raw);
+
+            // Expira após 2 horas
+            if (Date.now() - ts > 2 * 60 * 60 * 1000) {
+                localStorage.removeItem(CART_KEY);
+                return;
+            }
+
+            if (!itens?.length) return;
+
+            carrinho = itens;
+            carrinhoRestaurado = true;
+            mostrarToast('🛒 Seu carrinho foi restaurado!');
+        } catch (e) {
+            console.warn('Erro ao restaurar carrinho:', e);
+            localStorage.removeItem(CART_KEY);
+        }
+    }
+
+    function limparCarrinhoStorage() {
+        localStorage.removeItem(CART_KEY);
+        carrinhoRestaurado = false;
     }
 
     /* ===================== MODAL CARRINHO ===================== */
     function abrirModalCarrinho() {
         if (!carrinho.length) return;
-        if (!lojaAberta) {
-            document.getElementById('fechadoOverlay').classList.add('ativo');
-            return;
-        }
+        if (!lojaAberta) { document.getElementById('fechadoOverlay').classList.add('ativo'); return; }
         renderizarCarrinho();
+        // Mostra badge de restauração se aplicável
+        document.getElementById('cartRestoredBadge').classList.toggle('vis', carrinhoRestaurado);
         document.getElementById('cartOverlay').classList.add('open');
     }
 
@@ -696,7 +716,6 @@ function salvarCarrinho() {
             item.adicSel.forEach(a =>
                 mods.push(`➕ ${a.qtd}x ${a.adic.nome} (+R$ ${(parseFloat(a.adic.preco)*a.qtd).toFixed(2)})`));
             if (item.obs) mods.push(`💬 ${item.obs}`);
-
             return `
             <div class="cart-item">
                 <span class="ci-emoji">${item.produto.emoji||'🍽️'}</span>
@@ -716,16 +735,13 @@ function salvarCarrinho() {
 
     /* ===================== WHATSAPP + REGISTRAR PEDIDO ===================== */
     async function enviarWhatsApp() {
-        // Segurança extra: bloqueia se loja fechou durante a sessão
         if (!lojaAberta) {
             fecharModal('cartOverlay');
             document.getElementById('fechadoOverlay').classList.add('ativo');
             return;
         }
-
         if (!carrinho.length) return;
 
-        // Valida nome do cliente
         const nomeCliente = document.getElementById('nomeCliente').value.trim();
         if (!nomeCliente) {
             document.getElementById('nomeCliente').focus();
@@ -739,49 +755,35 @@ function salvarCarrinho() {
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-lg"></i> Registrando...';
 
-        // Monta itens para salvar no banco
         const itens = carrinho.map(item => ({
-            nome:       item.produto.nome,
-            emoji:      item.produto.emoji || '',
-            qtd:        item.qtd,
-            precoUnit:  item.precoUnit,
-            subtotal:   item.precoUnit * item.qtd,
-            removidos:  item.ingredRemovidos || [],
-            adicionais: (item.adicSel || []).map(a => ({
-                nome:  a.adic.nome,
-                qtd:   a.qtd,
-                preco: parseFloat(a.adic.preco)
-            })),
+            nome: item.produto.nome, emoji: item.produto.emoji || '',
+            qtd: item.qtd, precoUnit: item.precoUnit,
+            subtotal: item.precoUnit * item.qtd,
+            removidos: item.ingredRemovidos || [],
+            adicionais: (item.adicSel||[]).map(a => ({ nome: a.adic.nome, qtd: a.qtd, preco: parseFloat(a.adic.preco) })),
             obs: item.obs || ''
         }));
 
         const obsLinhas = carrinho.flatMap(item => {
             const l = [];
-            if (item.ingredRemovidos?.length)
-                l.push(`${item.produto.nome}: sem ${item.ingredRemovidos.join(', ')}`);
+            if (item.ingredRemovidos?.length) l.push(`${item.produto.nome}: sem ${item.ingredRemovidos.join(', ')}`);
             if (item.obs) l.push(`${item.produto.nome}: ${item.obs}`);
             return l;
         });
 
-        // Registra na API
         try {
             await fetch(`${API_URL}/pedidos`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    nomeCliente:  nomeCliente,
-                    total:        totalCarrinho(),
-                    itensJson:    JSON.stringify(itens),
-                    observacao:   obsLinhas.join(' | ') || null,
-                    status:       'RECEBIDO',
-                    loja:         { id: LOJA_ID }
+                    nomeCliente, total: totalCarrinho(),
+                    itensJson: JSON.stringify(itens),
+                    observacao: obsLinhas.join(' | ') || null,
+                    status: 'RECEBIDO', loja: { id: LOJA_ID }
                 })
             });
-        } catch (e) {
-            console.warn('Pedido não registrado na API:', e);
-        }
+        } catch (e) { console.warn('Pedido não registrado na API:', e); }
 
-        // Monta mensagem WhatsApp com nome do cliente
         const linhas = carrinho.map(item => {
             let l = `• ${item.qtd}x ${item.produto.nome} — R$ ${(item.precoUnit*item.qtd).toFixed(2)}`;
             if (item.ingredRemovidos?.length) l += `\n  🚫 Sem: ${item.ingredRemovidos.join(', ')}`;
@@ -792,6 +794,12 @@ function salvarCarrinho() {
 
         const msg = `Olá! Meu nome é *${nomeCliente}* e gostaria de fazer um pedido:\n\n${linhas.join('\n\n')}\n\n*Total: R$ ${totalCarrinho().toFixed(2)}*`;
         window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+
+        // Limpa carrinho após envio bem-sucedido
+        carrinho = [];
+        limparCarrinhoStorage();
+        atualizarCartUI();
+        fecharModal('cartOverlay');
 
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-brands fa-whatsapp fa-lg"></i> Enviar Pedido pelo WhatsApp';

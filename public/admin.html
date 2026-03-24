@@ -68,8 +68,8 @@
         .btn-save:hover{background:var(--am-dark);transform:translateY(-1px);}
         .btn-cancel{width:100%;padding:10px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:8px;transition:all .2s;}
         .btn-cancel:hover{border-color:var(--danger);color:var(--danger);}
-        .edit-banner{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:14px;font-size:.83rem;font-weight:700;color:var(--am);display:none;align-items:center;gap:8px;}
-        .edit-banner.vis{display:flex;}
+        .edit-banner-bar{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:14px;font-size:.83rem;font-weight:700;color:var(--am);display:none;align-items:center;gap:8px;}
+        .edit-banner-bar.vis{display:flex;}
 
         /* LISTAS */
         .prod-count{background:var(--am);color:var(--g1);font-size:.72rem;font-weight:800;padding:2px 9px;border-radius:50px;}
@@ -88,6 +88,10 @@
         .btn-ic.edit:hover{background:var(--am);color:var(--g1);}
         .btn-ic.del{background:rgba(239,68,68,.1);color:var(--danger);}
         .btn-ic.del:hover{background:var(--danger);color:white;}
+        .btn-ic.toggle-on{background:rgba(34,197,94,.12);color:var(--success);}
+        .btn-ic.toggle-on:hover{background:var(--success);color:white;}
+        .btn-ic.toggle-off{background:rgba(107,114,128,.12);color:var(--text-muted);}
+        .btn-ic.toggle-off:hover{background:var(--text-muted);color:white;}
         .empty-adm{text-align:center;padding:36px 16px;color:var(--text-muted);}
         .empty-adm i{font-size:2.2rem;margin-bottom:10px;display:block;}
         .sec-div{display:flex;align-items:center;gap:10px;margin-bottom:12px;margin-top:4px;}
@@ -101,11 +105,25 @@
         .adic-info-col strong{display:block;font-size:.9rem;font-weight:800;}
         .adic-info-col span{font-size:.82rem;font-weight:700;color:var(--am);}
 
+        /* BANNER LIST */
+        .banner-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+        .banner-item:last-child{border-bottom:none;}
+        .banner-item-em{width:38px;height:38px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+        .banner-info{flex:1;min-width:0;}
+        .banner-info strong{display:block;font-size:.9rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .banner-info span{font-size:.78rem;color:var(--text-muted);}
+        .banner-ativo-pill{padding:2px 9px;border-radius:50px;font-size:.7rem;font-weight:800;text-transform:uppercase;}
+        .banner-ativo-pill.on{background:rgba(34,197,94,.15);color:var(--success);}
+        .banner-ativo-pill.off{background:rgba(107,114,128,.12);color:var(--text-muted);}
+
         /* PEDIDOS */
         .filtro-btn{padding:7px 14px;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:all .2s;}
         .filtro-btn.ativo{background:var(--am);border:2px solid var(--am);color:var(--g1);}
         .filtro-btn.inativo{background:transparent;border:2px solid var(--border);color:var(--text-muted);}
         .resumo-dia{background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:7px 16px;font-size:.82rem;font-weight:700;color:var(--text-muted);}
+        /* Indicador de auto-refresh */
+        .refresh-indicator{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted);}
+        .refresh-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:ledPulse 2s infinite;}
         #lista-pedidos{max-height:600px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent;}
         .pedido-card{padding:16px 20px;border-bottom:1px solid var(--border);transition:background .15s;}
         .pedido-card:hover{background:var(--surface2);}
@@ -127,6 +145,9 @@
         .pedido-obs{margin-top:6px;font-size:.8rem;color:var(--text-muted);font-style:italic;padding:6px 10px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--border);}
         .btn-del-pedido{background:rgba(239,68,68,.1);color:var(--danger);border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:all .2s;flex-shrink:0;}
         .btn-del-pedido:hover{background:var(--danger);color:white;}
+        /* Badge de novo pedido */
+        @keyframes newPedido { 0%{background:rgba(245,197,24,.15)} 50%{background:rgba(245,197,24,.3)} 100%{background:transparent} }
+        .pedido-novo { animation: newPedido 2s ease; }
 
         /* FEEDBACK */
         .feedback{position:fixed;bottom:26px;right:22px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:13px 18px;border-radius:var(--radius-sm);font-weight:700;font-size:.88rem;box-shadow:var(--shadow);opacity:0;transform:translateY(14px);pointer-events:none;transition:all .3s;z-index:500;display:flex;align-items:center;gap:9px;max-width:300px;}
@@ -153,7 +174,6 @@
     </div>
 </div>
 
-<!-- DASHBOARD: 3 colunas -->
 <div class="dashboard">
 
     <!-- COL 1: Status + Form Produto -->
@@ -177,7 +197,7 @@
         <div class="panel">
             <div class="panel-header"><h2><i class="fa-solid fa-burger"></i> <span id="formTitle">Novo Produto</span></h2></div>
             <div class="panel-body">
-                <div class="edit-banner" id="editBanner"><i class="fa-solid fa-pencil fa-xs"></i> Modo edição</div>
+                <div class="edit-banner-bar" id="editBanner"><i class="fa-solid fa-pencil fa-xs"></i> Modo edição</div>
                 <div class="form-group"><label>Nome</label><input type="text" id="nome" placeholder="Ex: X-Burguer Especial"></div>
                 <div class="form-group"><label>Descrição / Ingredientes</label>
                     <input type="text" id="descricao" placeholder="Ex: Pão, hambúrguer, queijo, alface, tomate"></div>
@@ -206,14 +226,16 @@
         </div>
     </div>
 
-    <!-- COL 2: Form Adicional + Lista Adicionais -->
+    <!-- COL 2: Adicionais + Banners -->
     <div style="display:flex;flex-direction:column;gap:20px">
+
+        <!-- FORM ADICIONAL -->
         <div class="panel">
             <div class="panel-header"><h2><i class="fa-solid fa-circle-plus"></i> <span id="adicFormTitle">Novo Adicional</span></h2></div>
             <div class="panel-body">
-                <div class="edit-banner" id="adicEditBanner"><i class="fa-solid fa-pencil fa-xs"></i> Editando adicional</div>
-                <div class="form-group"><label>Nome do adicional</label>
-                    <input type="text" id="adic-nome" placeholder="Ex: Bacon extra, Queijo duplo"></div>
+                <div class="edit-banner-bar" id="adicEditBanner"><i class="fa-solid fa-pencil fa-xs"></i> Editando adicional</div>
+                <div class="form-group"><label>Nome</label>
+                    <input type="text" id="adic-nome" placeholder="Ex: Bacon extra"></div>
                 <div class="form-row">
                     <div class="form-group"><label>Preço (R$)</label>
                         <input type="number" id="adic-preco" step="0.01" min="0" placeholder="0,00"></div>
@@ -229,6 +251,7 @@
             </div>
         </div>
 
+        <!-- LISTA ADICIONAIS -->
         <div class="panel">
             <div class="panel-header">
                 <h2><i class="fa-solid fa-list"></i> Adicionais</h2>
@@ -237,10 +260,63 @@
             <div class="panel-body">
                 <div id="lista-adicionais">
                     <div class="skel-row"><div class="skel" style="width:38px;height:38px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:60%;margin-bottom:7px"></div><div class="skel" style="height:12px;width:30%"></div></div></div>
-                    <div class="skel-row"><div class="skel" style="width:38px;height:38px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:70%;margin-bottom:7px"></div><div class="skel" style="height:12px;width:35%"></div></div></div>
                 </div>
             </div>
         </div>
+
+        <!-- BANNERS DE PROMOÇÃO -->
+        <div class="panel">
+            <div class="panel-header"><h2><i class="fa-solid fa-bullhorn"></i> <span id="bannerFormTitle">Novo Banner</span></h2></div>
+            <div class="panel-body">
+                <div class="edit-banner-bar" id="bannerEditBanner"><i class="fa-solid fa-pencil fa-xs"></i> Editando banner</div>
+                <div class="form-group"><label>Título</label>
+                    <input type="text" id="banner-titulo" placeholder="Ex: 🔥 Promoção de hoje!"></div>
+                <div class="form-group"><label>Descrição</label>
+                    <input type="text" id="banner-desc" placeholder="Ex: X-Burguer por R$ 15,00 até meia-noite!"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Cor</label>
+                        <select id="banner-cor">
+                            <option value="amarelo">🟡 Amarelo</option>
+                            <option value="verde">🟢 Verde</option>
+                            <option value="vermelho">🔴 Vermelho</option>
+                            <option value="azul">🔵 Azul</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Emoji</label>
+                        <input type="text" id="banner-emoji" placeholder="🔥" maxlength="4"></div>
+                </div>
+                <!-- Toggle ativo -->
+                <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px">
+                    <div>
+                        <div style="font-size:.82rem;font-weight:800;color:var(--text)">Ativar banner agora</div>
+                        <div style="font-size:.74rem;color:var(--text-muted)">Aparece no cardápio imediatamente</div>
+                    </div>
+                    <label style="cursor:pointer;display:flex;align-items:center;gap:8px">
+                        <input type="checkbox" id="banner-ativo" style="width:18px;height:18px;cursor:pointer;accent-color:var(--am)">
+                    </label>
+                </div>
+                <button class="btn-save" onclick="salvarBanner()">
+                    <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="bannerBtnLabel">Publicar Banner</span>
+                </button>
+                <button class="btn-cancel" id="bannerCancelar" onclick="cancelarEdicaoBanner()" style="display:none">
+                    <i class="fa-solid fa-xmark fa-xs"></i> Cancelar
+                </button>
+            </div>
+        </div>
+
+        <!-- LISTA BANNERS -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-rectangle-ad"></i> Banners</h2>
+                <span class="prod-count" id="bannerCount">–</span>
+            </div>
+            <div class="panel-body">
+                <div id="lista-banners">
+                    <div class="empty-adm"><i class="fa-solid fa-bullhorn"></i><p>Nenhum banner.</p></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- COL 3: Lista Produtos -->
@@ -253,14 +329,13 @@
             <div id="lista-produtos-admin">
                 <div class="skel-row"><div class="skel" style="width:40px;height:40px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:55%;margin-bottom:7px"></div><div class="skel" style="height:11px;width:35%"></div></div></div>
                 <div class="skel-row"><div class="skel" style="width:40px;height:40px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:72%;margin-bottom:7px"></div><div class="skel" style="height:11px;width:30%"></div></div></div>
-                <div class="skel-row"><div class="skel" style="width:40px;height:40px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:60%;margin-bottom:7px"></div><div class="skel" style="height:11px;width:25%"></div></div></div>
             </div>
         </div>
     </div>
 
 </div>
 
-<!-- PEDIDOS — full width abaixo do dashboard -->
+<!-- PEDIDOS — full width -->
 <div style="max-width:1200px;margin:22px auto 60px;padding:0 20px">
     <div class="panel">
         <div class="panel-header">
@@ -273,6 +348,11 @@
                 <div class="resumo-dia">
                     <span id="pedidos-qtd">0</span> pedidos ·
                     <span style="color:var(--am)" id="pedidos-receita">R$ 0,00</span>
+                </div>
+                <!-- Indicador de auto-refresh -->
+                <div class="refresh-indicator">
+                    <div class="refresh-dot"></div>
+                    <span id="refreshLabel">Atualiza em 30s</span>
                 </div>
             </div>
         </div>
@@ -296,10 +376,16 @@
     const API_URL     = "https://nd-lanches-api.onrender.com/api";
     const LOJA_SLUG   = "nd-lanches";
     const LOJA_ID_NUM = 1;
-    let lojaAberta   = false;
-    let idEdicao     = null;
-    let adicEdicaoId = null;
+    const REFRESH_INTERVAL = 30; // segundos
+
+    let lojaAberta    = false;
+    let idEdicao      = null;
+    let adicEdicaoId  = null;
+    let bannerEdicaoId= null;
     let filtroPedidos = 'hoje';
+    let ultimosPedidosIds = new Set();
+    let refreshTimer  = null;
+    let refreshCountdown = REFRESH_INTERVAL;
 
     const STATUS_PROX  = { RECEBIDO:'PREPARO', PREPARO:'PRONTO', PRONTO:'ENTREGUE', ENTREGUE:'ENTREGUE', CANCELADO:'CANCELADO' };
     const STATUS_LABEL = { RECEBIDO:'📥 Recebido', PREPARO:'🔥 Em preparo', PRONTO:'✅ Pronto', ENTREGUE:'🏍️ Entregue', CANCELADO:'❌ Cancelado' };
@@ -316,7 +402,12 @@
             const rA = await fetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
             if (rA.ok) renderizarAdics(await rA.json());
 
+            const key = document.getElementById('adminKey').value;
+            const rBan = await fetch(`${API_URL}/banners/loja/${LOJA_ID_NUM}`, { headers:{'Admin-Key':key} });
+            if (rBan.ok) renderizarBanners(await rBan.json());
+
             await carregarPedidos();
+            iniciarAutoRefresh();
 
         } catch (e) {
             console.error(e);
@@ -347,7 +438,7 @@
                 method:'PUT', headers:{'Admin-Key':key,'Content-Type':'application/json'}, body:JSON.stringify(nova)
             });
             if (r.ok) { lojaAberta = nova; atualizarBotaoStatus(); feedback(`Loja ${lojaAberta?'aberta':'fechada'}!`, true); }
-            else       { feedback("Erro! Verifique a chave.", false); atualizarBotaoStatus(); }
+            else { feedback("Erro! Verifique a chave.", false); atualizarBotaoStatus(); }
         } catch { feedback("Erro de conexão.", false); atualizarBotaoStatus(); }
     }
 
@@ -405,7 +496,7 @@
     }
 
     async function salvarProduto() {
-        const key  = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey').value;
         const nome = document.getElementById('nome').value.trim();
         const prec = parseFloat(document.getElementById('preco').value);
         const cat  = document.getElementById('categoria').value;
@@ -424,7 +515,7 @@
         try {
             const r = await fetch(url,{method:idEdicao?'PUT':'POST',headers:{'Content-Type':'application/json','Admin-Key':key},body:JSON.stringify(produto)});
             if (r.ok) { feedback(idEdicao?'Produto atualizado!':'Produto cadastrado!', true); cancelarEdicao(); carregarDados(); }
-            else       { feedback("Erro ao salvar.", false); }
+            else { feedback("Erro ao salvar.", false); }
         } catch { feedback("Erro de conexão.", false); }
         finally { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk fa-xs"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>'; }
     }
@@ -435,7 +526,7 @@
         try {
             const r = await fetch(`${API_URL}/produtos/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
             if (r.ok) { feedback("Removido!", true); carregarDados(); }
-            else       { feedback("Erro ao remover.", false); }
+            else { feedback("Erro ao remover.", false); }
         } catch { feedback("Erro de conexão.", false); }
     }
 
@@ -479,21 +570,16 @@
     }
 
     async function salvarAdic() {
-        const key  = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey').value;
         const nome = document.getElementById('adic-nome').value.trim();
         const prec = parseFloat(document.getElementById('adic-preco').value);
         if (!nome || isNaN(prec)) { feedback("Preencha nome e preço do adicional.", false); return; }
-        const payload = {
-            nome, preco: prec,
-            emoji: document.getElementById('adic-emoji').value.trim() || '➕',
-            ativo: true,
-            loja: { id: LOJA_ID_NUM }
-        };
+        const payload = { nome, preco: prec, emoji: document.getElementById('adic-emoji').value.trim() || '➕', ativo: true, loja: { id: LOJA_ID_NUM } };
         const url = adicEdicaoId ? `${API_URL}/adicionais/${adicEdicaoId}` : `${API_URL}/adicionais`;
         try {
             const r = await fetch(url,{method:adicEdicaoId?'PUT':'POST',headers:{'Content-Type':'application/json','Admin-Key':key},body:JSON.stringify(payload)});
             if (r.ok) { feedback(adicEdicaoId?'Adicional atualizado!':'Adicional cadastrado!',true); cancelarEdicaoAdic(); carregarDados(); }
-            else       { feedback("Erro ao salvar adicional.", false); }
+            else { feedback("Erro ao salvar adicional.", false); }
         } catch { feedback("Erro de conexão.", false); }
     }
 
@@ -503,7 +589,94 @@
         try {
             const r = await fetch(`${API_URL}/adicionais/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
             if (r.ok) { feedback("Adicional removido!",true); carregarDados(); }
-            else       { feedback("Erro ao remover.",false); }
+            else { feedback("Erro ao remover.",false); }
+        } catch { feedback("Erro de conexão.",false); }
+    }
+
+    /* ===================== BANNERS ===================== */
+    function renderizarBanners(banners) {
+        document.getElementById('bannerCount').textContent = banners?.length || 0;
+        const lista = document.getElementById('lista-banners');
+        if (!banners?.length) { lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-bullhorn"></i><p>Nenhum banner.</p></div>`; return; }
+        lista.innerHTML = banners.map(b => `
+        <div class="banner-item">
+            <div class="banner-item-em">${b.emoji||'📢'}</div>
+            <div class="banner-info">
+                <strong>${b.titulo}</strong>
+                <span>${b.descricao||''}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px">
+                <span class="banner-ativo-pill ${b.ativo?'on':'off'}">${b.ativo?'Ativo':'Inativo'}</span>
+                <button class="btn-ic ${b.ativo?'toggle-on':'toggle-off'}" onclick="toggleBanner(${b.id})"
+                    title="${b.ativo?'Desativar':'Ativar'}">
+                    <i class="fa-solid ${b.ativo?'fa-eye':'fa-eye-slash'} fa-xs"></i>
+                </button>
+                <button class="btn-ic edit" onclick='prepararEdicaoBanner(${JSON.stringify(b)})'><i class="fa-solid fa-pen fa-xs"></i></button>
+                <button class="btn-ic del" onclick="excluirBanner(${b.id})"><i class="fa-solid fa-trash fa-xs"></i></button>
+            </div>
+        </div>`).join('');
+    }
+
+    function prepararEdicaoBanner(b) {
+        bannerEdicaoId = b.id;
+        document.getElementById('banner-titulo').value = b.titulo||'';
+        document.getElementById('banner-desc').value   = b.descricao||'';
+        document.getElementById('banner-cor').value    = b.cor||'amarelo';
+        document.getElementById('banner-emoji').value  = b.emoji||'🔥';
+        document.getElementById('banner-ativo').checked = b.ativo||false;
+        document.getElementById('bannerFormTitle').textContent = b.titulo;
+        document.getElementById('bannerBtnLabel').textContent  = 'Salvar Alterações';
+        document.getElementById('bannerCancelar').style.display = 'block';
+        document.getElementById('bannerEditBanner').classList.add('vis');
+    }
+
+    function cancelarEdicaoBanner() {
+        bannerEdicaoId = null;
+        ['banner-titulo','banner-desc','banner-emoji'].forEach(id => document.getElementById(id).value='');
+        document.getElementById('banner-cor').value   = 'amarelo';
+        document.getElementById('banner-ativo').checked = false;
+        document.getElementById('bannerFormTitle').textContent  = 'Novo Banner';
+        document.getElementById('bannerBtnLabel').textContent   = 'Publicar Banner';
+        document.getElementById('bannerCancelar').style.display = 'none';
+        document.getElementById('bannerEditBanner').classList.remove('vis');
+    }
+
+    async function salvarBanner() {
+        const key   = document.getElementById('adminKey').value;
+        const titulo = document.getElementById('banner-titulo').value.trim();
+        if (!titulo) { feedback("Preencha o título do banner.", false); return; }
+        const payload = {
+            titulo,
+            descricao: document.getElementById('banner-desc').value.trim(),
+            cor:       document.getElementById('banner-cor').value,
+            emoji:     document.getElementById('banner-emoji').value.trim() || '🔥',
+            ativo:     document.getElementById('banner-ativo').checked,
+            loja:      { id: LOJA_ID_NUM }
+        };
+        const url = bannerEdicaoId ? `${API_URL}/banners/${bannerEdicaoId}` : `${API_URL}/banners`;
+        try {
+            const r = await fetch(url,{method:bannerEdicaoId?'PUT':'POST',headers:{'Content-Type':'application/json','Admin-Key':key},body:JSON.stringify(payload)});
+            if (r.ok) { feedback(bannerEdicaoId?'Banner atualizado!':'Banner publicado!',true); cancelarEdicaoBanner(); carregarDados(); }
+            else { feedback("Erro ao salvar banner.", false); }
+        } catch { feedback("Erro de conexão.", false); }
+    }
+
+    async function toggleBanner(id) {
+        const key = document.getElementById('adminKey').value;
+        try {
+            const r = await fetch(`${API_URL}/banners/${id}/toggle`,{method:'PATCH',headers:{'Admin-Key':key}});
+            if (r.ok) { carregarDados(); }
+            else { feedback("Erro ao alterar banner.",false); }
+        } catch { feedback("Erro de conexão.",false); }
+    }
+
+    async function excluirBanner(id) {
+        if (!confirm("Remover este banner?")) return;
+        const key = document.getElementById('adminKey').value;
+        try {
+            const r = await fetch(`${API_URL}/banners/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
+            if (r.ok) { feedback("Banner removido!",true); carregarDados(); }
+            else { feedback("Erro ao remover.",false); }
         } catch { feedback("Erro de conexão.",false); }
     }
 
@@ -522,11 +695,35 @@
 
     function filtrarPedidos(tipo, btn) {
         filtroPedidos = tipo;
-        document.querySelectorAll('.filtro-btn').forEach(b => {
-            b.className = 'filtro-btn inativo';
-        });
+        document.querySelectorAll('.filtro-btn').forEach(b => b.className = 'filtro-btn inativo');
         btn.className = 'filtro-btn ativo';
         carregarPedidos();
+    }
+
+    /* ===== AUTO-REFRESH DE PEDIDOS ===== */
+    function iniciarAutoRefresh() {
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshCountdown = REFRESH_INTERVAL;
+
+        // Countdown visual
+        const countdownTimer = setInterval(() => {
+            refreshCountdown--;
+            const label = document.getElementById('refreshLabel');
+            if (label) label.textContent = `Atualiza em ${refreshCountdown}s`;
+            if (refreshCountdown <= 0) refreshCountdown = REFRESH_INTERVAL;
+        }, 1000);
+
+        // Refresh real
+        refreshTimer = setInterval(async () => {
+            refreshCountdown = REFRESH_INTERVAL;
+            await carregarPedidos();
+        }, REFRESH_INTERVAL * 1000);
+
+        // Limpa countdown quando sair da página
+        window.addEventListener('beforeunload', () => {
+            clearInterval(refreshTimer);
+            clearInterval(countdownTimer);
+        });
     }
 
     async function avancarStatus(id, statusAtual) {
@@ -535,8 +732,7 @@
         const key = document.getElementById('adminKey').value;
         try {
             await fetch(`${API_URL}/pedidos/${id}/status`, {
-                method:'PATCH',
-                headers:{'Content-Type':'application/json','Admin-Key':key},
+                method:'PATCH', headers:{'Content-Type':'application/json','Admin-Key':key},
                 body: JSON.stringify({ status: prox })
             });
             carregarPedidos();
@@ -554,8 +750,18 @@
 
     function renderizarPedidos(pedidos) {
         const total = pedidos.reduce((s, p) => s + parseFloat(p.total), 0);
-        document.getElementById('pedidos-qtd').textContent    = pedidos.length;
+        document.getElementById('pedidos-qtd').textContent     = pedidos.length;
         document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
+
+        // Detecta novos pedidos para animação
+        const novosIds = new Set(pedidos.map(p => p.id));
+        const novos    = pedidos.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
+        ultimosPedidosIds = novosIds;
+
+        // Notificação de novo pedido
+        if (novos.length > 0) {
+            feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
+        }
 
         const lista = document.getElementById('lista-pedidos');
         if (!pedidos.length) {
@@ -570,7 +776,7 @@
         lista.innerHTML = pedidos.map(p => {
             let itens = [];
             try { itens = JSON.parse(p.itensJson || '[]'); } catch {}
-
+            const isNovo = novos.some(n => n.id === p.id);
             const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
             const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
 
@@ -581,26 +787,25 @@
                     <span style="margin-left:auto;color:var(--am);font-weight:700">R$ ${parseFloat(item.subtotal||0).toFixed(2)}</span>
                 </div>`;
                 const mods = [];
-                if (item.removidos?.length)   mods.push(`🚫 Sem: ${item.removidos.join(', ')}`);
-                if (item.adicionais?.length)   item.adicionais.forEach(a => mods.push(`➕ +${a.qtd}x ${a.nome}`));
-                if (item.obs)                  mods.push(`💬 ${item.obs}`);
+                if (item.removidos?.length) mods.push(`🚫 Sem: ${item.removidos.join(', ')}`);
+                if (item.adicionais?.length) item.adicionais.forEach(a => mods.push(`➕ +${a.qtd}x ${a.nome}`));
+                if (item.obs) mods.push(`💬 ${item.obs}`);
                 if (mods.length) html += `<div class="pedido-item-mods">${mods.join('<br>')}</div>`;
                 return html;
             }).join('');
 
             return `
-            <div class="pedido-card">
+            <div class="pedido-card ${isNovo?'pedido-novo':''}">
                 <div class="pedido-top">
                     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
                         <span class="pedido-id">#${p.id}</span>
                         <span class="pedido-hora">${data} às ${hora}</span>
-                        ${p.nomeCliente ? `<span style="font-size:.8rem;font-weight:700">${p.nomeCliente}</span>` : ''}
+                        ${p.nomeCliente ? `<span style="font-size:.85rem;font-weight:800;color:var(--text)">${p.nomeCliente}</span>` : ''}
                     </div>
                     <div style="display:flex;align-items:center;gap:8px">
                         <span class="pedido-valor">R$ ${parseFloat(p.total).toFixed(2)}</span>
                         <button class="status-badge status-${p.status}"
-                            onclick="avancarStatus(${p.id},'${p.status}')"
-                            title="Clique para avançar">
+                            onclick="avancarStatus(${p.id},'${p.status}')" title="Clique para avançar">
                             ${STATUS_LABEL[p.status]||p.status}
                         </button>
                         <button class="btn-del-pedido" onclick="excluirPedido(${p.id})">
