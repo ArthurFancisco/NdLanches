@@ -662,13 +662,23 @@
     }
 
     async function toggleBanner(id) {
-        const key = document.getElementById('adminKey').value;
-        try {
-            const r = await fetch(`${API_URL}/banners/${id}/toggle`,{method:'PATCH',headers:{'Admin-Key':key}});
-            if (r.ok) { carregarDados(); }
-            else { feedback("Erro ao alterar banner.",false); }
-        } catch { feedback("Erro de conexão.",false); }
+    const key = document.getElementById('adminKey').value;
+    try {
+        const r = await fetch(`${API_URL}/banners/${id}/toggle`, {
+            method: 'PATCH', // Certifique-se que o WebConfig permite PATCH
+            headers: { 'Admin-Key': key }
+        });
+        if (r.ok) { 
+            feedback("Banner atualizado!", true);
+            carregarDados(); 
+        } else { 
+            const msg = await r.text();
+            feedback("Erro: " + msg, false); 
+        }
+    } catch (e) { 
+        feedback("Erro de conexão.", false); 
     }
+}
 
     async function excluirBanner(id) {
         if (!confirm("Remover este banner?")) return;
