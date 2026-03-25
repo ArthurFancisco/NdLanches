@@ -519,6 +519,69 @@
         @media (min-width: 601px) and (max-width: 900px) {
             .grid { grid-template-columns: repeat(2, 1fr); }
         }
+
+           /* ADICIONAR ESTILOS DO RODAPÉ */
+        footer {
+            text-align: center;
+            padding: 24px 20px 32px;
+            background: linear-gradient(to top, rgba(11,61,24,0.05), transparent);
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+        footer a {
+            color: var(--g2);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        /* Ajuste para não sobrepor o carrinho flutuante */
+        body {
+            padding-bottom: 80px; /* espaço extra para o rodapé */
+        }
+        /* Tooltip simples */
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+        }
+        [data-tooltip]:before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--g1);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: normal;
+            white-space: nowrap;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            font-family: 'Nunito', sans-serif;
+        }
+        [data-tooltip]:hover:before {
+            opacity: 1;
+        }
+        /* Ajuste para tooltips em mobile não atrapalharem */
+        @media (max-width: 600px) {
+            [data-tooltip]:before {
+                display: none;
+            }
+        }
+        /* Dica discreta */
+        .help-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -548,10 +611,9 @@
         <div id="restored-banner" class="restored-banner">
             <span>🛒</span>
             <span>Seu pedido anterior foi restaurado!</span>
+            <span class="help-text" style="margin-left:auto; font-size:0.7rem;">(válido por 2h)</span>
         </div>
-        <div id="menu-grid" class="grid skeleton-grid">
-            <!-- skeletons serão gerados dinamicamente -->
-        </div>
+        <div id="menu-grid" class="grid skeleton-grid"></div>
     </div>
 
     <!-- CARRINHO FLUTUANTE -->
@@ -563,7 +625,7 @@
         <span id="cartTotal" class="cart-bar-total">R$ 0,00</span>
     </div>
 
-    <!-- LOJA FECHADA -->
+    <!-- LOJA FECHADA OVERLAY -->
     <div id="loja-fechada-overlay">
         <div class="fechada-card">
             <div class="icon">🔒</div>
@@ -582,13 +644,14 @@
                 <div class="cm-emoji-box" id="cm-emoji">🍔</div>
                 <div>
                     <h3 id="cm-nome">Produto</h3>
-                    <div id="cm-preco-base" class="preco-base">R$ 0,00</div>
+                    <div id="cm-preco-base" class="preco-base">A partir de R$ 0,00</div>
                 </div>
             </div>
 
             <div id="section-ingredientes" style="margin-bottom: 24px; display: none;">
-                <label class="section-label">Retirar ingredientes?</label>
+                <label class="section-label" data-tooltip="Clique nos ingredientes que deseja remover">Retirar ingredientes?</label>
                 <div id="chips-ingredientes" class="chips-wrap"></div>
+                <span class="help-text">↳ Clique nos itens para removê‑los (ficarão riscados)</span>
             </div>
 
             <div style="margin-bottom: 24px;">
@@ -599,6 +662,7 @@
             <div class="input-group">
                 <label class="section-label">Observação</label>
                 <textarea id="obs-texto" class="custom-input" rows="2" maxlength="140" placeholder="Ex: carne bem passada, sem guardanapo..."></textarea>
+                <span class="help-text">Máx. 140 caracteres</span>
             </div>
 
             <div class="total-row">
@@ -623,7 +687,7 @@
 
             <div class="input-group">
                 <label class="section-label">Como te chamamos?</label>
-                <input type="text" id="nomeCliente" class="custom-input" placeholder="Seu nome completo">
+                <input type="text" id="nomeCliente" class="custom-input" placeholder="Seu nome completo" data-tooltip="Ex: João Silva">
             </div>
 
             <label class="section-label">Como deseja receber?</label>
@@ -636,6 +700,7 @@
                 <input type="text" id="ruaNum" class="custom-input" placeholder="Rua e Número">
                 <input type="text" id="bairro" class="custom-input" placeholder="Bairro">
                 <input type="text" id="referencia" class="custom-input" placeholder="Ponto de referência (opcional)">
+                <span class="help-text">Endereço completo para entrega</span>
             </div>
 
             <div class="input-group">
@@ -665,6 +730,13 @@
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <!-- RODAPÉ COM DIREITOS AUTORAIS -->
+    <footer>
+        <p>© 2025 ND Lanches – Todos os direitos reservados.</p>
+        <p>Desenvolvido por <a href="#" target="_blank">Arthur Amancio Francisco</a> | Tecnologia de cardápio digital</p>
+        <p style="font-size:0.7rem; margin-top:6px;">Versão 2.0 – Pedidos integrados com WhatsApp</p>
+    </footer>
 
     <script>
         const API_URL   = "https://nd-lanches-api.onrender.com/api";
