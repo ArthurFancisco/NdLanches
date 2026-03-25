@@ -676,17 +676,15 @@
         let lojaAberta = false, todosProdutos = [], todosAdicionais = [], carrinho = [];
         let prodAtual = null, ingrsAtivos = {}, adicQtd = {}, precoTotalModalAtual = 0;
         let tipoPedidoSelecionado = 'RETIRADA';
-        let lojaInfo = {}; // ← nova variável global
+        let lojaInfo = {}; // ← variável global para dados da loja
 
         /* ─── INICIALIZAÇÃO ─── */
         async function carregarCardapio() {
-            // Exibe skeletons personalizados
             mostrarSkeletons();
 
             const cartRestored = restaurarCarrinho();
 
             try {
-                // Busca dados da loja para pegar o whatsapp
                 const [rLoja, rStatus, rProd, rAdic, rBanners] = await Promise.all([
                     fetch(`${API_URL}/loja/${LOJA_SLUG}`).catch(() => null),
                     fetch(`${API_URL}/loja/${LOJA_SLUG}/status`).catch(() => null),
@@ -696,15 +694,16 @@
                 ]);
 
                 if (rLoja && rLoja.ok) {
-            lojaInfo = await rLoja.json(); // ← armazena
-            if (lojaInfo.whatsapp) whatsappNum = lojaInfo.whatsapp;
-        }
+                    lojaInfo = await rLoja.json();
+                    if (lojaInfo.whatsapp) whatsappNum = lojaInfo.whatsapp;
+                }
 
-        if (rStatus && rStatus.ok) {
-            lojaAberta = await rStatus.json();
-            atualizarStatusUI(lojaAberta);
-            if (!lojaAberta) mostrarOverlayFechado();
-        }
+                if (rStatus && rStatus.ok) {
+                    lojaAberta = await rStatus.json();
+                    atualizarStatusUI(lojaAberta);
+                    if (!lojaAberta) mostrarOverlayFechado();
+                }
+
                 if (rProd && rProd.ok) {
                     todosProdutos = await rProd.json();
                     renderizar(todosProdutos);
@@ -729,7 +728,6 @@
                 setTimeout(() => document.getElementById('restored-banner').classList.remove('show'), 5000);
             }
 
-            // Ativa o scroll spy após os produtos estarem renderizados
             if (todosProdutos.length) ativarScrollSpy();
         }
 
@@ -749,8 +747,9 @@
         }
 
         function falhaCarregamento() {
-            document.getElementById('menu-grid').innerHTML =
-                '<p style="text-align:center;width:100%;color:#ef4444;font-weight:800;padding:40px 0;"><i class="fa fa-wifi-slash"></i><br><br>Erro ao carregar. Tente atualizar a página.</p>';
+            const grid = document.getElementById('menu-grid');
+            grid.classList.remove('skeleton-grid');
+            grid.innerHTML = '<p style="text-align:center;width:100%;color:#ef4444;font-weight:800;padding:40px 0;"><i class="fa fa-wifi-slash"></i><br><br>Erro ao carregar. Tente atualizar a página.</p>';
         }
 
         function atualizarStatusUI(aberto) {
@@ -759,9 +758,9 @@
             el.className   = aberto ? 'aberto' : 'fechado';
         }
 
-           function mostrarOverlayFechado() {
-           if (lojaData.mensagemFechado) {
-                document.getElementById('msg-fechado').textContent = lojaData.mensagemFechado;
+        function mostrarOverlayFechado() {
+            if (lojaInfo.mensagemFechado) {
+                document.getElementById('msg-fechado').textContent = lojaInfo.mensagemFechado;
             }
             document.getElementById('loja-fechada-overlay').classList.add('show');
         }
@@ -791,9 +790,7 @@
                 return;
             }
 
-            // Agrupar produtos por categoria para facilitar scroll spy
             const categorias = [...new Map(lista.map(p => [p.categoria, p.categoria])).values()];
-            // Cria um container para cada categoria
             let html = '';
             categorias.forEach(cat => {
                 const produtosCat = lista.filter(p => p.categoria === cat);
@@ -832,10 +829,8 @@
             });
             g.innerHTML = html;
 
-            // Anexar evento de clique ao card principal (abre modal)
             document.querySelectorAll('.card').forEach(card => {
                 card.addEventListener('click', (e) => {
-                    // Se o clique foi no botão de adicionar, já tratado, não abrir modal novamente
                     if (e.target.closest('.card-add-btn')) return;
                     const prodId = parseInt(card.dataset.produtoId);
                     if (prodId) abrirCustom(prodId);
@@ -848,21 +843,17 @@
             return map[cat] || cat;
         }
 
-        // Função para tratar clique no botão + com feedback visual
         function handleAddClick(prodId, btnElement) {
             if (!lojaAberta) {
                 mostrarToast("🔒 A loja está fechada no momento!");
                 return;
             }
-            // Feedback visual no botão
             btnElement.classList.add('btn-feedback');
             setTimeout(() => btnElement.classList.remove('btn-feedback'), 300);
-            // Trocar ícone temporariamente
             const icon = btnElement.querySelector('i');
             const originalIcon = icon.className;
             icon.className = 'fa fa-check';
             setTimeout(() => icon.className = originalIcon, 300);
-            // Abrir modal de customização
             abrirCustom(prodId);
         }
 
@@ -879,7 +870,6 @@
                         if (btn) {
                             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                             btn.classList.add('active');
-                            // Rolar a tab para dentro da viewport se necessário
                             btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                         }
                     }
@@ -902,7 +892,6 @@
                 : (prodAtual.emoji || '🍔');
             document.getElementById('cm-preco-base').textContent = `A partir de R$ ${prodAtual.preco.toFixed(2).replace('.', ',')}`;
 
-            // Ingredientes
             const ingrs = (prodAtual.descricao || '').split(',').map(s => s.trim()).filter(s => s.length > 1);
             const secIng = document.getElementById('section-ingredientes');
             if (ingrs.length > 1) {
@@ -915,7 +904,6 @@
                 secIng.style.display = 'none';
             }
 
-            // Adicionais
             const secAdic = document.getElementById('adicionais-grid');
             secAdic.innerHTML = todosAdicionais && todosAdicionais.length
                 ? todosAdicionais.map(a => `
@@ -1085,7 +1073,6 @@
                 pagFinal
             ].filter(l => l !== null && l !== undefined).join('\n');
 
-            // Salvar na API
             try {
                 const itensJson = JSON.stringify(carrinho.map(i => ({
                     nomeProduto: i.produto.nome,
@@ -1160,11 +1147,10 @@
             btn.classList.add('active');
             if (cat === 'TODOS') {
                 renderizar(todosProdutos);
-                ativarScrollSpy(); // reativar spy após renderização
+                ativarScrollSpy();
             } else {
                 const filtrados = todosProdutos.filter(p => p.categoria === cat);
                 renderizar(filtrados);
-                // Quando filtra manualmente, não há seções, então desativa spy ou limpa
             }
         }
 
