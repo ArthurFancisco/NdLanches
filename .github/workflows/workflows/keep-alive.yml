@@ -1,0 +1,14 @@
+name: API Keep Alive
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Executa a cada 15 minutos
+  workflow_dispatch: # Permite rodar manualmente para testar
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API
+        run: |
+          curl -s https://nd-lanches-api.onrender.com/api/loja/nd-lanches/status
+          echo "Ping realizado com sucesso às $(date)"

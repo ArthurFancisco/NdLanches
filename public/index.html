@@ -357,6 +357,34 @@
         <input type="text" id="nomeCliente" class="nome-cliente-input"
             placeholder="Ex: João Silva" maxlength="60" autocomplete="name">
         <div class="nome-cliente-hint">Para identificarmos seu pedido quando estiver pronto 👋</div>
+
+        <div class="checkout-section" style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
+    
+    <label class="section-label">Como deseja receber?</label>
+    <div class="delivery-toggle" style="display:flex; gap:10px; margin-bottom:15px;">
+        <button id="btnEntrega" onclick="setTipoPedido('ENTREGA')" style="flex:1; padding:10px; border-radius:10px; border:2px solid #ccc; background:white; font-weight:bold;">🏍️ Entrega</button>
+        <button id="btnRetirada" onclick="setTipoPedido('RETIRADA')" style="flex:1; padding:10px; border-radius:10px; border:2px solid #ccc; background:white; font-weight:bold;">🏠 Retirada</button>
+    </div>
+
+    <!-- Campos de Endereço (Só aparecem se for Entrega) -->
+    <div id="camposEndereco" style="display:none; flex-direction:column; gap:10px; margin-bottom:15px;">
+        <input type="text" id="ruaNum" placeholder="Rua e Número" class="nome-cliente-input">
+        <input type="text" id="bairro" placeholder="Bairro" class="nome-cliente-input">
+        <input type="text" id="referencia" placeholder="Ponto de Referência (Opcional)" class="nome-cliente-input">
+    </div>
+
+    <label class="section-label">Forma de Pagamento</label>
+    <select id="pagamento" onchange="checkTroco(this.value)" class="nome-cliente-input" style="margin-bottom:10px;">
+        <option value="PIX">📱 PIX (Enviar comprovante)</option>
+        <option value="CARTAO">💳 Cartão (Levamos a maquininha)</option>
+        <option value="DINHEIRO">💵 Dinheiro</option>
+    </select>
+
+    <div id="campoTroco" style="display:none; margin-bottom:15px;">
+        <label style="font-size:12px; font-weight:bold;">Troco para quanto?</label>
+        <input type="number" id="valorTroco" placeholder="Ex: 50.00" class="nome-cliente-input">
+    </div>
+</div>
     </div>
 
     <div id="cartItemsList"></div>

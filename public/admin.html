@@ -428,20 +428,32 @@
             : '<i class="fa-solid fa-circle-play fa-xs"></i> Abrir loja';
     }
 
-    async function alternarStatus() {
-        const nova = !lojaAberta, key = document.getElementById('adminKey').value;
-        const btn  = document.getElementById('btnStatus');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-xs"></i> Salvando...';
-        try {
-            const r = await fetch(`${API_URL}/loja/status`, {
-                method:'PUT', headers:{'Admin-Key':key,'Content-Type':'application/json'}, body:JSON.stringify(nova)
-            });
-            if (r.ok) { lojaAberta = nova; atualizarBotaoStatus(); feedback(`Loja ${lojaAberta?'aberta':'fechada'}!`, true); }
-            else { feedback("Erro! Verifique a chave.", false); atualizarBotaoStatus(); }
-        } catch { feedback("Erro de conexão.", false); atualizarBotaoStatus(); }
-    }
+    async function avancarStatus(id, statusAtual) {
+    const prox = STATUS_PROX[statusAtual.toUpperCase()]; // Força maiúsculas
+    if (!prox || prox === statusAtual) return;
 
+    const key = document.getElementById('adminKey').value;
+    try {
+        const response = await fetch(`${API_URL}/pedidos/${id}/status`, {
+            method: 'PATCH',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Admin-Key': key 
+            },
+            body: JSON.stringify({ status: prox })
+        });
+
+        if (response.ok) {
+            feedback(`Pedido #${id} movido para ${prox}`, true);
+            carregarPedidos();
+        } else {
+            const erro = await response.text();
+            feedback("Erro: " + erro, false);
+        }
+    } catch (e) {
+        feedback("Erro de conexão com servidor", false);
+    }
+}
     /* ===================== PRODUTOS ===================== */
     function renderizarProdutos(prods) {
         document.getElementById('prodCount').textContent = prods?.length || 0;
