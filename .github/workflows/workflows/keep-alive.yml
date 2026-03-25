@@ -1,8 +1,9 @@
 name: API Keep Alive
+
 on:
   schedule:
-    - cron: '*/15 * * * *' # Executa a cada 15 minutos
-  workflow_dispatch: # Permite rodar manualmente para testar
+    - cron: '*/10 * * * *'   # Executa a cada 10 minutos
+  workflow_dispatch:         # Permite rodar manualmente para testar
 
 jobs:
   ping:
@@ -10,5 +11,9 @@ jobs:
     steps:
       - name: Ping API
         run: |
-          curl -s https://nd-lanches-api.onrender.com/api/loja/nd-lanches/status
-          echo "Ping realizado com sucesso às $(date)"
+          if curl -s --fail https://nd-lanches-api.onrender.com/api/loja/nd-lanches/status; then
+            echo "✅ Ping realizado com sucesso às $(date)"
+          else
+            echo "❌ Falha no ping às $(date)"
+            exit 1
+          fi
