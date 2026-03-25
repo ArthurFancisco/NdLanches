@@ -676,6 +676,7 @@
         let lojaAberta = false, todosProdutos = [], todosAdicionais = [], carrinho = [];
         let prodAtual = null, ingrsAtivos = {}, adicQtd = {}, precoTotalModalAtual = 0;
         let tipoPedidoSelecionado = 'RETIRADA';
+        let lojaInfo = {}; // ← nova variável global
 
         /* ─── INICIALIZAÇÃO ─── */
         async function carregarCardapio() {
@@ -695,15 +696,15 @@
                 ]);
 
                 if (rLoja && rLoja.ok) {
-                    const lojaData = await rLoja.json();
-                    if (lojaData.whatsapp) whatsappNum = lojaData.whatsapp;
-                }
+            lojaInfo = await rLoja.json(); // ← armazena
+            if (lojaInfo.whatsapp) whatsappNum = lojaInfo.whatsapp;
+        }
 
-                if (rStatus && rStatus.ok) {
-                    lojaAberta = await rStatus.json();
-                    atualizarStatusUI(lojaAberta);
-                    if (!lojaAberta) mostrarOverlayFechado();
-                }
+        if (rStatus && rStatus.ok) {
+            lojaAberta = await rStatus.json();
+            atualizarStatusUI(lojaAberta);
+            if (!lojaAberta) mostrarOverlayFechado();
+        }
                 if (rProd && rProd.ok) {
                     todosProdutos = await rProd.json();
                     renderizar(todosProdutos);
@@ -758,7 +759,10 @@
             el.className   = aberto ? 'aberto' : 'fechado';
         }
 
-        function mostrarOverlayFechado() {
+           function mostrarOverlayFechado() {
+           if (lojaData.mensagemFechado) {
+                document.getElementById('msg-fechado').textContent = lojaData.mensagemFechado;
+            }
             document.getElementById('loja-fechada-overlay').classList.add('show');
         }
 
@@ -1066,17 +1070,17 @@
             const totalPedido = carrinho.reduce((s, i) => s + i.precoUnit * i.qtd, 0);
 
             const msg = [
-                `🍔 *NOVO PEDIDO — ND LANCHES*`,
+                `*NOVO PEDIDO — ND LANCHES*`,
                 ``,
-                `👤 *Cliente:* ${nome}`,
-                `📦 *Tipo:* ${tipoPedidoSelecionado}`,
+                `*Cliente:* ${nome}`,
+                `*Tipo:* ${tipoPedidoSelecionado}`,
                 entregaInfo,
                 ``,
                 `━━━━━━━━━━━━━━━━━━━`,
                 `*ITENS DO PEDIDO:*`,
                 itens,
                 `━━━━━━━━━━━━━━━━━━━`,
-                `💰 *TOTAL: R$ ${totalPedido.toFixed(2).replace('.', ',')}*`,
+                `*TOTAL: R$ ${totalPedido.toFixed(2).replace('.', ',')}*`,
                 ``,
                 pagFinal
             ].filter(l => l !== null && l !== undefined).join('\n');
