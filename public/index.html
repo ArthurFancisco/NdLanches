@@ -7,6 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
 
     <style>
         :root {
@@ -110,13 +111,25 @@
         .fechado::before { content: '○'; font-size: 0.7rem; }
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        /* BANNER */
-        #banner-container { max-width: 1000px; margin: 0 auto; padding: 20px 20px 0; }
+        /* ─── BANNER (CORRIGIDO) ─── */
+        #banner-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 20px 0;
+            position: relative;
+            z-index: 5;
+        }
         .banner-promo {
-            border-radius: 20px; padding: 18px 22px;
-            display: flex; align-items: center; gap: 15px;
-            font-weight: 800; animation: slideDown 0.5s ease;
+            border-radius: 20px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 800;
+            animation: slideDown 0.5s ease;
             box-shadow: var(--shadow-sm);
+            margin-bottom: 20px; /* espaço entre banners */
+            word-break: break-word;
         }
         @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
         .banner-amarelo { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #78350f; border: 1px solid #fcd34d; }
@@ -126,6 +139,20 @@
         .banner-emoji { font-size: 2rem; flex-shrink: 0; }
         .banner-text strong { display: block; font-size: 1rem; }
         .banner-text span { font-size: 0.85rem; opacity: 0.85; font-weight: 600; }
+
+        /* Responsividade do banner */
+        @media (max-width: 600px) {
+            .banner-promo {
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+                gap: 8px;
+                padding: 15px;
+            }
+            .banner-emoji {
+                font-size: 1.5rem;
+            }
+        }
 
         /* CATEGORIAS (TABS) */
         .tabs-wrapper {
@@ -259,7 +286,6 @@
             cursor: pointer;
         }
         .card-add-btn:active { transform: scale(0.9); }
-        /* animação de feedback no botão */
         .btn-feedback {
             animation: pulse 0.3s ease-out;
         }
@@ -319,7 +345,7 @@
         }
         .restored-banner.show { display: flex; }
 
-        /* ─── MODAIS ─── */
+        /* MODAIS */
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.55);
@@ -348,7 +374,6 @@
         }
         .btn-close-modal:hover { background: var(--border); }
 
-        /* CUSTOMIZAÇÃO */
         .cm-header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
         .cm-emoji-box {
             width: 66px; height: 66px; background: linear-gradient(135deg, #f1f5f9, #e9f5ec);
@@ -365,7 +390,6 @@
             color: var(--g2); margin-bottom: 12px; display: block;
         }
 
-        /* CHIPS */
         .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
         .chip {
             padding: 9px 18px; background: var(--g1); color: white;
@@ -378,7 +402,6 @@
             border-color: var(--border); text-decoration: line-through; opacity: 0.55;
         }
 
-        /* ADICIONAIS */
         .adic-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 18px; border: 2px solid var(--border); border-radius: 16px;
@@ -390,7 +413,6 @@
         .adic-nome { font-size: 0.95rem; }
         .adic-price { font-size: 0.9rem; color: var(--text-muted); transition: 0.2s; }
 
-        /* FORMULÁRIOS */
         .input-group { margin-bottom: 16px; }
         .custom-input {
             width: 100%; padding: 15px 18px; border-radius: 16px;
@@ -401,7 +423,6 @@
         .custom-input:focus { border-color: var(--g1); background: var(--white); box-shadow: 0 0 0 4px rgba(20,90,40,0.08); }
         .custom-input::placeholder { color: #94a3b8; }
 
-        /* SEGMENTED CONTROL */
         .delivery-selector {
             display: flex; background: #f1f5f9; padding: 5px;
             border-radius: 18px; margin-bottom: 20px; gap: 4px;
@@ -417,17 +438,14 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* CAMPOS ENDEREÇO */
         #camposEndereco {
             display: none; flex-direction: column; gap: 12px; margin-bottom: 20px;
             animation: expandDown 0.3s ease;
         }
         @keyframes expandDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
 
-        /* TROCO */
         #campoTroco { animation: expandDown 0.3s ease; }
 
-        /* LISTA CARRINHO */
         .cart-item {
             display: flex; justify-content: space-between; align-items: flex-start;
             padding: 16px 0; border-bottom: 1px dashed var(--border);
@@ -444,7 +462,6 @@
         }
         .btn-remove:hover { background: var(--danger); color: white; }
 
-        /* TOTAL DO MODAL */
         .total-row {
             display: flex; justify-content: space-between; align-items: center;
             margin: 22px 0 18px; background: #f0fdf4;
@@ -453,7 +470,6 @@
         .total-row span:first-child { font-weight: 800; color: var(--text-muted); }
         .total-row .valor { font-weight: 900; font-size: 1.65rem; color: var(--g1); }
 
-        /* BOTÕES */
         .btn-confirmar {
             width: 100%; padding: 18px; background: linear-gradient(135deg, var(--am), #e6b800);
             color: var(--g1); border: none; border-radius: 20px;
@@ -482,7 +498,6 @@
         }
         .btn-limpar:hover { color: var(--danger); }
 
-        /* DIVISOR TOTAL PEDIDO */
         .total-pedido-row {
             display: flex; justify-content: space-between;
             font-size: 1.3rem; font-weight: 900; margin: 22px 0 20px;
@@ -490,7 +505,6 @@
         }
         .total-pedido-row span:last-child { color: var(--g1); }
 
-        /* TOAST */
         .toast {
             position: fixed; top: 20px; left: 50%;
             transform: translateX(-50%) translateY(-100px);
@@ -503,24 +517,7 @@
         }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* RESPONSIVIDADE */
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
-            header { padding: 36px 20px 55px; }
-            header h1 { font-size: 2.6rem; }
-            .header-logo-icon { width: 68px; height: 68px; font-size: 2rem; }
-            .card { height: 125px; }
-            .card-img { width: 105px; font-size: 2.6rem; }
-            .modal { padding: 22px 18px; }
-            .cm-emoji-box { width: 56px; height: 56px; }
-            .cm-header h3 { font-size: 1.15rem; }
-            .skeleton-grid { grid-template-columns: 1fr; }
-        }
-        @media (min-width: 601px) and (max-width: 900px) {
-            .grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-           /* ADICIONAR ESTILOS DO RODAPÉ */
+        /* RODAPÉ */
         footer {
             text-align: center;
             padding: 24px 20px 32px;
@@ -538,11 +535,13 @@
         footer a:hover {
             text-decoration: underline;
         }
+
         /* Ajuste para não sobrepor o carrinho flutuante */
         body {
-            padding-bottom: 80px; /* espaço extra para o rodapé */
+            padding-bottom: 80px;
         }
-        /* Tooltip simples */
+
+        /* Tooltip */
         [data-tooltip] {
             position: relative;
             cursor: help;
@@ -569,18 +568,32 @@
         [data-tooltip]:hover:before {
             opacity: 1;
         }
-        /* Ajuste para tooltips em mobile não atrapalharem */
         @media (max-width: 600px) {
             [data-tooltip]:before {
                 display: none;
             }
         }
-        /* Dica discreta */
         .help-text {
             font-size: 0.7rem;
             color: var(--text-muted);
             margin-top: 4px;
             display: block;
+        }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            header { padding: 36px 20px 55px; }
+            header h1 { font-size: 2.6rem; }
+            .header-logo-icon { width: 68px; height: 68px; font-size: 2rem; }
+            .card { height: 125px; }
+            .card-img { width: 105px; font-size: 2.6rem; }
+            .modal { padding: 22px 18px; }
+            .cm-emoji-box { width: 56px; height: 56px; }
+            .cm-header h3 { font-size: 1.15rem; }
+            .skeleton-grid { grid-template-columns: 1fr; }
+        }
+        @media (min-width: 601px) and (max-width: 900px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -731,7 +744,7 @@
 
     <div class="toast" id="toast"></div>
 
-    <!-- RODAPÉ COM DIREITOS AUTORAIS -->
+    <!-- RODAPÉ -->
     <footer>
         <p>© 2025 ND Lanches – Todos os direitos reservados.</p>
         <p>Desenvolvido por <a href="#" target="_blank">Arthur Amancio Francisco</a> | Tecnologia de cardápio digital</p>
@@ -739,21 +752,26 @@
     </footer>
 
     <script>
+        // Aqui vai o script completo que já está funcionando (com lojaInfo, renderização etc.)
+        // Inclua exatamente o mesmo conteúdo do seu script atual (que já tem a correção de lojaInfo)
+        // Para evitar duplicação, copie o script do seu arquivo anterior que está funcionando.
+        // Certifique-se de que a função renderizarBanners está presente e que os banners são inseridos corretamente.
+        // O código abaixo é apenas um placeholder – substitua pelo seu script real.
+
+        // ===================== SEU SCRIPT COMPLETO AQUI =====================
         const API_URL   = "https://nd-lanches-api.onrender.com/api";
         const LOJA_SLUG = "nd-lanches";
         const LOJA_ID   = 1;
         const CART_KEY  = `ndlanches_cart_${LOJA_ID}`;
-        let whatsappNum = "5517999999999"; // valor padrão, será atualizado pela API
+        let whatsappNum = "5517999999999";
 
         let lojaAberta = false, todosProdutos = [], todosAdicionais = [], carrinho = [];
         let prodAtual = null, ingrsAtivos = {}, adicQtd = {}, precoTotalModalAtual = 0;
         let tipoPedidoSelecionado = 'RETIRADA';
-        let lojaInfo = {}; // ← variável global para dados da loja
+        let lojaInfo = {};
 
-        /* ─── INICIALIZAÇÃO ─── */
         async function carregarCardapio() {
             mostrarSkeletons();
-
             const cartRestored = restaurarCarrinho();
 
             try {
@@ -837,7 +855,6 @@
             document.getElementById('loja-fechada-overlay').classList.add('show');
         }
 
-        /* ─── BANNERS ─── */
         function renderizarBanners(banners) {
             if (!banners || !banners.length) return;
             const c = document.getElementById('banner-container');
@@ -852,7 +869,6 @@
             `).join('');
         }
 
-        /* ─── RENDERIZAÇÃO ─── */
         function renderizar(lista) {
             const g = document.getElementById('menu-grid');
             g.classList.remove('skeleton-grid');
@@ -929,7 +945,6 @@
             abrirCustom(prodId);
         }
 
-        /* ─── SCROLL SPY ─── */
         function ativarScrollSpy() {
             const sections = document.querySelectorAll('.category-section');
             if (!sections.length) return;
@@ -951,7 +966,6 @@
             sections.forEach(section => observer.observe(section));
         }
 
-        /* ─── MODAL CUSTOMIZAÇÃO ─── */
         function abrirCustom(id) {
             prodAtual = todosProdutos.find(p => p.id === id);
             ingrsAtivos = {}; adicQtd = {};
@@ -1034,7 +1048,6 @@
             mostrarToast('✅ Adicionado ao pedido!');
         }
 
-        /* ─── CARRINHO ─── */
         function abrirModalCarrinho() {
             renderizarListaCarrinho();
             document.getElementById('cartOverlay').classList.add('open');
@@ -1097,7 +1110,6 @@
             document.getElementById('campoTroco').style.display = v === 'DINHEIRO' ? 'block' : 'none';
         }
 
-        /* ─── WHATSAPP ─── */
         async function enviarWhatsApp() {
             if (carrinho.length === 0) { mostrarToast('⚠️ Adicione itens ao pedido!'); return; }
             const nome = document.getElementById('nomeCliente').value.trim();
@@ -1177,7 +1189,6 @@
             mostrarToast('✅ Pedido enviado com sucesso!');
         }
 
-        /* ─── UTILS ─── */
         function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
         function fecharModalFora(e, id) { if (e.target.id === id) fecharModal(id); }
 
