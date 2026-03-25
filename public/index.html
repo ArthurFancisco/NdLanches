@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ND Lanches - Cardápio Digital</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ND Lanches - Cardápio Digital</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap"
+            rel="stylesheet">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <style>
         :root {
             --g1: #0b3d18; --g2: #145a28; --g3: #1b7a36;
             --am: #f5c518; --am-dark: #d4a800;
@@ -231,180 +234,236 @@
             .fechado-card { padding: 30px 20px; }
         }
     </style>
-</head>
-<body>
+    </head>
+    <body>
 
-<header>
-    <div class="header-bg-pattern"></div>
-    <div class="header-inner">
-        <div class="header-brand">
-            <div class="header-logo-icon">🍔</div>
-            <div class="header-titles">
-                <h1>ND LANCHES</h1>
-                <span>Cardápio Digital</span>
+        <header>
+            <div class="header-bg-pattern"></div>
+            <div class="header-inner">
+                <div class="header-brand">
+                    <div class="header-logo-icon">🍔</div>
+                    <div class="header-titles">
+                        <h1>ND LANCHES</h1>
+                        <span>Cardápio Digital</span>
+                    </div>
+                </div>
+                <div id="status-loja"><div class="status-dot"></div>
+                    Verificando...</div>
+            </div>
+        </header>
+
+        <!-- BANNER DE PROMOÇÃO -->
+        <div id="banner-promo">
+            <div class="banner-wrap">
+                <div class="banner-card" id="banner-card">
+                    <span class="banner-emoji" id="banner-emoji">🔥</span>
+                    <div class="banner-texto">
+                        <div class="banner-titulo" id="banner-titulo"></div>
+                        <div class="banner-desc" id="banner-desc"></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div id="status-loja"><div class="status-dot"></div> Verificando...</div>
-    </div>
-</header>
 
-<!-- BANNER DE PROMOÇÃO -->
-<div id="banner-promo">
-    <div class="banner-wrap">
-        <div class="banner-card" id="banner-card">
-            <span class="banner-emoji" id="banner-emoji">🔥</span>
-            <div class="banner-texto">
-                <div class="banner-titulo" id="banner-titulo"></div>
-                <div class="banner-desc" id="banner-desc"></div>
+        <div class="tabs-wrapper">
+            <div class="tabs">
+                <button class="tab-btn active"
+                    onclick="filtrar('TODOS',this)"><span>🏠</span>
+                    Todos</button>
+                <button class="tab-btn"
+                    onclick="filtrar('LANCHE',this)"><span>🍔</span>
+                    Lanches</button>
+                <button class="tab-btn"
+                    onclick="filtrar('BEBIDA',this)"><span>🥤</span>
+                    Bebidas</button>
+                <button class="tab-btn"
+                    onclick="filtrar('PORCAO',this)"><span>🍟</span>
+                    Porções</button>
+                <button class="tab-btn"
+                    onclick="filtrar('SOBREMESA',this)"><span>🍦</span>
+                    Sobremesas</button>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="tabs-wrapper">
-    <div class="tabs">
-        <button class="tab-btn active" onclick="filtrar('TODOS',this)"><span>🏠</span> Todos</button>
-        <button class="tab-btn" onclick="filtrar('LANCHE',this)"><span>🍔</span> Lanches</button>
-        <button class="tab-btn" onclick="filtrar('BEBIDA',this)"><span>🥤</span> Bebidas</button>
-        <button class="tab-btn" onclick="filtrar('PORCAO',this)"><span>🍟</span> Porções</button>
-        <button class="tab-btn" onclick="filtrar('SOBREMESA',this)"><span>🍦</span> Sobremesas</button>
-    </div>
-</div>
-
-<div class="container">
-    <div id="menu-grid" class="grid">
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-    </div>
-</div>
-
-<!-- OVERLAY: LOJA FECHADA -->
-<div class="fechado-overlay" id="fechadoOverlay">
-    <div class="fechado-card">
-        <div class="fechado-icon">🔒</div>
-        <h2>Loja Fechada</h2>
-        <p>Estamos fora do horário de atendimento no momento.</p>
-        <p>Assim que abrirmos, você poderá fazer seu pedido aqui!</p>
-        <div class="fechado-msg-custom" id="fechadoMsgCustom"></div>
-    </div>
-</div>
-
-<div class="cart-bar" id="cartBar" onclick="abrirModalCarrinho()">
-    <div class="cart-left">
-        <span class="cart-badge" id="cartCount">0</span>
-        <span style="font-weight:700">Ver pedido</span>
-    </div>
-    <div class="cart-right">
-        <span style="font-weight:800" id="cartTotal">R$ 0,00</span>
-        <span class="cart-cta">Abrir <i class="fa-solid fa-chevron-up fa-xs"></i></span>
-    </div>
-</div>
-
-<!-- MODAL: CUSTOMIZAR PRODUTO -->
-<div class="modal-overlay" id="customOverlay" onclick="fecharModalFora(event,'customOverlay')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="cm-header">
-        <div class="cm-emoji-box" id="cm-emoji">🍔</div>
-        <div class="cm-info">
-            <h3 id="cm-nome">Produto</h3>
-            <div class="cm-preco-base" id="cm-preco-base">R$ 0,00</div>
+        <div class="container">
+            <div id="menu-grid" class="grid">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
         </div>
-    </div>
-    <div class="custom-section" id="section-ingredientes" style="display:none">
-        <div class="section-label"><i class="fa-solid fa-circle-minus"></i> Retirar ingredientes</div>
-        <div class="chips-wrap" id="chips-ingredientes"></div>
-        <p class="chip-hint"><i class="fa-solid fa-hand-pointer fa-xs"></i>&nbsp;Toque para riscar o que não deseja</p>
-    </div>
-    <div class="custom-section">
-        <div class="section-label"><i class="fa-solid fa-circle-plus"></i> Adicionais</div>
-        <div class="adicionais-grid" id="adicionais-grid">
-            <div class="adic-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+
+        <!-- OVERLAY: LOJA FECHADA -->
+        <div class="fechado-overlay" id="fechadoOverlay">
+            <div class="fechado-card">
+                <div class="fechado-icon">🔒</div>
+                <h2>Loja Fechada</h2>
+                <p>Estamos fora do horário de atendimento no momento.</p>
+                <p>Assim que abrirmos, você poderá fazer seu pedido aqui!</p>
+                <div class="fechado-msg-custom" id="fechadoMsgCustom"></div>
+            </div>
         </div>
-    </div>
-    <div class="custom-section">
-        <div class="section-label"><i class="fa-regular fa-comment-dots"></i> Observação</div>
-        <textarea class="obs-area" id="obs-texto" rows="2" maxlength="140"
-            placeholder="Ex: sem sal, bem passado, molho à parte..."
-            oninput="document.getElementById('obs-count').textContent=this.value.length"></textarea>
-        <div class="obs-counter"><span id="obs-count">0</span>/140</div>
-    </div>
-    <div class="cm-total-row">
-        <span class="cm-total-label">Total do item</span>
-        <span class="cm-total-val" id="cm-total">R$ 0,00</span>
-    </div>
-    <button class="btn-confirmar" onclick="confirmarAdicao()">
-        <i class="fa-solid fa-plus fa-sm"></i> Adicionar ao pedido
-    </button>
-  </div>
-</div>
 
-<!-- MODAL: CARRINHO -->
-<div class="modal-overlay" id="cartOverlay" onclick="fecharModalFora(event,'cartOverlay')">
-  <div class="modal" id="cartModal">
-    <div class="modal-handle"></div>
-    <div class="cart-title">🛒 Seu Pedido</div>
+        <div class="cart-bar" id="cartBar" onclick="abrirModalCarrinho()">
+            <div class="cart-left">
+                <span class="cart-badge" id="cartCount">0</span>
+                <span style="font-weight:700">Ver pedido</span>
+            </div>
+            <div class="cart-right">
+                <span style="font-weight:800" id="cartTotal">R$ 0,00</span>
+                <span class="cart-cta">Abrir <i
+                        class="fa-solid fa-chevron-up fa-xs"></i></span>
+            </div>
+        </div>
 
-    <!-- Aviso de carrinho restaurado -->
-    <div class="cart-restored-badge" id="cartRestoredBadge">
-        <i class="fa-solid fa-rotate-left fa-xs"></i> Seu pedido anterior foi restaurado!
-    </div>
+        <!-- MODAL: CUSTOMIZAR PRODUTO -->
+        <div class="modal-overlay" id="customOverlay"
+            onclick="fecharModalFora(event,'customOverlay')">
+            <div class="modal">
+                <div class="modal-handle"></div>
+                <div class="cm-header">
+                    <div class="cm-emoji-box" id="cm-emoji">🍔</div>
+                    <div class="cm-info">
+                        <h3 id="cm-nome">Produto</h3>
+                        <div class="cm-preco-base" id="cm-preco-base">R$
+                            0,00</div>
+                    </div>
+                </div>
+                <div class="custom-section" id="section-ingredientes"
+                    style="display:none">
+                    <div class="section-label"><i
+                            class="fa-solid fa-circle-minus"></i> Retirar
+                        ingredientes</div>
+                    <div class="chips-wrap" id="chips-ingredientes"></div>
+                    <p class="chip-hint"><i
+                            class="fa-solid fa-hand-pointer fa-xs"></i>&nbsp;Toque
+                        para riscar o que não deseja</p>
+                </div>
+                <div class="custom-section">
+                    <div class="section-label"><i
+                            class="fa-solid fa-circle-plus"></i>
+                        Adicionais</div>
+                    <div class="adicionais-grid" id="adicionais-grid">
+                        <div class="adic-empty"><i
+                                class="fa-solid fa-spinner fa-spin"></i>
+                            Carregando...</div>
+                    </div>
+                </div>
+                <div class="custom-section">
+                    <div class="section-label"><i
+                            class="fa-regular fa-comment-dots"></i>
+                        Observação</div>
+                    <textarea class="obs-area" id="obs-texto" rows="2"
+                        maxlength="140"
+                        placeholder="Ex: sem sal, bem passado, molho à parte..."
+                        oninput="document.getElementById('obs-count').textContent=this.value.length"></textarea>
+                    <div class="obs-counter"><span
+                            id="obs-count">0</span>/140</div>
+                </div>
+                <div class="cm-total-row">
+                    <span class="cm-total-label">Total do item</span>
+                    <span class="cm-total-val" id="cm-total">R$ 0,00</span>
+                </div>
+                <button class="btn-confirmar" onclick="confirmarAdicao()">
+                    <i class="fa-solid fa-plus fa-sm"></i> Adicionar ao pedido
+                </button>
+            </div>
+        </div>
 
-    <!-- NOME DO CLIENTE -->
-    <div class="nome-cliente-wrap">
-        <div class="nome-cliente-label"><i class="fa-solid fa-user fa-xs"></i> Seu nome</div>
-        <input type="text" id="nomeCliente" class="nome-cliente-input"
-            placeholder="Ex: João Silva" maxlength="60" autocomplete="name">
-        <div class="nome-cliente-hint">Para identificarmos seu pedido quando estiver pronto 👋</div>
-    </div>
+        <!-- MODAL: CARRINHO -->
+        <div class="modal-overlay" id="cartOverlay"
+            onclick="fecharModalFora(event,'cartOverlay')">
+            <div class="modal" id="cartModal">
+                <div class="modal-handle"></div>
+                <div class="cart-title">🛒 Seu Pedido</div>
 
-    
-        <div class="checkout-section" style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
-    
-    <label class="section-label">Como deseja receber?</label>
-    <div class="delivery-toggle" style="display:flex; gap:10px; margin-bottom:15px;">
-        <button id="btnEntrega" onclick="setTipoPedido('ENTREGA')" style="flex:1; padding:10px; border-radius:10px; border:2px solid #ccc; background:white; font-weight:bold;">🏍️ Entrega</button>
-        <button id="btnRetirada" onclick="setTipoPedido('RETIRADA')" style="flex:1; padding:10px; border-radius:10px; border:2px solid #ccc; background:white; font-weight:bold;">🏠 Retirada</button>
-    </div>
+                <!-- Aviso de carrinho restaurado -->
+                <div class="cart-restored-badge" id="cartRestoredBadge">
+                    <i class="fa-solid fa-rotate-left fa-xs"></i> Seu pedido
+                    anterior foi restaurado!
+                </div>
 
-    <!-- Campos de Endereço (Só aparecem se for Entrega) -->
-    <div id="camposEndereco" style="display:none; flex-direction:column; gap:10px; margin-bottom:15px;">
-        <input type="text" id="ruaNum" placeholder="Rua e Número" class="nome-cliente-input">
-        <input type="text" id="bairro" placeholder="Bairro" class="nome-cliente-input">
-        <input type="text" id="referencia" placeholder="Ponto de Referência (Opcional)" class="nome-cliente-input">
-    </div>
+                <!-- NOME DO CLIENTE -->
+                <div class="nome-cliente-wrap">
+                    <div class="nome-cliente-label"><i
+                            class="fa-solid fa-user fa-xs"></i> Seu nome</div>
+                    <input type="text" id="nomeCliente"
+                        class="nome-cliente-input"
+                        placeholder="Ex: João Silva" maxlength="60"
+                        autocomplete="name">
+                    <div class="nome-cliente-hint">Para identificarmos seu
+                        pedido quando estiver pronto 👋</div>
+                </div>
 
-    <label class="section-label">Forma de Pagamento</label>
-    <select id="pagamento" onchange="checkTroco(this.value)" class="nome-cliente-input" style="margin-bottom:10px;">
-        <option value="PIX">📱 PIX (Enviar comprovante)</option>
-        <option value="CARTAO">💳 Cartão (Levamos a maquininha)</option>
-        <option value="DINHEIRO">💵 Dinheiro</option>
-    </select>
+                <div class="nome-cliente-wrap"
+                    style="background: #fff; border: 2px solid var(--border); margin-top: 15px;">
+                    <div class="nome-cliente-label">COMO DESEJA RECEBER?</div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button type="button" id="btnEntrega"
+                            onclick="setTipoPedido('ENTREGA')"
+                            style="flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background: white; font-weight: 800; cursor: pointer; transition: 0.2s;">
+                            🏍️ Entrega
+                        </button>
+                        <button type="button" id="btnRetirada"
+                            onclick="setTipoPedido('RETIRADA')"
+                            style="flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background: white; font-weight: 800; cursor: pointer; transition: 0.2s;">
+                            🏠 Retirada
+                        </button>
+                    </div>
 
-    <div id="campoTroco" style="display:none; margin-bottom:15px;">
-        <label style="font-size:12px; font-weight:bold;">Troco para quanto?</label>
-        <input type="number" id="valorTroco" placeholder="Ex: 50.00" class="nome-cliente-input">
-    </div>
-</div>
+                    <!-- Campos de Endereço: Aparecem apenas na Entrega -->
+                    <div id="camposEndereco"
+                        style="display: none; flex-direction: column; gap: 8px; margin-bottom: 15px;">
+                        <input type="text" id="ruaNum"
+                            class="nome-cliente-input"
+                            placeholder="Rua e Número">
+                        <input type="text" id="bairro"
+                            class="nome-cliente-input" placeholder="Bairro">
+                        <input type="text" id="referencia"
+                            class="nome-cliente-input"
+                            placeholder="Ponto de Referência">
+                    </div>
 
-    <div id="cartItemsList"></div>
-    <div>
-        <div class="cart-subtotal"><span>Subtotal</span><span id="cartSubtotal">R$ 0,00</span></div>
-        <div class="cart-total-row"><span>Total</span><span id="cartTotal2">R$ 0,00</span></div>
-        <button class="btn-whatsapp" id="btnWhatsapp" onclick="enviarWhatsApp()">
-            <i class="fa-brands fa-whatsapp fa-lg"></i> Enviar Pedido pelo WhatsApp
-        </button>
-        <button class="btn-limpar" onclick="limparCarrinho()">
-            <i class="fa-solid fa-trash-can"></i> Limpar carrinho
-        </button>
-    </div>
-  </div>
-</div>
+                    <div class="nome-cliente-label">FORMA DE PAGAMENTO</div>
+                    <select id="pagamento" class="nome-cliente-input"
+                        onchange="checkTroco(this.value)">
+                        <option value="PIX">📱 PIX</option>
+                        <option value="CARTAO">💳 Cartão (Maquininha)</option>
+                        <option value="DINHEIRO">💵 Dinheiro</option>
+                    </select>
 
-<div class="toast" id="toast"></div>
+                    <!-- Campo de Troco: Aparece apenas no Dinheiro -->
+                    <div id="campoTroco"
+                        style="display: none; margin-top: 10px;">
+                        <label
+                            style="font-size: 11px; font-weight: 800; color: var(--g2);">TROCO
+                            PARA QUANTO?</label>
+                        <input type="number" id="valorTroco"
+                            class="nome-cliente-input" placeholder="Ex: 50.00">
+                    </div>
+                </div>
 
-<script>
+                <div id="cartItemsList"></div>
+                <div>
+                    <div class="cart-subtotal"><span>Subtotal</span><span
+                            id="cartSubtotal">R$ 0,00</span></div>
+                    <div class="cart-total-row"><span>Total</span><span
+                            id="cartTotal2">R$ 0,00</span></div>
+                    <button class="btn-whatsapp" id="btnWhatsapp"
+                        onclick="enviarWhatsApp()">
+                        <i class="fa-brands fa-whatsapp fa-lg"></i> Enviar
+                        Pedido pelo WhatsApp
+                    </button>
+                    <button class="btn-limpar" onclick="limparCarrinho()">
+                        <i class="fa-solid fa-trash-can"></i> Limpar carrinho
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast" id="toast"></div>
+
+        <script>
     const API_URL      = "https://nd-lanches-api.onrender.com/api";
     const LOJA_SLUG    = "nd-lanches";
     const LOJA_ID      = 1;
@@ -723,116 +782,107 @@
         carrinhoRestaurado = false;
     }
 
-    /* ===================== MODAL CARRINHO ===================== */
-    function abrirModalCarrinho() {
-        if (!carrinho.length) return;
-        if (!lojaAberta) { document.getElementById('fechadoOverlay').classList.add('ativo'); return; }
-        renderizarCarrinho();
-        // Mostra badge de restauração se aplicável
-        document.getElementById('cartRestoredBadge').classList.toggle('vis', carrinhoRestaurado);
-        document.getElementById('cartOverlay').classList.add('open');
-    }
-
-    function renderizarCarrinho() {
-        const total = totalCarrinho();
-        document.getElementById('cartSubtotal').textContent = `R$ ${total.toFixed(2)}`;
-        document.getElementById('cartTotal2').textContent   = `R$ ${total.toFixed(2)}`;
-
-        document.getElementById('cartItemsList').innerHTML = carrinho.map((item, idx) => {
-            const mods = [];
-            if (item.ingredRemovidos.length)
-                mods.push(`🚫 Sem: ${item.ingredRemovidos.join(', ')}`);
-            item.adicSel.forEach(a =>
-                mods.push(`➕ ${a.qtd}x ${a.adic.nome} (+R$ ${(parseFloat(a.adic.preco)*a.qtd).toFixed(2)})`));
-            if (item.obs) mods.push(`💬 ${item.obs}`);
-            return `
-            <div class="cart-item">
-                <span class="ci-emoji">${item.produto.emoji||'🍽️'}</span>
-                <div class="ci-info">
-                    <div class="ci-name">${item.produto.nome}</div>
-                    ${mods.length ? `<div class="ci-mods">${mods.join('<br>')}</div>` : ''}
-                    <div class="ci-price">R$ ${(item.precoUnit * item.qtd).toFixed(2)}</div>
-                </div>
-                <div class="ci-ctrl">
-                    <button class="qty-btn" onclick="mudarQtdCarrinho(${idx},-1)">−</button>
-                    <span class="qty-num">${item.qtd}</span>
-                    <button class="qty-btn" onclick="mudarQtdCarrinho(${idx},+1)">+</button>
-                </div>
-            </div>`;
-        }).join('');
-    }
-
-    /* ===================== WHATSAPP + REGISTRAR PEDIDO ===================== */
     async function enviarWhatsApp() {
-        if (!lojaAberta) {
-            fecharModal('cartOverlay');
-            document.getElementById('fechadoOverlay').classList.add('ativo');
-            return;
-        }
-        if (!carrinho.length) return;
+    // 1. CONFIGURAÇÃO DO NÚMERO (TROQUE AQUI)
+    const WHATSAPP_NUM = "5517996032051"; 
 
-        const nomeCliente = document.getElementById('nomeCliente').value.trim();
-        if (!nomeCliente) {
-            document.getElementById('nomeCliente').focus();
-            document.getElementById('nomeCliente').style.borderColor = '#ef4444';
-            mostrarToast('⚠️ Por favor, informe seu nome!');
-            setTimeout(() => document.getElementById('nomeCliente').style.borderColor = '', 2000);
-            return;
-        }
-
-        const btn = document.getElementById('btnWhatsapp');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-lg"></i> Registrando...';
-
-        const itens = carrinho.map(item => ({
-            nome: item.produto.nome, emoji: item.produto.emoji || '',
-            qtd: item.qtd, precoUnit: item.precoUnit,
-            subtotal: item.precoUnit * item.qtd,
-            removidos: item.ingredRemovidos || [],
-            adicionais: (item.adicSel||[]).map(a => ({ nome: a.adic.nome, qtd: a.qtd, preco: parseFloat(a.adic.preco) })),
-            obs: item.obs || ''
-        }));
-
-        const obsLinhas = carrinho.flatMap(item => {
-            const l = [];
-            if (item.ingredRemovidos?.length) l.push(`${item.produto.nome}: sem ${item.ingredRemovidos.join(', ')}`);
-            if (item.obs) l.push(`${item.produto.nome}: ${item.obs}`);
-            return l;
-        });
-
-        try {
-            await fetch(`${API_URL}/pedidos`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nomeCliente, total: totalCarrinho(),
-                    itensJson: JSON.stringify(itens),
-                    observacao: obsLinhas.join(' | ') || null,
-                    status: 'RECEBIDO', loja: { id: LOJA_ID }
-                })
-            });
-        } catch (e) { console.warn('Pedido não registrado na API:', e); }
-
-        const linhas = carrinho.map(item => {
-            let l = `• ${item.qtd}x ${item.produto.nome} — R$ ${(item.precoUnit*item.qtd).toFixed(2)}`;
-            if (item.ingredRemovidos?.length) l += `\n  🚫 Sem: ${item.ingredRemovidos.join(', ')}`;
-            (item.adicSel||[]).forEach(a => l += `\n  ➕ +${a.qtd}x ${a.adic.nome}`);
-            if (item.obs) l += `\n  💬 ${item.obs}`;
-            return l;
-        });
-
-        const msg = `Olá! Meu nome é *${nomeCliente}* e gostaria de fazer um pedido:\n\n${linhas.join('\n\n')}\n\n*Total: R$ ${totalCarrinho().toFixed(2)}*`;
-        window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
-
-        // Limpa carrinho após envio bem-sucedido
-        carrinho = [];
-        limparCarrinhoStorage();
-        atualizarCartUI();
-        fecharModal('cartOverlay');
-
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-brands fa-whatsapp fa-lg"></i> Enviar Pedido pelo WhatsApp';
+    const nomeCliente = document.getElementById('nomeCliente').value.trim();
+    if (!nomeCliente) {
+        mostrarToast('⚠️ Informe seu nome!');
+        document.getElementById('nomeCliente').focus();
+        return;
     }
+
+    // Validação de Endereço se for Entrega
+    let enderecoStr = "";
+    if (tipoPedidoSelecionado === 'ENTREGA') {
+        const rua = document.getElementById('ruaNum').value.trim();
+        const bairro = document.getElementById('bairro').value.trim();
+        if (!rua || !bairro) {
+            mostrarToast('⚠️ Preencha o endereço de entrega!');
+            return;
+        }
+        enderecoStr = `📍 *Endereço:* ${rua}, ${bairro}`;
+        const ref = document.getElementById('referencia').value.trim();
+        if (ref) enderecoStr += ` (${ref})`;
+    }
+
+    // Pagamento e Troco
+    const pagamento = document.getElementById('pagamento').value;
+    let pagStr = `💳 *Pagamento:* ${pagamento}`;
+    if (pagamento === 'DINHEIRO') {
+        const vTroco = document.getElementById('valorTroco').value;
+        pagStr += vTroco ? ` (Troco para R$ ${vTroco})` : " (Não precisa de troco)";
+    }
+
+    // Formatação dos Itens
+    const itensTexto = carrinho.map(item => {
+        let txt = `• ${item.qtd}x ${item.produto.nome}`;
+        if (item.ingredRemovidos?.length) txt += `\n   - Sem: ${item.ingredRemovidos.join(', ')}`;
+        item.adicSel.forEach(a => txt += `\n   + ${a.qtd}x ${a.adic.nome}`);
+        return txt;
+    }).join('\n');
+
+    // MENSAGEM FINAL (LIMPA E RÁPIDA)
+    const msg = `🍔 *NOVO PEDIDO*
+--------------------------
+👤 *Cliente:* ${nomeCliente}
+📦 *Tipo:* ${tipoPedidoSelecionado === 'ENTREGA' ? 'Entrega' : 'Retirada na Loja'}
+${enderecoStr ? enderecoStr + '\n' : ''}--------------------------
+${itensTexto}
+--------------------------
+💰 *Total: R$ ${totalCarrinho().toFixed(2)}*
+${pagStr}`;
+
+    // Abrir WhatsApp
+    window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+    
+    // Opcional: Limpar e fechar
+    fecharModal('cartOverlay');
+}
+
+
+    let tipoPedidoSelecionado = 'RETIRADA'; // Padrão
+
+function setTipoPedido(tipo) {
+    tipoPedidoSelecionado = tipo;
+    const btnE = document.getElementById('btnEntrega');
+    const btnR = document.getElementById('btnRetirada');
+    const camposEnd = document.getElementById('camposEndereco');
+
+    if (tipo === 'ENTREGA') {
+        btnE.style.background = 'var(--g1)';
+        btnE.style.color = 'white';
+        btnE.style.borderColor = 'var(--g1)';
+        
+        btnR.style.background = 'white';
+        btnR.style.color = 'var(--text)';
+        btnR.style.borderColor = 'var(--border)';
+        
+        camposEnd.style.display = 'flex';
+    } else {
+        btnR.style.background = 'var(--g1)';
+        btnR.style.color = 'white';
+        btnR.style.borderColor = 'var(--g1)';
+        
+        btnE.style.background = 'white';
+        btnE.style.color = 'var(--text)';
+        btnE.style.borderColor = 'var(--border)';
+        
+        camposEnd.style.display = 'none';
+    }
+}
+
+function checkTroco(metodo) {
+    const campoTroco = document.getElementById('campoTroco');
+    campoTroco.style.display = (metodo === 'DINHEIRO') ? 'block' : 'none';
+}
+
+// Inicializa o visual
+setTipoPedido('RETIRADA');
+
+
+
 
     /* ===================== UTILS ===================== */
     function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -846,5 +896,5 @@
 
     window.onload = carregarCardapio;
 </script>
-</body>
+    </body>
 </html>
