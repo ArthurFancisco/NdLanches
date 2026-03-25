@@ -2,11 +2,10 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ND Lanches | Cardápio Digital</title>
     
-    <!-- Fontes e Ícones -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
@@ -15,7 +14,7 @@
             --am: #f5c518; --am-dark: #d4a800;
             --bg: #f8fafc; --white: #ffffff;
             --text: #1e293b; --text-muted: #64748b;
-            --border: #e2e8f0;
+            --border: #e2e8f0; --danger: #ef4444; --danger-bg: #fee2e2;
             --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
             --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
             --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
@@ -23,9 +22,9 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+        body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 90px; }
 
-        /* HEADER PREMIUM */
+        /* HEADER */
         header { 
             background: linear-gradient(135deg, var(--g1) 0%, #05220d 100%); 
             color: white; padding: 40px 20px 60px; text-align: center;
@@ -37,40 +36,38 @@
             display: flex; align-items: center; justify-content: center; 
             font-size: 2.2rem; box-shadow: 0 8px 20px rgba(245,197,24,0.4);
         }
-        header h1 { font-family: 'Bebas Neue', cursive; font-size: 2.8rem; letter-spacing: 2px; }
+        header h1 { font-family: 'Bebas Neue', cursive; font-size: 2.8rem; letter-spacing: 2px; line-height: 1; }
         
         /* STATUS PILL */
         #status-loja { 
             display: inline-flex; align-items: center; gap: 8px; 
             padding: 6px 16px; border-radius: 50px; font-weight: 800; 
-            font-size: 0.8rem; text-transform: uppercase; margin-top: 10px;
+            font-size: 0.8rem; text-transform: uppercase; margin-top: 15px;
         }
         .aberto { background: #dcfce7; color: #166534; }
-        .fechado { background: #fee2e2; color: #991b1b; }
+        .fechado { background: var(--danger-bg); color: #991b1b; }
 
         /* CATEGORIAS (TABS) */
         .tabs-wrapper { 
             position: sticky; top: 0; z-index: 100; 
-            background: rgba(248, 250, 252, 0.8); backdrop-filter: blur(10px);
+            background: rgba(248, 250, 252, 0.9); backdrop-filter: blur(10px);
             padding: 15px 0; margin-top: -30px;
         }
         .tabs { 
-            display: flex; gap: 12px; max-width: 900px; margin: 0 auto; 
+            display: flex; gap: 12px; max-width: 1000px; margin: 0 auto; 
             overflow-x: auto; padding: 0 20px; scrollbar-width: none;
         }
+        .tabs::-webkit-scrollbar { display: none; }
         .tab-btn { 
             padding: 12px 24px; border-radius: 16px; border: 1px solid var(--border);
-            background: var(--white); cursor: pointer; font-weight: 700;
+            background: var(--white); cursor: pointer; font-weight: 800; font-family: 'Nunito';
             white-space: nowrap; transition: 0.3s; color: var(--text-muted);
         }
         .tab-btn.active { background: var(--g1); color: white; border-color: var(--g1); box-shadow: var(--shadow-md); }
 
         /* GRID DE PRODUTOS */
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px 20px 120px; }
-        .grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 20px; 
-        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
         /* CARD DO PRODUTO */
         .card { 
@@ -79,31 +76,29 @@
             box-shadow: var(--shadow-sm); transition: 0.3s; cursor: pointer;
             border: 1px solid transparent;
         }
-        .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--am); }
-        
+        .card:active { transform: scale(0.98); }
         .card-img { 
             width: 120px; height: 100%; background: #f1f5f9; 
-            display: flex; align-items: center; justify-content: center; font-size: 3rem;
+            display: flex; align-items: center; justify-content: center; font-size: 3rem; flex-shrink: 0;
         }
         .card-img img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .card-content { flex: 1; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
-        .card-content h3 { font-size: 1.1rem; font-weight: 800; color: var(--g1); }
-        .card-content p { font-size: 0.85rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-content { flex: 1; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+        .card-content h3 { font-size: 1.1rem; font-weight: 800; color: var(--g1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-content p { font-size: 0.85rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
         .card-price { font-weight: 800; font-size: 1.2rem; color: var(--text); }
 
-        /* CARRINHO FLUTUANTE (PILL) */
+        /* CARRINHO FLUTUANTE */
         .cart-bar { 
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150%);
-            width: 90%; max-width: 500px; background: var(--g1); 
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%);
+            width: calc(100% - 40px); max-width: 500px; background: var(--g1); 
             padding: 15px 25px; border-radius: 25px; color: white;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); z-index: 200; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            box-shadow: 0 15px 35px rgba(11, 61, 24, 0.4); z-index: 200; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .cart-bar.visible { transform: translateX(-50%) translateY(0); }
-        .cart-badge { background: var(--am); color: var(--g1); padding: 4px 12px; border-radius: 10px; font-weight: 900; }
+        .cart-badge { background: var(--am); color: var(--g1); padding: 4px 12px; border-radius: 12px; font-weight: 900; }
 
-        /* MODAIS MODERNOS */
+        /* MODAIS */
         .modal-overlay { 
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
             backdrop-filter: blur(5px); z-index: 300; display: flex; 
@@ -111,50 +106,96 @@
         }
         .modal-overlay.open { opacity: 1; pointer-events: all; }
         .modal { 
-            background: var(--white); width: 100%; max-width: 550px; 
-            border-radius: 30px 30px 0 0; padding: 30px;
-            transform: translateY(100%); transition: 0.4s cubic-bezier(0, 1, 0.5, 1);
-            max-height: 90vh; overflow-y: auto;
+            background: var(--white); width: 100%; max-width: 600px; 
+            border-radius: 30px 30px 0 0; padding: 25px;
+            transform: translateY(100%); transition: 0.4s cubic-bezier(0.1, 1, 0.5, 1);
+            max-height: 90vh; overflow-y: auto; position: relative;
         }
         .modal-overlay.open .modal { transform: translateY(0); }
-
-        /* SELETOR ENTREGA/RETIRADA (Segmented Control) */
-        .delivery-selector {
-            display: flex; background: #f1f5f9; padding: 5px; border-radius: 15px; margin-bottom: 20px;
+        .modal-handle { width: 50px; height: 5px; background: #cbd5e1; border-radius: 10px; margin: 0 auto 20px; }
+        
+        /* BOTÃO FECHAR MODAL */
+        .btn-close-modal {
+            position: absolute; top: 20px; right: 20px; background: #f1f5f9; border: none;
+            width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: var(--text-muted); cursor: pointer;
         }
-        .delivery-option {
-            flex: 1; padding: 12px; border: none; border-radius: 12px;
-            background: transparent; font-weight: 800; cursor: pointer; transition: 0.3s;
+
+        /* CUSTOMIZAÇÃO DE PRODUTO */
+        .cm-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .cm-emoji-box { width: 60px; height: 60px; background: #f1f5f9; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+        
+        /* CHIPS INGREDIENTES */
+        .chip { 
+            padding: 8px 16px; background: var(--g1); color: white; border-radius: 50px; 
+            font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: 0.2s; border: 2px solid transparent;
+        }
+        .chip.removed { background: var(--white); color: var(--text-muted); border-color: var(--border); text-decoration: line-through; opacity: 0.6; }
+
+        /* ADICIONAIS */
+        .adic-row { 
+            display: flex; justify-content: space-between; align-items: center; padding: 16px; 
+            border: 2px solid var(--border); border-radius: 16px; margin-bottom: 10px; 
+            cursor: pointer; transition: 0.2s; font-weight: 700;
+        }
+        .adic-row.adic-sel { border-color: var(--g1); background: #f0fdf4; }
+
+        /* FORMULÁRIOS */
+        .input-group { margin-bottom: 18px; }
+        .input-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--g2); margin-bottom: 8px; display: block; }
+        .custom-input { 
+            width: 100%; padding: 16px; border-radius: 15px; border: 2px solid var(--border);
+            font-family: inherit; font-size: 1rem; font-weight: 600; outline: none; transition: 0.2s;
+            background: #f8fafc;
+        }
+        .custom-input:focus { border-color: var(--g1); background: var(--white); }
+
+        /* SEGMENTED CONTROL */
+        .delivery-selector { display: flex; background: #f1f5f9; padding: 6px; border-radius: 16px; margin-bottom: 20px; }
+        .delivery-option { 
+            flex: 1; padding: 14px; border: none; border-radius: 12px;
+            background: transparent; font-weight: 800; font-family: inherit; font-size: 1rem;
+            cursor: pointer; transition: 0.3s; color: var(--text-muted);
         }
         .delivery-option.active { background: var(--white); color: var(--g1); box-shadow: var(--shadow-sm); }
 
-        /* FORMULÁRIOS */
-        .input-group { margin-bottom: 15px; }
-        .input-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--g2); margin-bottom: 6px; display: block; }
-        .custom-input { 
-            width: 100%; padding: 14px; border-radius: 15px; border: 1.5px solid var(--border);
-            font-family: inherit; font-size: 1rem; font-weight: 600; outline: none; transition: 0.2s;
+        /* LISTA DO CARRINHO */
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px dashed var(--border); }
+        .cart-item-info h4 { font-size: 1rem; color: var(--text); margin-bottom: 4px; }
+        .cart-item-info p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
+        .cart-item-price { font-weight: 900; color: var(--g1); margin-top: 5px; }
+        .btn-remove { background: var(--danger-bg); color: var(--danger); border: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
+
+        /* BOTÕES PRINCIPAIS */
+        .btn-confirmar { 
+            width: 100%; padding: 18px; background: var(--am); color: var(--g1); 
+            border: none; border-radius: 20px; font-weight: 900; font-size: 1.1rem; font-family: inherit;
+            cursor: pointer; transition: 0.3s; margin-top: 10px;
         }
-        .custom-input:focus { border-color: var(--g1); background: #f0fdf4; }
-
-        /* BANNERS */
-        #banner-promo.vis { display: block; margin: 10px 20px; }
-        .banner-card { border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px; border: 2px solid transparent; }
-
-        /* BOTÃO WHATSAPP */
         .btn-whatsapp { 
             width: 100%; padding: 18px; background: #22c55e; color: white; 
-            border: none; border-radius: 20px; font-weight: 800; font-size: 1.1rem;
+            border: none; border-radius: 20px; font-weight: 900; font-size: 1.1rem; font-family: inherit;
             cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
             box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3); transition: 0.3s;
         }
-        .btn-whatsapp:active { transform: scale(0.95); }
+        .btn-confirmar:active, .btn-whatsapp:active { transform: scale(0.96); }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: var(--text); color: white; padding: 12px 24px; border-radius: 30px;
+            font-weight: 700; font-size: 0.9rem; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 9999; opacity: 0; box-shadow: var(--shadow-lg);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
         @media (max-width: 600px) {
             .grid { grid-template-columns: 1fr; }
+            header { padding: 30px 20px 50px; }
             header h1 { font-size: 2.2rem; }
             .card { height: 120px; }
-            .card-img { width: 100px; }
+            .card-img { width: 100px; font-size: 2.5rem; }
+            .modal { padding: 20px; }
         }
     </style>
 </head>
@@ -163,20 +204,8 @@
     <header>
         <div class="header-logo-icon">🍔</div>
         <h1>ND LANCHES</h1>
-        <div id="status-loja">Verificando...</div>
+        <div id="status-loja">⏳ Verificando status...</div>
     </header>
-
-    <div id="banner-promo">
-        <div class="banner-wrap">
-            <div class="banner-card" id="banner-card">
-                <span style="font-size: 2rem;" id="banner-emoji">🔥</span>
-                <div>
-                    <div style="font-weight: 900;" id="banner-titulo"></div>
-                    <div style="font-size: 0.9rem; opacity: 0.8;" id="banner-desc"></div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="tabs-wrapper">
         <div class="tabs">
@@ -190,75 +219,81 @@
 
     <div class="container">
         <div id="menu-grid" class="grid">
-            <!-- Skeletons Automáticos -->
+            <p style="text-align: center; width: 100%; color: var(--text-muted); font-weight: 700; margin-top: 40px;">
+                <i class="fa fa-spinner fa-spin"></i> Carregando cardápio...
+            </p>
         </div>
     </div>
 
     <div class="cart-bar" id="cartBar" onclick="abrirModalCarrinho()">
-        <div>
+        <div style="display: flex; align-items: center;">
             <span class="cart-badge" id="cartCount">0</span>
-            <span style="margin-left: 10px; font-weight: 800;">Ver Pedido</span>
+            <span style="margin-left: 12px; font-weight: 800; font-size: 1.1rem;">Ver Pedido</span>
         </div>
         <span id="cartTotal" style="font-weight: 900; font-size: 1.2rem;">R$ 0,00</span>
     </div>
 
-    <!-- MODAL CUSTOMIZAR -->
     <div class="modal-overlay" id="customOverlay" onclick="fecharModalFora(event,'customOverlay')">
         <div class="modal">
+            <button class="btn-close-modal" onclick="fecharModal('customOverlay')"><i class="fa fa-times"></i></button>
             <div class="modal-handle"></div>
+            
             <div class="cm-header">
                 <div class="cm-emoji-box" id="cm-emoji">🍔</div>
                 <div>
-                    <h3 id="cm-nome" style="font-weight: 900; color: var(--g1);">Produto</h3>
+                    <h3 id="cm-nome" style="font-weight: 900; font-size: 1.3rem; color: var(--g1); margin-bottom: 2px;">Produto</h3>
                     <div id="cm-preco-base" style="font-weight: 700; color: var(--text-muted);">R$ 0,00</div>
                 </div>
             </div>
 
-            <div id="section-ingredientes" style="margin-bottom: 20px; display: none;">
+            <div id="section-ingredientes" style="margin-bottom: 25px; display: none;">
                 <label class="input-label">Retirar ingredientes?</label>
-                <div id="chips-ingredientes" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                <div id="chips-ingredientes" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label class="input-label">Adicionais</label>
+            <div style="margin-bottom: 25px;">
+                <label class="input-label">Turbine seu pedido (Adicionais)</label>
                 <div id="adicionais-grid"></div>
             </div>
 
             <div class="input-group">
                 <label class="input-label">Alguma observação?</label>
-                <textarea id="obs-texto" class="custom-input" rows="2" placeholder="Ex: tirar cebola, ponto da carne..."></textarea>
+                <textarea id="obs-texto" class="custom-input" rows="2" placeholder="Ex: carne bem passada, sem guardanapo..."></textarea>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
-                <span style="font-weight: 800;">Total do Item</span>
-                <span id="cm-total" style="font-weight: 900; font-size: 1.5rem; color: var(--g1);">R$ 0,00</span>
+                <span style="font-weight: 800; color: var(--text-muted);">Total do Item</span>
+                <span id="cm-total" style="font-weight: 900; font-size: 1.6rem; color: var(--g1);">R$ 0,00</span>
             </div>
 
             <button class="btn-confirmar" onclick="confirmarAdicao()">Adicionar ao Pedido</button>
         </div>
     </div>
 
-    <!-- MODAL CARRINHO -->
     <div class="modal-overlay" id="cartOverlay" onclick="fecharModalFora(event,'cartOverlay')">
         <div class="modal">
+            <button class="btn-close-modal" onclick="fecharModal('cartOverlay')"><i class="fa fa-times"></i></button>
             <div class="modal-handle"></div>
-            <h2 style="font-family: 'Bebas Neue'; font-size: 2rem; margin-bottom: 20px;">🛒 Finalizar Pedido</h2>
+            <h2 style="font-family: 'Bebas Neue'; font-size: 2.2rem; margin-bottom: 20px; color: var(--g1);">🛒 Seu Pedido</h2>
+
+            <div id="cartItemsList" style="margin-bottom: 25px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                </div>
 
             <div class="input-group">
-                <label class="input-label">Seu Nome</label>
-                <input type="text" id="nomeCliente" class="custom-input" placeholder="Como te chamamos?">
+                <label class="input-label">Como te chamamos?</label>
+                <input type="text" id="nomeCliente" class="custom-input" placeholder="Seu Nome">
             </div>
 
             <label class="input-label">Como deseja receber?</label>
             <div class="delivery-selector">
                 <button type="button" id="btnEntrega" class="delivery-option" onclick="setTipoPedido('ENTREGA')">🏍️ Entrega</button>
-                <button type="button" id="btnRetirada" class="delivery-option" onclick="setTipoPedido('RETIRADA')">🏠 Retirada</button>
+                <button type="button" id="btnRetirada" class="delivery-option active" onclick="setTipoPedido('RETIRADA')">🏠 Retirada</button>
             </div>
 
-            <div id="camposEndereco" style="display: none; gap: 10px; flex-direction: column; margin-bottom: 20px;">
+            <div id="camposEndereco" style="display: none; gap: 15px; flex-direction: column; margin-bottom: 25px;">
                 <input type="text" id="ruaNum" class="custom-input" placeholder="Rua e Número">
                 <input type="text" id="bairro" class="custom-input" placeholder="Bairro">
-                <input type="text" id="referencia" class="custom-input" placeholder="Ponto de referência">
+                <input type="text" id="referencia" class="custom-input" placeholder="Ponto de referência (Opcional)">
             </div>
 
             <div class="input-group">
@@ -272,24 +307,22 @@
 
             <div id="campoTroco" style="display: none;" class="input-group">
                 <label class="input-label">Troco para quanto?</label>
-                <input type="number" id="valorTroco" class="custom-input" placeholder="Ex: 50">
+                <input type="number" id="valorTroco" class="custom-input" placeholder="Ex: 50 (Deixe em branco se não precisar)">
             </div>
 
-            <div id="cartItemsList" style="margin: 20px 0; border-top: 1px solid var(--border);"></div>
-
-            <div style="display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: 900; margin-bottom: 20px;">
-                <span>Total</span>
+            <div style="display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: 900; margin: 25px 0 20px; border-top: 2px solid var(--border); padding-top: 15px;">
+                <span>Total a Pagar</span>
                 <span id="cartTotal2" style="color: var(--g1);">R$ 0,00</span>
             </div>
 
             <button class="btn-whatsapp" onclick="enviarWhatsApp()">
-                <i class="fa-brands fa-whatsapp"></i> ENVIAR PEDIDO
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.4rem;"></i> ENVIAR PEDIDO
             </button>
-            <button class="btn-limpar" style="border: none; background: none; color: #ef4444; font-weight: 800; width: 100%; margin-top: 15px; cursor: pointer;" onclick="limparCarrinho()">Limpar Carrinho</button>
+            <button style="border: none; background: none; color: var(--text-muted); font-weight: 800; width: 100%; margin-top: 20px; cursor: pointer; padding: 10px;" onclick="limparCarrinho()">Esvaziar Carrinho</button>
         </div>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast">Notificação</div>
 
     <script>
         const API_URL = "https://nd-lanches-api.onrender.com/api";
@@ -299,25 +332,29 @@
         const WHATSAPP_NUM = "5517996032051";
 
         let lojaAberta = false, todosProdutos = [], todosAdicionais = [], carrinho = [];
-        let prodAtual = null, ingrsAtivos = {}, adicQtd = {}, tipoPedidoSelecionado = 'RETIRADA';
+        let prodAtual = null, ingrsAtivos = {}, adicQtd = {}, precoTotalModalAtual = 0;
 
         async function carregarCardapio() {
             restaurarCarrinho();
             try {
-                const [rStatus, rProd, rAdic, rBan] = await Promise.all([
-                    fetch(`${API_URL}/loja/${LOJA_SLUG}/status`),
-                    fetch(`${API_URL}/produtos/loja/${LOJA_ID}`),
-                    fetch(`${API_URL}/adicionais/loja/${LOJA_ID}`),
-                    fetch(`${API_URL}/banners/loja/${LOJA_ID}/ativos`)
+                const [rStatus, rProd, rAdic] = await Promise.all([
+                    fetch(`${API_URL}/loja/${LOJA_SLUG}/status`).catch(() => null),
+                    fetch(`${API_URL}/produtos/loja/${LOJA_ID}`).catch(() => null),
+                    fetch(`${API_URL}/adicionais/loja/${LOJA_ID}`).catch(() => null)
                 ]);
 
-                if (rStatus.ok) { lojaAberta = await rStatus.json(); atualizarStatusUI(lojaAberta); }
-                if (rProd.ok) { todosProdutos = await rProd.json(); renderizar(todosProdutos); }
-                if (rAdic.ok) { todosAdicionais = await rAdic.json(); }
-                if (rBan.ok) { const b = await rBan.json(); if(b.length) renderizarBanner(b[0]); }
-            } catch (e) { console.error("Erro ao carregar:", e); }
+                if (rStatus && rStatus.ok) { lojaAberta = await rStatus.json(); atualizarStatusUI(lojaAberta); }
+                if (rProd && rProd.ok) { todosProdutos = await rProd.json(); renderizar(todosProdutos); } else { falhaCarregamento(); }
+                if (rAdic && rAdic.ok) { todosAdicionais = await rAdic.json(); }
+                
+            } catch (e) { falhaCarregamento(); console.error(e); }
+            
             atualizarCartUI();
             setTipoPedido('RETIRADA');
+        }
+
+        function falhaCarregamento() {
+            document.getElementById('menu-grid').innerHTML = '<p style="text-align:center; width: 100%; color:#ef4444; font-weight:bold;">Erro ao carregar cardápio. Tente atualizar a página.</p>';
         }
 
         function atualizarStatusUI(aberto) {
@@ -326,19 +363,10 @@
             el.className = aberto ? 'aberto' : 'fechado';
         }
 
-        function renderizarBanner(b) {
-            const el = document.getElementById('banner-promo');
-            const card = document.getElementById('banner-card');
-            document.getElementById('banner-emoji').textContent = b.emoji || '🔥';
-            document.getElementById('banner-titulo').textContent = b.titulo;
-            document.getElementById('banner-desc').textContent = b.descricao;
-            card.className = `banner-card banner-${b.cor || 'amarelo'}`;
-            el.classList.add('vis');
-        }
-
         function renderizar(lista) {
             const g = document.getElementById('menu-grid');
-            if(!lista.length) { g.innerHTML = "<p>Nenhum produto encontrado.</p>"; return; }
+            if(!lista || !lista.length) { g.innerHTML = "<p style='text-align:center; width: 100%; font-weight:bold;'>Nenhum produto encontrado nesta categoria.</p>"; return; }
+            
             g.innerHTML = lista.map(p => `
                 <div class="card" onclick="abrirCustom(${p.id})">
                     <div class="card-img">
@@ -349,67 +377,148 @@
                             <h3>${p.nome}</h3>
                             <p>${p.descricao || ''}</p>
                         </div>
-                        <div class="card-price">R$ ${p.preco.toFixed(2)}</div>
+                        <div class="card-price">R$ ${p.preco.toFixed(2).replace('.', ',')}</div>
                     </div>
                 </div>
             `).join('');
         }
 
         function abrirCustom(id) {
-            if(!lojaAberta) { mostrarToast("Loja fechada no momento!"); return; }
+            if(!lojaAberta) { mostrarToast("Desculpe, a loja está fechada no momento!"); return; }
+            
             prodAtual = todosProdutos.find(p => p.id === id);
             ingrsAtivos = {}; adicQtd = {};
-            document.getElementById('cm-nome').textContent = prodAtual.nome;
-            document.getElementById('cm-preco-base').textContent = `R$ ${prodAtual.preco.toFixed(2)}`;
+            document.getElementById('obs-texto').value = '';
             
+            document.getElementById('cm-nome').textContent = prodAtual.nome;
+            document.getElementById('cm-emoji').innerHTML = prodAtual.imagemUrl ? `<img src="${prodAtual.imagemUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:15px;">` : (prodAtual.emoji || '🍔');
+            document.getElementById('cm-preco-base').textContent = `A partir de R$ ${prodAtual.preco.toFixed(2).replace('.', ',')}`;
+            
+            // Ingredientes
             const ingrs = (prodAtual.descricao || "").split(',').map(s => s.trim()).filter(s => s.length > 2);
             const secIng = document.getElementById('section-ingredientes');
             if(ingrs.length) {
                 secIng.style.display = 'block';
-                document.getElementById('chips-ingredientes').innerHTML = ingrs.map(i => {
-                    ingrsAtivos[i] = true;
-                    return `<div class="chip" id="chip-${i}" onclick="toggleIngr('${i}')">${i}</div>`;
+                document.getElementById('chips-ingredientes').innerHTML = ingrs.map((i, index) => {
+                    ingrsAtivos[index] = true; // Usando index como chave segura
+                    return `<div class="chip" id="chip-${index}" onclick="toggleIngr(${index}, '${i}')">${i}</div>`;
                 }).join('');
             } else { secIng.style.display = 'none'; }
 
-            document.getElementById('adicionais-grid').innerHTML = todosAdicionais.map(a => `
-                <div class="adic-row" id="adic-${a.id}" onclick="toggleAdic(${a.id})">
-                    <span>${a.emoji} ${a.nome}</span>
-                    <span style="font-weight:800">+ R$ ${a.preco.toFixed(2)}</span>
-                </div>
-            `).join('');
+            // Adicionais
+            const secAdic = document.getElementById('adicionais-grid');
+            if(todosAdicionais && todosAdicionais.length) {
+                secAdic.innerHTML = todosAdicionais.map(a => `
+                    <div class="adic-row" id="adic-${a.id}" onclick="toggleAdic(${a.id}, ${a.preco})">
+                        <span>${a.emoji || '➕'} ${a.nome}</span>
+                        <span style="color: var(--g1);">+ R$ ${a.preco.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                `).join('');
+            } else { secAdic.innerHTML = '<p style="font-size:0.85rem; color:#64748b;">Nenhum adicional disponível.</p>'; }
             
-            atualizarTotal();
+            atualizarTotalModal();
             document.getElementById('customOverlay').classList.add('open');
         }
 
-        function toggleIngr(i) {
-            ingrsAtivos[i] = !ingrsAtivos[i];
-            document.getElementById(`chip-${i}`).classList.toggle('removed', !ingrsAtivos[i]);
+        function toggleIngr(index, nome) {
+            ingrsAtivos[index] = !ingrsAtivos[index];
+            document.getElementById(`chip-${index}`).classList.toggle('removed', !ingrsAtivos[index]);
         }
 
-        function toggleAdic(id) {
+        function toggleAdic(id, preco) {
             adicQtd[id] = adicQtd[id] ? 0 : 1;
             document.getElementById(`adic-${id}`).classList.toggle('adic-sel', adicQtd[id] > 0);
-            atualizarTotal();
+            atualizarTotalModal();
         }
 
-        function atualizarTotal() {
+        function atualizarTotalModal() {
             let t = prodAtual.preco;
-            Object.entries(adicQtd).forEach(([id, q]) => { if(q) t += todosAdicionais.find(a => a.id == id).preco; });
-            document.getElementById('cm-total').textContent = `R$ ${t.toFixed(2)}`;
+            Object.entries(adicQtd).forEach(([id, q]) => { 
+                if(q) t += todosAdicionais.find(a => a.id == id).preco; 
+            });
+            precoTotalModalAtual = t;
+            document.getElementById('cm-total').textContent = `R$ ${t.toFixed(2).replace('.', ',')}`;
         }
 
         function confirmarAdicao() {
-            const adics = Object.entries(adicQtd).filter(([id,q]) => q).map(([id]) => ({ adic: todosAdicionais.find(a => a.id == id), qtd: 1 }));
-            carrinho.push({
-                produto: prodAtual, qtd: 1, 
-                precoUnit: parseFloat(document.getElementById('cm-total').textContent.replace('R$ ','')),
-                ingredRemovidos: Object.entries(ingrsAtivos).filter(([k,v]) => !v).map(([k]) => k),
-                adicSel: adics, obs: document.getElementById('obs-texto').value
+            // Pegar ingredientes removidos (os que estão false)
+            const removidos = [];
+            const ingrsOriginais = (prodAtual.descricao || "").split(',').map(s => s.trim()).filter(s => s.length > 2);
+            Object.entries(ingrsAtivos).forEach(([index, ativo]) => {
+                if(!ativo) removidos.push(ingrsOriginais[index]);
             });
-            fecharModal('customOverlay'); salvarCarrinho(); atualizarCartUI();
-            mostrarToast("Adicionado!");
+
+            const adics = Object.entries(adicQtd)
+                .filter(([id, q]) => q > 0)
+                .map(([id]) => ({ adic: todosAdicionais.find(a => a.id == id), qtd: 1 }));
+
+            carrinho.push({
+                produto: prodAtual, 
+                qtd: 1, 
+                precoUnit: precoTotalModalAtual, // Usando a variável calculada e não o texto da tela
+                ingredRemovidos: removidos,
+                adicSel: adics, 
+                obs: document.getElementById('obs-texto').value.trim()
+            });
+            
+            fecharModal('customOverlay'); 
+            salvarCarrinho(); 
+            atualizarCartUI();
+            mostrarToast("✅ Adicionado ao carrinho!");
+        }
+
+        // --- FUNÇÕES DO CARRINHO ---
+
+        function abrirModalCarrinho() { 
+            renderizarListaCarrinho();
+            document.getElementById('cartOverlay').classList.add('open'); 
+        }
+
+        function renderizarListaCarrinho() {
+            const list = document.getElementById('cartItemsList');
+            if(carrinho.length === 0) {
+                list.innerHTML = '<p style="text-align:center; padding: 20px 0; color: var(--text-muted); font-weight:bold;">Seu carrinho está vazio.</p>';
+                document.getElementById('cartTotal2').textContent = 'R$ 0,00';
+                return;
+            }
+
+            list.innerHTML = carrinho.map((item, index) => {
+                let desc = [];
+                if(item.ingredRemovidos.length) desc.push(`<span style="color:var(--danger)">S/ ${item.ingredRemovidos.join(', ')}</span>`);
+                item.adicSel.forEach(a => desc.push(`+ ${a.adic.nome}`));
+                if(item.obs) desc.push(`Obs: ${item.obs}`);
+                
+                return `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h4>${item.qtd}x ${item.produto.nome}</h4>
+                        <p>${desc.join(' | ') || 'Tradicional'}</p>
+                        <div class="cart-item-price">R$ ${(item.precoUnit * item.qtd).toFixed(2).replace('.', ',')}</div>
+                    </div>
+                    <button class="btn-remove" onclick="removerDoCarrinho(${index})"><i class="fa fa-trash"></i></button>
+                </div>`;
+            }).join('');
+        }
+
+        function removerDoCarrinho(index) {
+            carrinho.splice(index, 1);
+            salvarCarrinho();
+            atualizarCartUI();
+            renderizarListaCarrinho();
+            if(carrinho.length === 0) {
+                fecharModal('cartOverlay');
+                mostrarToast("Carrinho vazio!");
+            }
+        }
+
+        function atualizarCartUI() {
+            const total = carrinho.reduce((s,i) => s + (i.precoUnit * i.qtd), 0);
+            const qtd = carrinho.length;
+            
+            document.getElementById('cartCount').textContent = qtd;
+            document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cartTotal2').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cartBar').classList.toggle('visible', qtd > 0);
         }
 
         function setTipoPedido(tipo) {
@@ -422,50 +531,61 @@
         function checkTroco(v) { document.getElementById('campoTroco').style.display = v === 'DINHEIRO' ? 'block' : 'none'; }
 
         async function enviarWhatsApp() {
+            if(carrinho.length === 0) { mostrarToast("⚠️ Adicione itens ao pedido!"); return; }
+            
             const nome = document.getElementById('nomeCliente').value.trim();
-            if(!nome) { mostrarToast("⚠️ Digite seu nome!"); return; }
+            if(!nome) { mostrarToast("⚠️ Digite seu nome!"); document.getElementById('nomeCliente').focus(); return; }
             
             let entregaInfo = "";
             if(tipoPedidoSelecionado === 'ENTREGA') {
-                const rua = document.getElementById('ruaNum').value, bairro = document.getElementById('bairro').value;
-                if(!rua || !bairro) { mostrarToast("⚠️ Endereço incompleto!"); return; }
-                entregaInfo = `📍 *Endereço:* ${rua}, ${bairro}`;
+                const rua = document.getElementById('ruaNum').value.trim();
+                const bairro = document.getElementById('bairro').value.trim();
+                const ref = document.getElementById('referencia').value.trim();
+                if(!rua || !bairro) { mostrarToast("⚠️ Preencha rua e bairro para entrega!"); return; }
+                entregaInfo = `📍 *Endereço:* ${rua}, ${bairro}${ref ? `\n📍 *Ref:* ${ref}` : ''}`;
             }
 
             const pag = document.getElementById('pagamento').value;
             let pagFinal = `💳 *Pagamento:* ${pag}`;
-            if(pag === 'DINHEIRO') pagFinal += ` (Troco para R$ ${document.getElementById('valorTroco').value || '0'})`;
+            if(pag === 'DINHEIRO') {
+                const troco = document.getElementById('valorTroco').value;
+                pagFinal += troco ? `\n💵 *Troco para:* R$ ${troco}` : `\n💵 *Não precisa de troco*`;
+            }
 
             const itens = carrinho.map(i => {
-                let s = `• ${i.qtd}x ${i.produto.nome}`;
-                if(i.ingredRemovidos.length) s += `\n   - S/ ${i.ingredRemovidos.join(', ')}`;
-                i.adicSel.forEach(a => s += `\n   + ${a.adic.nome}`);
+                let s = `▪️ *${i.qtd}x ${i.produto.nome}* (R$ ${i.precoUnit.toFixed(2).replace('.',',')})`;
+                if(i.ingredRemovidos.length) s += `\n   ❌ Sem: ${i.ingredRemovidos.join(', ')}`;
+                if(i.adicSel.length) s += `\n   ➕ Adic: ${i.adicSel.map(a => a.adic.nome).join(', ')}`;
+                if(i.obs) s += `\n   📝 Obs: ${i.obs}`;
                 return s;
             }).join('\n\n');
 
-            const msg = `🍔 *NOVO PEDIDO*\n--------------------------\n👤 *Cliente:* ${nome}\n📦 *Tipo:* ${tipoPedidoSelecionado}\n${entregaInfo}\n--------------------------\n${itens}\n--------------------------\n💰 *Total: R$ ${totalCarrinho().toFixed(2)}*\n${pagFinal}`;
+            const totalPedido = carrinho.reduce((s,i) => s + (i.precoUnit * i.qtd), 0);
+
+            const msg = `🍔 *NOVO PEDIDO - ND LANCHES*\n\n👤 *Cliente:* ${nome}\n📦 *Tipo:* ${tipoPedidoSelecionado}\n${entregaInfo}\n\n*RESUMO DO PEDIDO:*\n${itens}\n\n💰 *TOTAL: R$ ${totalPedido.toFixed(2).replace('.', ',')}*\n\n${pagFinal}`;
             
             window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
-            carrinho = []; salvarCarrinho(); atualizarCartUI(); fecharModal('cartOverlay');
+            
+            // Opcional: Limpar carrinho após envio
+            // carrinho = []; salvarCarrinho(); atualizarCartUI(); fecharModal('cartOverlay');
         }
 
-        function totalCarrinho() { return carrinho.reduce((s,i) => s + i.precoUnit * i.qtd, 0); }
-        function atualizarCartUI() {
-            const total = totalCarrinho(), qtd = carrinho.length;
-            document.getElementById('cartCount').textContent = qtd;
-            document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2)}`;
-            document.getElementById('cartTotal2').textContent = `R$ ${total.toFixed(2)}`;
-            document.getElementById('cartBar').classList.toggle('visible', qtd > 0);
-        }
-
+        // UTILS
         function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
         function fecharModalFora(e, id) { if(e.target.id === id) fecharModal(id); }
-        function abrirModalCarrinho() { document.getElementById('cartOverlay').classList.add('open'); }
-        function mostrarToast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+        function mostrarToast(m) { 
+            const t = document.getElementById('toast'); 
+            t.textContent = m; 
+            t.classList.add('show'); 
+            setTimeout(()=>t.classList.remove('show'), 3000); 
+        }
         function salvarCarrinho() { localStorage.setItem(CART_KEY, JSON.stringify({itens:carrinho, ts:Date.now()})); }
         function restaurarCarrinho() { const r = localStorage.getItem(CART_KEY); if(r) carrinho = JSON.parse(r).itens; }
-        function limparCarrinho() { if(confirm("Limpar carrinho?")) { carrinho = []; salvarCarrinho(); atualizarCartUI(); fecharModal('cartOverlay'); } }
-
+        function limparCarrinho() { 
+            if(confirm("Tem certeza que deseja esvaziar o carrinho?")) { 
+                carrinho = []; salvarCarrinho(); atualizarCartUI(); fecharModal('cartOverlay'); 
+            } 
+        }
         function filtrar(cat, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
