@@ -160,15 +160,58 @@
             transform: translateY(-1px);
         }
 
-        /* SKELETON LOADING */
+        /* SKELETON LOADING MELHORADO */
         .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 20px; }
         .skeleton-card {
-            height: 140px; border-radius: var(--radius);
+            background: var(--white);
+            border-radius: var(--radius);
+            height: 140px;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        .skeleton-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
             background-size: 200% 100%;
             animation: shimmer 1.4s infinite;
         }
-        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        .skeleton-card .skeleton-img {
+            width: 120px;
+            background: #cbd5e1;
+            flex-shrink: 0;
+        }
+        .skeleton-card .skeleton-content {
+            flex: 1;
+            padding: 16px;
+        }
+        .skeleton-card .skeleton-title {
+            width: 80%;
+            height: 18px;
+            background: #cbd5e1;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .skeleton-card .skeleton-text {
+            width: 90%;
+            height: 12px;
+            background: #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .skeleton-card .skeleton-text:last-child {
+            width: 60%;
+            margin-bottom: 0;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
 
         /* GRID DE PRODUTOS */
         .container { max-width: 1000px; margin: 0 auto; padding: 24px 20px; }
@@ -213,8 +256,18 @@
             width: 32px; height: 32px; background: var(--g1); color: white;
             border-radius: 10px; display: flex; align-items: center; justify-content: center;
             font-size: 1.1rem; font-weight: 900; transition: 0.2s;
+            cursor: pointer;
         }
-        .card:hover .card-add-btn { background: var(--g3); transform: scale(1.1); }
+        .card-add-btn:active { transform: scale(0.9); }
+        /* animação de feedback no botão */
+        .btn-feedback {
+            animation: pulse 0.3s ease-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); background: var(--g3); }
+            100% { transform: scale(1); }
+        }
 
         /* FECHADO OVERLAY */
         #loja-fechada-overlay {
@@ -482,12 +535,12 @@
     <div id="banner-container"></div>
 
     <div class="tabs-wrapper">
-        <div class="tabs">
-            <button class="tab-btn active" onclick="filtrar('TODOS',this)">🏠 Todos</button>
-            <button class="tab-btn" onclick="filtrar('LANCHE',this)">🍔 Lanches</button>
-            <button class="tab-btn" onclick="filtrar('BEBIDA',this)">🥤 Bebidas</button>
-            <button class="tab-btn" onclick="filtrar('PORCAO',this)">🍟 Porções</button>
-            <button class="tab-btn" onclick="filtrar('SOBREMESA',this)">🍦 Sobremesas</button>
+        <div class="tabs" id="tabsContainer">
+            <button class="tab-btn active" data-categoria="TODOS" onclick="filtrar('TODOS',this)">🏠 Todos</button>
+            <button class="tab-btn" data-categoria="LANCHE" onclick="filtrar('LANCHE',this)">🍔 Lanches</button>
+            <button class="tab-btn" data-categoria="BEBIDA" onclick="filtrar('BEBIDA',this)">🥤 Bebidas</button>
+            <button class="tab-btn" data-categoria="PORCAO" onclick="filtrar('PORCAO',this)">🍟 Porções</button>
+            <button class="tab-btn" data-categoria="SOBREMESA" onclick="filtrar('SOBREMESA',this)">🍦 Sobremesas</button>
         </div>
     </div>
 
@@ -497,10 +550,7 @@
             <span>Seu pedido anterior foi restaurado!</span>
         </div>
         <div id="menu-grid" class="grid skeleton-grid">
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
+            <!-- skeletons serão gerados dinamicamente -->
         </div>
     </div>
 
@@ -621,7 +671,7 @@
         const LOJA_SLUG = "nd-lanches";
         const LOJA_ID   = 1;
         const CART_KEY  = `ndlanches_cart_${LOJA_ID}`;
-        const WHATSAPP_NUM = "5517996032051";
+        let whatsappNum = "5517999999999"; // valor padrão, será atualizado pela API
 
         let lojaAberta = false, todosProdutos = [], todosAdicionais = [], carrinho = [];
         let prodAtual = null, ingrsAtivos = {}, adicQtd = {}, precoTotalModalAtual = 0;
@@ -629,15 +679,25 @@
 
         /* ─── INICIALIZAÇÃO ─── */
         async function carregarCardapio() {
+            // Exibe skeletons personalizados
+            mostrarSkeletons();
+
             const cartRestored = restaurarCarrinho();
 
             try {
-                const [rStatus, rProd, rAdic, rBanners] = await Promise.all([
+                // Busca dados da loja para pegar o whatsapp
+                const [rLoja, rStatus, rProd, rAdic, rBanners] = await Promise.all([
+                    fetch(`${API_URL}/loja/${LOJA_SLUG}`).catch(() => null),
                     fetch(`${API_URL}/loja/${LOJA_SLUG}/status`).catch(() => null),
                     fetch(`${API_URL}/produtos/loja/${LOJA_ID}`).catch(() => null),
                     fetch(`${API_URL}/adicionais/loja/${LOJA_ID}`).catch(() => null),
                     fetch(`${API_URL}/banners/loja/${LOJA_ID}/ativos`).catch(() => null)
                 ]);
+
+                if (rLoja && rLoja.ok) {
+                    const lojaData = await rLoja.json();
+                    if (lojaData.whatsapp) whatsappNum = lojaData.whatsapp;
+                }
 
                 if (rStatus && rStatus.ok) {
                     lojaAberta = await rStatus.json();
@@ -667,6 +727,24 @@
                 document.getElementById('restored-banner').classList.add('show');
                 setTimeout(() => document.getElementById('restored-banner').classList.remove('show'), 5000);
             }
+
+            // Ativa o scroll spy após os produtos estarem renderizados
+            if (todosProdutos.length) ativarScrollSpy();
+        }
+
+        function mostrarSkeletons() {
+            const grid = document.getElementById('menu-grid');
+            grid.classList.add('skeleton-grid');
+            grid.innerHTML = Array(4).fill(0).map(() => `
+                <div class="skeleton-card">
+                    <div class="skeleton-img"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text"></div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function falhaCarregamento() {
@@ -709,37 +787,106 @@
                 return;
             }
 
-            g.innerHTML = lista.map((p, i) => {
-                const tagHtml = p.tagTexto
-                    ? `<div class="card-tag tag-${p.tagTipo || 'destaque'}">${p.tagTexto}</div>` : '';
-                const imgHtml = p.imagemUrl
-                    ? `<img src="${p.imagemUrl}" alt="${p.nome}" loading="lazy">`
-                    : (p.emoji || '🍔');
+            // Agrupar produtos por categoria para facilitar scroll spy
+            const categorias = [...new Map(lista.map(p => [p.categoria, p.categoria])).values()];
+            // Cria um container para cada categoria
+            let html = '';
+            categorias.forEach(cat => {
+                const produtosCat = lista.filter(p => p.categoria === cat);
+                if (produtosCat.length === 0) return;
+                html += `<div class="category-section" data-categoria="${cat}">
+                            <div class="section-title">${traduzirCategoria(cat)}</div>
+                            <div class="grid">`;
+                produtosCat.forEach((p, i) => {
+                    const tagHtml = p.tagTexto
+                        ? `<div class="card-tag tag-${p.tagTipo || 'destaque'}">${p.tagTexto}</div>` : '';
+                    const imgHtml = p.imagemUrl
+                        ? `<img src="${p.imagemUrl}" alt="${p.nome}" loading="lazy">`
+                        : (p.emoji || '🍔');
 
-                return `
-                <div class="card" onclick="abrirCustom(${p.id})" style="animation-delay:${i * 0.05}s">
-                    <div class="card-img">
-                        ${imgHtml}
-                        ${tagHtml}
-                    </div>
-                    <div class="card-content">
-                        <div>
-                            <h3>${p.nome}</h3>
-                            <p>${p.descricao || ''}</p>
+                    html += `
+                    <div class="card" data-produto-id="${p.id}" style="animation-delay:${i * 0.05}s">
+                        <div class="card-img">
+                            ${imgHtml}
+                            ${tagHtml}
                         </div>
-                        <div class="card-bottom">
-                            <span class="card-price">R$ ${p.preco.toFixed(2).replace('.', ',')}</span>
-                            <div class="card-add-btn"><i class="fa fa-plus"></i></div>
+                        <div class="card-content">
+                            <div>
+                                <h3>${p.nome}</h3>
+                                <p>${p.descricao || ''}</p>
+                            </div>
+                            <div class="card-bottom">
+                                <span class="card-price">R$ ${p.preco.toFixed(2).replace('.', ',')}</span>
+                                <div class="card-add-btn" onclick="event.stopPropagation(); handleAddClick(${p.id}, this)">
+                                    <i class="fa fa-plus"></i>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>`;
-            }).join('');
+                    </div>`;
+                });
+                html += `</div></div>`;
+            });
+            g.innerHTML = html;
+
+            // Anexar evento de clique ao card principal (abre modal)
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Se o clique foi no botão de adicionar, já tratado, não abrir modal novamente
+                    if (e.target.closest('.card-add-btn')) return;
+                    const prodId = parseInt(card.dataset.produtoId);
+                    if (prodId) abrirCustom(prodId);
+                });
+            });
+        }
+
+        function traduzirCategoria(cat) {
+            const map = { LANCHE: '🍔 Lanches', BEBIDA: '🥤 Bebidas', PORCAO: '🍟 Porções', SOBREMESA: '🍦 Sobremesas' };
+            return map[cat] || cat;
+        }
+
+        // Função para tratar clique no botão + com feedback visual
+        function handleAddClick(prodId, btnElement) {
+            if (!lojaAberta) {
+                mostrarToast("🔒 A loja está fechada no momento!");
+                return;
+            }
+            // Feedback visual no botão
+            btnElement.classList.add('btn-feedback');
+            setTimeout(() => btnElement.classList.remove('btn-feedback'), 300);
+            // Trocar ícone temporariamente
+            const icon = btnElement.querySelector('i');
+            const originalIcon = icon.className;
+            icon.className = 'fa fa-check';
+            setTimeout(() => icon.className = originalIcon, 300);
+            // Abrir modal de customização
+            abrirCustom(prodId);
+        }
+
+        /* ─── SCROLL SPY ─── */
+        function ativarScrollSpy() {
+            const sections = document.querySelectorAll('.category-section');
+            if (!sections.length) return;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const categoria = entry.target.dataset.categoria;
+                        const btn = document.querySelector(`.tab-btn[data-categoria="${categoria}"]`);
+                        if (btn) {
+                            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            // Rolar a tab para dentro da viewport se necessário
+                            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            sections.forEach(section => observer.observe(section));
         }
 
         /* ─── MODAL CUSTOMIZAÇÃO ─── */
         function abrirCustom(id) {
-            if (!lojaAberta) { mostrarToast("🔒 A loja está fechada no momento!"); return; }
-
             prodAtual = todosProdutos.find(p => p.id === id);
             ingrsAtivos = {}; adicQtd = {};
             document.getElementById('obs-texto').value = '';
@@ -958,7 +1105,7 @@
                 });
             } catch (e) { console.warn('Falha ao salvar pedido na API:', e); }
 
-            window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(msg)}`, '_blank');
 
             carrinho = [];
             salvarCarrinho();
@@ -1007,7 +1154,14 @@
         function filtrar(cat, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderizar(cat === 'TODOS' ? todosProdutos : todosProdutos.filter(p => p.categoria === cat));
+            if (cat === 'TODOS') {
+                renderizar(todosProdutos);
+                ativarScrollSpy(); // reativar spy após renderização
+            } else {
+                const filtrados = todosProdutos.filter(p => p.categoria === cat);
+                renderizar(filtrados);
+                // Quando filtra manualmente, não há seções, então desativa spy ou limpa
+            }
         }
 
         window.onload = carregarCardapio;
