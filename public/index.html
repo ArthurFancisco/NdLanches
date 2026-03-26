@@ -151,7 +151,7 @@
             .banner-emoji { font-size: 1.5rem; }
         }
 
-        /* CATEGORIAS (TABS) COM INDICADOR DE SCROLL */
+        /* CATEGORIAS (TABS) */
         .tabs-wrapper {
             position: sticky; top: 0; z-index: 100;
             background: rgba(240, 244, 241, 0.88);
@@ -190,7 +190,6 @@
             box-shadow: 0 6px 16px rgba(11,61,24,0.3);
             transform: translateY(-1px);
         }
-        /* Indicadores de scroll */
         .scroll-indicator {
             position: absolute;
             top: 50%;
@@ -214,15 +213,9 @@
             opacity: 0.8;
             pointer-events: auto;
         }
-        .scroll-indicator.show:hover {
-            opacity: 1;
-        }
-        .scroll-left {
-            left: 5px;
-        }
-        .scroll-right {
-            right: 5px;
-        }
+        .scroll-indicator.show:hover { opacity: 1; }
+        .scroll-left { left: 5px; }
+        .scroll-right { right: 5px; }
         @media (max-width: 600px) {
             .scroll-indicator { width: 28px; height: 28px; }
             .scroll-left { left: 2px; }
@@ -283,15 +276,14 @@
             font-size: 3rem; flex-shrink: 0; position: relative; overflow: hidden;
         }
         .card-img img { width: 100%; height: 100%; object-fit: cover; }
-        /* Placeholder quando não tem imagem */
         .card-img .img-placeholder {
             width: 100%;
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-            font-size: 2.5rem;
+            background: linear-gradient(135deg, #f8fafc, #e9f5ec);
+            font-size: 3rem;
         }
         .card-tag {
             position: absolute; top: 8px; left: 8px;
@@ -335,13 +327,6 @@
         .fechada-card .icon { font-size: 4rem; margin-bottom: 20px; }
         .fechada-card h2 { font-family: 'Bebas Neue'; font-size: 2.2rem; color: var(--g1); margin-bottom: 10px; letter-spacing: 1px; }
         .fechada-card p { color: var(--text-muted); font-weight: 600; line-height: 1.6; font-size: 0.95rem; }
-        .fechada-card .hours {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
 
         /* CARRINHO FLUTUANTE */
         .cart-bar {
@@ -802,23 +787,13 @@
             const tabs = document.getElementById('tabsContainer');
             const leftIndicator = document.getElementById('scrollLeft');
             const rightIndicator = document.getElementById('scrollRight');
-            
             if (!tabs) return;
-            
             const scrollLeft = tabs.scrollLeft;
             const maxScroll = tabs.scrollWidth - tabs.clientWidth;
-            
-            if (scrollLeft > 10) {
-                leftIndicator.classList.add('show');
-            } else {
-                leftIndicator.classList.remove('show');
-            }
-            
-            if (scrollLeft < maxScroll - 10) {
-                rightIndicator.classList.add('show');
-            } else {
-                rightIndicator.classList.remove('show');
-            }
+            if (scrollLeft > 10) leftIndicator.classList.add('show');
+            else leftIndicator.classList.remove('show');
+            if (scrollLeft < maxScroll - 10) rightIndicator.classList.add('show');
+            else rightIndicator.classList.remove('show');
         }
 
         async function carregarCardapio() {
@@ -870,8 +845,7 @@
             }
 
             if (todosProdutos.length) ativarScrollSpy();
-            
-            // Adicionar listener para scroll das tabs
+
             const tabs = document.getElementById('tabsContainer');
             if (tabs) {
                 tabs.addEventListener('scroll', updateScrollIndicators);
@@ -947,9 +921,21 @@
                 produtosCat.forEach((p, i) => {
                     const tagHtml = p.tagTexto
                         ? `<div class="card-tag tag-${p.tagTipo || 'destaque'}">${p.tagTexto}</div>` : '';
-                    const imgHtml = p.imagemUrl
-                        ? `<img src="${p.imagemUrl}" alt="${p.nome}" loading="lazy">`
-                        : `<div class="img-placeholder">${p.emoji || '🍔'}</div>`;
+                    
+                    // Lógica: se tiver imagem, exibe imagem; senão, exibe emoji da categoria (ou fallback)
+                    let imgHtml;
+                    if (p.imagemUrl && p.imagemUrl.trim() !== '') {
+                        imgHtml = `<img src="${p.imagemUrl}" alt="${p.nome}" loading="lazy">`;
+                    } else {
+                        const categoryEmoji = {
+                            LANCHE: '🍔',
+                            BEBIDA: '🥤',
+                            PORCAO: '🍟',
+                            SOBREMESA: '🍦'
+                        };
+                        const defaultEmoji = categoryEmoji[p.categoria] || p.emoji || '🍽️';
+                        imgHtml = `<div class="img-placeholder">${defaultEmoji}</div>`;
+                    }
 
                     html += `
                     <div class="card" data-produto-id="${p.id}" style="animation-delay:${i * 0.05}s">
@@ -1015,7 +1001,6 @@
                         if (btn) {
                             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                             btn.classList.add('active');
-                            // Scroll suave do botão para dentro da viewport
                             btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                         }
                     }
@@ -1032,9 +1017,11 @@
 
             document.getElementById('cm-nome').textContent = prodAtual.nome;
             const emojiEl = document.getElementById('cm-emoji');
-            emojiEl.innerHTML = prodAtual.imagemUrl
-                ? `<img src="${prodAtual.imagemUrl}" alt="${prodAtual.nome}">`
-                : (prodAtual.emoji || '🍔');
+            if (prodAtual.imagemUrl && prodAtual.imagemUrl.trim() !== '') {
+                emojiEl.innerHTML = `<img src="${prodAtual.imagemUrl}" alt="${prodAtual.nome}">`;
+            } else {
+                emojiEl.innerHTML = prodAtual.emoji || '🍔';
+            }
             document.getElementById('cm-preco-base').textContent = `A partir de R$ ${prodAtual.preco.toFixed(2).replace('.', ',')}`;
 
             const ingrs = (prodAtual.descricao || '').split(',').map(s => s.trim()).filter(s => s.length > 1);
