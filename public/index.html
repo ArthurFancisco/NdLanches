@@ -111,11 +111,11 @@
         .fechado::before { content: '○'; font-size: 0.7rem; }
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        /* ─── BANNER (CORRIGIDO) ─── */
+        /* ─── BANNER ─── */
         #banner-container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 20px 20px 0; /* reduzi de 60px para 20px laterais */
+            padding: 20px 20px 0;
             position: relative;
             z-index: 5;
         }
@@ -128,7 +128,7 @@
             font-weight: 800;
             animation: slideDown 0.5s ease;
             box-shadow: var(--shadow-sm);
-            margin-bottom: 20px; /* espaço entre banners */
+            margin-bottom: 20px;
             word-break: break-word;
         }
         @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
@@ -140,7 +140,6 @@
         .banner-text strong { display: block; font-size: 1rem; }
         .banner-text span { font-size: 0.85rem; opacity: 0.85; font-weight: 600; }
 
-        /* Responsividade do banner */
         @media (max-width: 600px) {
             .banner-promo {
                 flex-wrap: wrap;
@@ -149,26 +148,30 @@
                 gap: 8px;
                 padding: 15px;
             }
-            .banner-emoji {
-                font-size: 1.5rem;
-            }
+            .banner-emoji { font-size: 1.5rem; }
         }
 
-        /* CATEGORIAS (TABS) */
+        /* CATEGORIAS (TABS) COM INDICADOR DE SCROLL */
         .tabs-wrapper {
             position: sticky; top: 0; z-index: 100;
             background: rgba(240, 244, 241, 0.88);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             padding: 14px 0;
-            margin-top: 0; /* removido -28px */
+            margin-top: 0;
             border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .tabs-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
         }
         .tabs {
             display: flex; gap: 10px;
-            max-width: 1000px; margin: 0 auto;
-            overflow-x: auto; padding: 0 20px;
+            overflow-x: auto;
+            padding: 0 20px;
             scrollbar-width: none;
+            scroll-behavior: smooth;
         }
         .tabs::-webkit-scrollbar { display: none; }
         .tab-btn {
@@ -178,6 +181,7 @@
             font-weight: 800; font-family: 'Nunito';
             white-space: nowrap; transition: all 0.25s;
             color: var(--text-muted); font-size: 0.88rem;
+            flex-shrink: 0;
         }
         .tab-btn:hover { border-color: var(--g2); color: var(--g2); }
         .tab-btn.active {
@@ -186,8 +190,46 @@
             box-shadow: 0 6px 16px rgba(11,61,24,0.3);
             transform: translateY(-1px);
         }
+        /* Indicadores de scroll */
+        .scroll-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            color: var(--g1);
+        }
+        .scroll-indicator.show {
+            opacity: 0.8;
+            pointer-events: auto;
+        }
+        .scroll-indicator.show:hover {
+            opacity: 1;
+        }
+        .scroll-left {
+            left: 5px;
+        }
+        .scroll-right {
+            right: 5px;
+        }
+        @media (max-width: 600px) {
+            .scroll-indicator { width: 28px; height: 28px; }
+            .scroll-left { left: 2px; }
+            .scroll-right { right: 2px; }
+        }
 
-        /* SKELETON LOADING MELHORADO */
+        /* SKELETON LOADING */
         .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 20px; }
         .skeleton-card {
             background: var(--white);
@@ -208,37 +250,12 @@
             background-size: 200% 100%;
             animation: shimmer 1.4s infinite;
         }
-        .skeleton-card .skeleton-img {
-            width: 120px;
-            background: #cbd5e1;
-            flex-shrink: 0;
-        }
-        .skeleton-card .skeleton-content {
-            flex: 1;
-            padding: 16px;
-        }
-        .skeleton-card .skeleton-title {
-            width: 80%;
-            height: 18px;
-            background: #cbd5e1;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-        .skeleton-card .skeleton-text {
-            width: 90%;
-            height: 12px;
-            background: #cbd5e1;
-            border-radius: 6px;
-            margin-bottom: 8px;
-        }
-        .skeleton-card .skeleton-text:last-child {
-            width: 60%;
-            margin-bottom: 0;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        .skeleton-card .skeleton-img { width: 120px; background: #cbd5e1; flex-shrink: 0; }
+        .skeleton-card .skeleton-content { flex: 1; padding: 16px; }
+        .skeleton-card .skeleton-title { width: 80%; height: 18px; background: #cbd5e1; border-radius: 8px; margin-bottom: 12px; }
+        .skeleton-card .skeleton-text { width: 90%; height: 12px; background: #cbd5e1; border-radius: 6px; margin-bottom: 8px; }
+        .skeleton-card .skeleton-text:last-child { width: 60%; margin-bottom: 0; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
         /* GRID DE PRODUTOS */
         .container { max-width: 1000px; margin: 0 auto; padding: 24px 20px; }
@@ -266,10 +283,21 @@
             font-size: 3rem; flex-shrink: 0; position: relative; overflow: hidden;
         }
         .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        /* Placeholder quando não tem imagem */
+        .card-img .img-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            font-size: 2.5rem;
+        }
         .card-tag {
             position: absolute; top: 8px; left: 8px;
             padding: 3px 8px; border-radius: 8px;
             font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;
+            z-index: 2;
         }
         .tag-destaque { background: var(--am); color: var(--g1); }
         .tag-novo { background: #22c55e; color: white; }
@@ -286,20 +314,14 @@
             cursor: pointer;
         }
         .card-add-btn:active { transform: scale(0.9); }
-        .btn-feedback {
-            animation: pulse 0.3s ease-out;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); background: var(--g3); }
-            100% { transform: scale(1); }
-        }
+        .btn-feedback { animation: pulse 0.3s ease-out; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); background: var(--g3); } 100% { transform: scale(1); } }
 
         /* FECHADO OVERLAY */
         #loja-fechada-overlay {
             display: none; position: fixed; inset: 0; z-index: 500;
             background: rgba(8, 24, 12, 0.85);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
             align-items: center; justify-content: center; padding: 20px;
         }
         #loja-fechada-overlay.show { display: flex; }
@@ -313,6 +335,13 @@
         .fechada-card .icon { font-size: 4rem; margin-bottom: 20px; }
         .fechada-card h2 { font-family: 'Bebas Neue'; font-size: 2.2rem; color: var(--g1); margin-bottom: 10px; letter-spacing: 1px; }
         .fechada-card p { color: var(--text-muted); font-weight: 600; line-height: 1.6; font-size: 0.95rem; }
+        .fechada-card .hours {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
 
         /* CARRINHO FLUTUANTE */
         .cart-bar {
@@ -327,11 +356,7 @@
         .cart-bar.visible { transform: translateX(-50%) translateY(0); }
         .cart-bar:active { transform: translateX(-50%) translateY(0) scale(0.97); }
         .cart-bar-left { display: flex; align-items: center; gap: 12px; }
-        .cart-badge {
-            background: var(--am); color: var(--g1);
-            padding: 5px 13px; border-radius: 14px;
-            font-weight: 900; font-size: 0.95rem;
-        }
+        .cart-badge { background: var(--am); color: var(--g1); padding: 5px 13px; border-radius: 14px; font-weight: 900; font-size: 0.95rem; }
         .cart-bar-label { font-weight: 800; font-size: 1.05rem; }
         .cart-bar-total { font-weight: 900; font-size: 1.1rem; }
 
@@ -349,7 +374,7 @@
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
             z-index: 300; display: flex;
             align-items: flex-end; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -363,7 +388,6 @@
         }
         .modal-overlay.open .modal { transform: translateY(0); }
         .modal-handle { width: 44px; height: 4px; background: #cbd5e1; border-radius: 10px; margin: 0 auto 22px; }
-
         .btn-close-modal {
             position: absolute; top: 22px; right: 22px;
             background: #f1f5f9; border: none;
@@ -451,9 +475,24 @@
             padding: 16px 0; border-bottom: 1px dashed var(--border);
         }
         .cart-item:last-child { border-bottom: none; }
+        .cart-item-info { flex: 1; }
         .cart-item-info h4 { font-size: 0.95rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
-        .cart-item-info p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
-        .cart-item-price { font-weight: 900; color: var(--g1); margin-top: 6px; font-size: 0.95rem; }
+        .cart-item-info p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 6px; }
+        .cart-item-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .cart-item-qty-price {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--g1);
+        }
+        .cart-item-unit-price {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
         .btn-remove {
             background: var(--danger-bg); color: var(--danger); border: none;
             min-width: 38px; height: 38px; border-radius: 12px;
@@ -505,15 +544,23 @@
         }
         .total-pedido-row span:last-child { color: var(--g1); }
 
+        /* TOAST MAIS SUTIL */
         .toast {
-            position: fixed; top: 20px; left: 50%;
+            position: fixed; top: 70px; left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background: #1e293b; color: white;
-            padding: 12px 24px; border-radius: 30px;
-            font-weight: 700; font-size: 0.88rem;
-            transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-            z-index: 9999; opacity: 0; box-shadow: var(--shadow-lg);
+            background: #1e293bcc;
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 9999;
+            opacity: 0;
+            box-shadow: var(--shadow-md);
             white-space: nowrap;
+            pointer-events: none;
         }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
@@ -527,25 +574,11 @@
             color: var(--text-muted);
             border-top: 1px solid var(--border);
         }
-        footer a {
-            color: var(--g2);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
+        footer a { color: var(--g2); text-decoration: none; font-weight: 600; }
+        footer a:hover { text-decoration: underline; }
+        body { padding-bottom: 80px; }
 
-        /* Ajuste para não sobrepor o carrinho flutuante */
-        body {
-            padding-bottom: 80px;
-        }
-
-        /* Tooltip */
-        [data-tooltip] {
-            position: relative;
-            cursor: help;
-        }
+        [data-tooltip] { position: relative; cursor: help; }
         [data-tooltip]:before {
             content: attr(data-tooltip);
             position: absolute;
@@ -565,20 +598,9 @@
             transition: opacity 0.2s;
             font-family: 'Nunito', sans-serif;
         }
-        [data-tooltip]:hover:before {
-            opacity: 1;
-        }
-        @media (max-width: 600px) {
-            [data-tooltip]:before {
-                display: none;
-            }
-        }
-        .help-text {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-            display: block;
-        }
+        [data-tooltip]:hover:before { opacity: 1; }
+        @media (max-width: 600px) { [data-tooltip]:before { display: none; } }
+        .help-text { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; display: block; }
 
         @media (max-width: 600px) {
             .grid { grid-template-columns: 1fr; }
@@ -611,12 +633,16 @@
     <div id="banner-container"></div>
 
     <div class="tabs-wrapper">
-        <div class="tabs" id="tabsContainer">
-            <button class="tab-btn active" data-categoria="TODOS" onclick="filtrar('TODOS',this)">🏠 Todos</button>
-            <button class="tab-btn" data-categoria="LANCHE" onclick="filtrar('LANCHE',this)">🍔 Lanches</button>
-            <button class="tab-btn" data-categoria="BEBIDA" onclick="filtrar('BEBIDA',this)">🥤 Bebidas</button>
-            <button class="tab-btn" data-categoria="PORCAO" onclick="filtrar('PORCAO',this)">🍟 Porções</button>
-            <button class="tab-btn" data-categoria="SOBREMESA" onclick="filtrar('SOBREMESA',this)">🍦 Sobremesas</button>
+        <div class="tabs-container">
+            <div class="tabs" id="tabsContainer">
+                <button class="tab-btn active" data-categoria="TODOS" onclick="filtrar('TODOS',this)">🏠 Todos</button>
+                <button class="tab-btn" data-categoria="LANCHE" onclick="filtrar('LANCHE',this)">🍔 Lanches</button>
+                <button class="tab-btn" data-categoria="BEBIDA" onclick="filtrar('BEBIDA',this)">🥤 Bebidas</button>
+                <button class="tab-btn" data-categoria="PORCAO" onclick="filtrar('PORCAO',this)">🍟 Porções</button>
+                <button class="tab-btn" data-categoria="SOBREMESA" onclick="filtrar('SOBREMESA',this)">🍦 Sobremesas</button>
+            </div>
+            <div class="scroll-indicator scroll-left" id="scrollLeft" onclick="scrollTabs(-1)"><i class="fas fa-chevron-left"></i></div>
+            <div class="scroll-indicator scroll-right" id="scrollRight" onclick="scrollTabs(1)"><i class="fas fa-chevron-right"></i></div>
         </div>
     </div>
 
@@ -644,6 +670,7 @@
             <div class="icon">🔒</div>
             <h2>Estamos Fechados</h2>
             <p id="msg-fechado">Voltamos em breve! Fique de olho no nosso status.</p>
+            <div class="hours">⏰ Horário de funcionamento: segunda a sábado, 18h às 23h</div>
         </div>
     </div>
 
@@ -696,7 +723,7 @@
             <div class="modal-handle"></div>
             <h2 style="font-family:'Bebas Neue';font-size:2.2rem;margin-bottom:22px;color:var(--g1);">🛒 Seu Pedido</h2>
 
-            <div id="cartItemsList" style="margin-bottom:22px; max-height:240px; overflow-y:auto; padding-right:4px;"></div>
+            <div id="cartItemsList" style="margin-bottom:22px; max-height:300px; overflow-y:auto; padding-right:4px;"></div>
 
             <div class="input-group">
                 <label class="section-label">Como te chamamos?</label>
@@ -752,13 +779,6 @@
     </footer>
 
     <script>
-        // Aqui vai o script completo que já está funcionando (com lojaInfo, renderização etc.)
-        // Inclua exatamente o mesmo conteúdo do seu script atual (que já tem a correção de lojaInfo)
-        // Para evitar duplicação, copie o script do seu arquivo anterior que está funcionando.
-        // Certifique-se de que a função renderizarBanners está presente e que os banners são inseridos corretamente.
-        // O código abaixo é apenas um placeholder – substitua pelo seu script real.
-
-        // ===================== SEU SCRIPT COMPLETO AQUI =====================
         const API_URL   = "https://nd-lanches-api.onrender.com/api";
         const LOJA_SLUG = "nd-lanches";
         const LOJA_ID   = 1;
@@ -769,6 +789,37 @@
         let prodAtual = null, ingrsAtivos = {}, adicQtd = {}, precoTotalModalAtual = 0;
         let tipoPedidoSelecionado = 'RETIRADA';
         let lojaInfo = {};
+
+        // Função para scroll das tabs
+        function scrollTabs(direction) {
+            const tabsContainer = document.getElementById('tabsContainer');
+            const scrollAmount = 200;
+            tabsContainer.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+
+        // Atualizar visibilidade dos indicadores de scroll
+        function updateScrollIndicators() {
+            const tabs = document.getElementById('tabsContainer');
+            const leftIndicator = document.getElementById('scrollLeft');
+            const rightIndicator = document.getElementById('scrollRight');
+            
+            if (!tabs) return;
+            
+            const scrollLeft = tabs.scrollLeft;
+            const maxScroll = tabs.scrollWidth - tabs.clientWidth;
+            
+            if (scrollLeft > 10) {
+                leftIndicator.classList.add('show');
+            } else {
+                leftIndicator.classList.remove('show');
+            }
+            
+            if (scrollLeft < maxScroll - 10) {
+                rightIndicator.classList.add('show');
+            } else {
+                rightIndicator.classList.remove('show');
+            }
+        }
 
         async function carregarCardapio() {
             mostrarSkeletons();
@@ -819,6 +870,13 @@
             }
 
             if (todosProdutos.length) ativarScrollSpy();
+            
+            // Adicionar listener para scroll das tabs
+            const tabs = document.getElementById('tabsContainer');
+            if (tabs) {
+                tabs.addEventListener('scroll', updateScrollIndicators);
+                setTimeout(updateScrollIndicators, 100);
+            }
         }
 
         function mostrarSkeletons() {
@@ -891,7 +949,7 @@
                         ? `<div class="card-tag tag-${p.tagTipo || 'destaque'}">${p.tagTexto}</div>` : '';
                     const imgHtml = p.imagemUrl
                         ? `<img src="${p.imagemUrl}" alt="${p.nome}" loading="lazy">`
-                        : (p.emoji || '🍔');
+                        : `<div class="img-placeholder">${p.emoji || '🍔'}</div>`;
 
                     html += `
                     <div class="card" data-produto-id="${p.id}" style="animation-delay:${i * 0.05}s">
@@ -957,6 +1015,7 @@
                         if (btn) {
                             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                             btn.classList.add('active');
+                            // Scroll suave do botão para dentro da viewport
                             btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                         }
                     }
@@ -1067,12 +1126,17 @@
                 item.adicSel.forEach(a => desc.push(`➕ ${a.adic.nome}`));
                 if (item.obs) desc.push(`📝 ${item.obs}`);
 
+                const totalItem = item.precoUnit * item.qtd;
+                
                 return `
                 <div class="cart-item">
-                    <div class="cart-item-info" style="flex:1;">
-                        <h4>${item.qtd}x ${item.produto.nome}</h4>
+                    <div class="cart-item-info">
+                        <h4>${item.produto.nome}</h4>
                         <p>${desc.join(' | ') || 'Tradicional'}</p>
-                        <div class="cart-item-price">R$ ${(item.precoUnit * item.qtd).toFixed(2).replace('.', ',')}</div>
+                        <div class="cart-item-detail">
+                            <span class="cart-item-qty-price">${item.qtd}x R$ ${item.precoUnit.toFixed(2).replace('.', ',')}</span>
+                            <span class="cart-item-unit-price">= R$ ${totalItem.toFixed(2).replace('.', ',')}</span>
+                        </div>
                     </div>
                     <button class="btn-remove" onclick="removerDoCarrinho(${index})"><i class="fa fa-trash"></i></button>
                 </div>`;
@@ -1132,7 +1196,7 @@
             }
 
             const itens = carrinho.map(i => {
-                let s = `▪️ *${i.qtd}x ${i.produto.nome}* — R$ ${i.precoUnit.toFixed(2).replace('.', ',')}`;
+                let s = `▪️ *${i.qtd}x ${i.produto.nome}* — R$ ${(i.precoUnit * i.qtd).toFixed(2).replace('.', ',')}`;
                 if (i.ingredRemovidos.length) s += `\n   ❌ Sem: ${i.ingredRemovidos.join(', ')}`;
                 if (i.adicSel.length) s += `\n   ➕ Extra: ${i.adicSel.map(a => a.adic.nome).join(', ')}`;
                 if (i.obs) s += `\n   📝 ${i.obs}`;
@@ -1196,7 +1260,7 @@
             const t = document.getElementById('toast');
             t.textContent = m;
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            setTimeout(() => t.classList.remove('show'), 2500);
         }
 
         function salvarCarrinho() {

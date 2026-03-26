@@ -21,6 +21,7 @@
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
+        /* Topbar e demais estilos existentes mantidos... (cópia do original até a linha 308) */
         .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
         .topbar-brand{display:flex;align-items:center;gap:12px;}
         .topbar-icon{width:38px;height:38px;background:var(--am);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
@@ -68,25 +69,145 @@
         .edit-banner-bar.vis{display:flex;}
 
         .prod-count{background:var(--am);color:var(--g1);font-size:.72rem;font-weight:800;padding:2px 9px;border-radius:50px;}
-        #lista-produtos-admin{max-height:500px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent;}
-        .prod-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-        .prod-item:last-child{border-bottom:none;}
+
+        /* NOVOS ESTILOS: Filtro e busca */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-bar select, .filter-bar input {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: var(--text);
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
+        }
+        .filter-bar select:focus, .filter-bar input:focus {
+            border-color: var(--am);
+        }
+
+        /* Lista de produtos com drag & drop */
+        #lista-produtos-admin {
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--surface2) transparent;
+        }
+        .prod-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: grab;
+            transition: background 0.2s;
+        }
+        .prod-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        .prod-item.drag-over {
+            border-top: 2px solid var(--am);
+        }
+        .prod-item.inactive {
+            opacity: 0.6;
+        }
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-muted);
+            font-size: 1rem;
+            width: 24px;
+            text-align: center;
+        }
+        .drag-handle:active { cursor: grabbing; }
         .prod-emoji{width:40px;height:40px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
         .prod-info{flex:1;min-width:0;}
         .prod-info strong{display:block;font-size:.92rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .prod-meta{display:flex;gap:8px;margin-top:3px;}
+        .prod-meta{display:flex;gap:8px;margin-top:3px;align-items:center;flex-wrap:wrap;}
         .prod-price{font-size:.84rem;font-weight:700;color:var(--am);}
         .prod-cat{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:50px;color:var(--text-muted);}
+        .inactive-badge {
+            font-size: 0.7rem;
+            background: rgba(239,68,68,0.2);
+            color: var(--danger);
+            padding: 2px 8px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
         .prod-actions{display:flex;gap:7px;}
         .btn-ic{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;transition:all .2s;}
         .btn-ic.edit{background:rgba(245,197,24,.12);color:var(--am);}
         .btn-ic.edit:hover{background:var(--am);color:var(--g1);}
         .btn-ic.del{background:rgba(239,68,68,.1);color:var(--danger);}
         .btn-ic.del:hover{background:var(--danger);color:white;}
-        .btn-ic.toggle-on{background:rgba(34,197,94,.12);color:var(--success);}
-        .btn-ic.toggle-on:hover{background:var(--success);color:white;}
-        .btn-ic.toggle-off{background:rgba(107,114,128,.12);color:var(--text-muted);}
-        .btn-ic.toggle-off:hover{background:var(--text-muted);color:white;}
+        .btn-ic.duplicate{background:rgba(34,197,94,.12);color:var(--success);}
+        .btn-ic.duplicate:hover{background:var(--success);color:white;}
+        .btn-ic.toggle-active{background:rgba(245,197,24,.12);color:var(--am);}
+        .btn-ic.toggle-active:hover{background:var(--am);color:var(--g1);}
+
+        /* Modal de confirmação personalizado */
+        .confirm-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirm-modal.show { display: flex; }
+        .confirm-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        .confirm-card h3 { font-size: 1.3rem; margin-bottom: 12px; color: var(--am); }
+        .confirm-card p { margin-bottom: 24px; color: var(--text-muted); }
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .confirm-actions button {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+        .btn-confirm-yes { background: var(--danger); color: white; }
+        .btn-confirm-no { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+        /* Pré-visualização do produto */
+        .preview-card {
+            margin-top: 20px;
+            background: var(--surface2);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .preview-card .preview-emoji { font-size: 2rem; margin-bottom: 8px; }
+        .preview-card .preview-name { font-weight: 800; font-size: 0.9rem; }
+        .preview-card .preview-price { color: var(--am); font-weight: 700; font-size: 0.85rem; }
+
+        /* Demais estilos existentes mantidos (adicionais, banners, pedidos) */
         .empty-adm{text-align:center;padding:36px 16px;color:var(--text-muted);}
         .empty-adm i{font-size:2.2rem;margin-bottom:10px;display:block;}
         .sec-div{display:flex;align-items:center;gap:10px;margin-bottom:12px;margin-top:4px;}
@@ -194,6 +315,16 @@
                     <label>Mensagem quando loja está fechada</label>
                     <input type="text" id="lojaMensagemFechado" placeholder="Voltamos em breve!">
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Taxa de entrega (R$)</label>
+                        <input type="number" id="taxaEntrega" step="0.01" min="0" placeholder="0,00">
+                    </div>
+                    <div class="form-group">
+                        <label>Tempo médio (min)</label>
+                        <input type="number" id="tempoMedio" step="5" min="0" placeholder="30">
+                    </div>
+                </div>
                 <button class="btn-save" onclick="salvarConfigLoja()">
                     <i class="fa-solid fa-floppy-disk fa-sm"></i> Salvar Configurações
                 </button>
@@ -220,6 +351,18 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group"><label>Emoji</label><input type="text" id="emoji" placeholder="🍔" maxlength="4"></div>
+                    <div class="form-group"><label>Ativo</label>
+                        <select id="ativoProduto">
+                            <option value="true">✅ Ativo</option>
+                            <option value="false">❌ Inativo</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Pré-visualização -->
+                <div class="preview-card" id="previewCard">
+                    <div class="preview-emoji" id="previewEmoji">🍔</div>
+                    <div class="preview-name" id="previewName">Nome do produto</div>
+                    <div class="preview-price" id="previewPrice">R$ 0,00</div>
                 </div>
                 <button class="btn-save" id="btnSalvar" onclick="salvarProduto()">
                     <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>
@@ -233,7 +376,6 @@
 
     <!-- COLUNA 2: Adicionais + Banners -->
     <div style="display:flex;flex-direction:column;gap:20px">
-
         <!-- Formulário de Adicional -->
         <div class="panel">
             <div class="panel-header"><h2><i class="fa-solid fa-circle-plus"></i> <span id="adicFormTitle">Novo Adicional</span></h2></div>
@@ -329,13 +471,23 @@
             <span class="prod-count" id="prodCount">–</span>
         </div>
         <div class="panel-body">
+            <!-- Barra de filtro e busca -->
+            <div class="filter-bar">
+                <select id="filtroCategoria" onchange="filtrarProdutosAdmin()">
+                    <option value="TODOS">📋 Todas categorias</option>
+                    <option value="LANCHE">🍔 Lanches</option>
+                    <option value="BEBIDA">🥤 Bebidas</option>
+                    <option value="PORCAO">🍟 Porções</option>
+                    <option value="SOBREMESA">🍦 Sobremesas</option>
+                </select>
+                <input type="text" id="buscaProduto" placeholder="🔍 Buscar por nome..." onkeyup="filtrarProdutosAdmin()">
+            </div>
             <div id="lista-produtos-admin">
                 <div class="skel-row"><div class="skel" style="width:40px;height:40px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:55%;margin-bottom:7px"></div><div class="skel" style="height:11px;width:35%"></div></div></div>
                 <div class="skel-row"><div class="skel" style="width:40px;height:40px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:72%;margin-bottom:7px"></div><div class="skel" style="height:11px;width:30%"></div></div></div>
             </div>
         </div>
     </div>
-
 </div>
 
 <!-- PEDIDOS -->
@@ -369,6 +521,18 @@
     </div>
 </div>
 
+<!-- Modal de confirmação personalizado -->
+<div id="confirmModal" class="confirm-modal">
+    <div class="confirm-card">
+        <h3><i class="fa-solid fa-triangle-exclamation"></i> Confirmar</h3>
+        <p id="confirmMessage">Tem certeza que deseja excluir?</p>
+        <div class="confirm-actions">
+            <button class="btn-confirm-yes" id="confirmYesBtn">Sim, excluir</button>
+            <button class="btn-confirm-no" id="confirmNoBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <div class="feedback" id="feedback">
     <i class="fa-solid fa-circle-check"></i>
     <span id="feedbackMsg">OK</span>
@@ -388,86 +552,109 @@
     let ultimosPedidosIds = new Set();
     let refreshTimer  = null;
     let refreshCountdown = REFRESH_INTERVAL;
+    let todosProdutos = []; // para filtros e drag & drop
+    let currentDragItem = null;
 
     const STATUS_PROX  = { RECEBIDO:'PREPARO', PREPARO:'PRONTO', PRONTO:'ENTREGUE', ENTREGUE:'ENTREGUE', CANCELADO:'CANCELADO' };
     const STATUS_LABEL = { RECEBIDO:'📥 Recebido', PREPARO:'🔥 Em preparo', PRONTO:'✅ Pronto', ENTREGUE:'🏍️ Entregue', CANCELADO:'❌ Cancelado' };
 
-    /* ===================== CARREGAR DADOS ===================== */
+    // ===================== MODAL DE CONFIRMAÇÃO =====================
+    let confirmResolve = null;
+    function showConfirm(message) {
+        return new Promise((resolve) => {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmModal').classList.add('show');
+            confirmResolve = resolve;
+        });
+    }
+    document.getElementById('confirmYesBtn').onclick = () => {
+        document.getElementById('confirmModal').classList.remove('show');
+        if (confirmResolve) confirmResolve(true);
+    };
+    document.getElementById('confirmNoBtn').onclick = () => {
+        document.getElementById('confirmModal').classList.remove('show');
+        if (confirmResolve) confirmResolve(false);
+    };
+
+    // ===================== PRÉ-VISUALIZAÇÃO =====================
+    function updatePreview() {
+        const nome = document.getElementById('nome').value.trim() || "Nome do produto";
+        const preco = parseFloat(document.getElementById('preco').value) || 0;
+        const emoji = document.getElementById('emoji').value.trim() || "🍔";
+        document.getElementById('previewName').textContent = nome;
+        document.getElementById('previewPrice').textContent = `R$ ${preco.toFixed(2)}`;
+        document.getElementById('previewEmoji').textContent = emoji;
+    }
+    document.getElementById('nome').addEventListener('input', updatePreview);
+    document.getElementById('preco').addEventListener('input', updatePreview);
+    document.getElementById('emoji').addEventListener('input', updatePreview);
+
+    // ===================== CARREGAR DADOS =====================
     async function carregarDados() {
         try {
-            // Status da loja
             const rS = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
             if (rS.ok) { lojaAberta = await rS.json(); atualizarBotaoStatus(); }
 
-            // Dados da loja para configuração
             const rLoja = await fetch(`${API_URL}/loja/${LOJA_SLUG}`);
             if (rLoja.ok) {
                 const loja = await rLoja.json();
                 document.getElementById('lojaWhatsapp').value = loja.whatsapp || '';
                 document.getElementById('lojaMensagemFechado').value = loja.mensagemFechado || '';
+                document.getElementById('taxaEntrega').value = loja.taxaEntrega || '';
+                document.getElementById('tempoMedio').value = loja.tempoMedio || '';
             }
 
-            // Produtos
             const rP = await fetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
-            if (rP.ok) renderizarProdutos(await rP.json());
+            if (rP.ok) {
+                todosProdutos = await rP.json();
+                renderizarProdutos(todosProdutos);
+            }
 
-            // Adicionais
             const rA = await fetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
             if (rA.ok) renderizarAdics(await rA.json());
 
-            // Banners (admin)
             const key = document.getElementById('adminKey').value;
             const rBan = await fetch(`${API_URL}/banners/loja/${LOJA_ID_NUM}`, { headers:{'Admin-Key':key} });
             if (rBan.ok) renderizarBanners(await rBan.json());
 
             await carregarPedidos();
             iniciarAutoRefresh();
-
         } catch (e) {
             console.error(e);
             feedback("Erro ao conectar com a API", false);
         }
     }
 
-    /* ===================== CONFIGURAÇÕES DA LOJA ===================== */
+    // ===================== CONFIGURAÇÕES DA LOJA =====================
     async function salvarConfigLoja() {
         const key = document.getElementById('adminKey').value;
         const whatsapp = document.getElementById('lojaWhatsapp').value.trim();
         const mensagemFechado = document.getElementById('lojaMensagemFechado').value.trim();
+        const taxaEntrega = parseFloat(document.getElementById('taxaEntrega').value) || 0;
+        const tempoMedio = parseInt(document.getElementById('tempoMedio').value) || 30;
 
-        const payload = { whatsapp, mensagemFechado };
+        const payload = { whatsapp, mensagemFechado, taxaEntrega, tempoMedio };
 
         try {
             const response = await fetch(`${API_URL}/loja/${LOJA_SLUG}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Admin-Key': key
-                },
+                headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
                 body: JSON.stringify(payload)
             });
-            if (response.ok) {
-                feedback("Configurações salvas!", true);
-            } else {
-                const err = await response.text();
-                feedback("Erro: " + err, false);
-            }
-        } catch (e) {
-            feedback("Erro de conexão", false);
-        }
+            if (response.ok) feedback("Configurações salvas!", true);
+            else feedback("Erro ao salvar.", false);
+        } catch (e) { feedback("Erro de conexão", false); }
     }
 
-    /* ===================== STATUS ===================== */
+    // ===================== STATUS =====================
     function atualizarBotaoStatus() {
         const btn = document.getElementById('btnStatus');
-        document.getElementById('statusLed').className    = `status-led ${lojaAberta?'on':'off'}`;
+        document.getElementById('statusLed').className = `status-led ${lojaAberta?'on':'off'}`;
         document.getElementById('statusLabel').textContent = lojaAberta ? 'Loja Aberta' : 'Loja Fechada';
-        document.getElementById('statusSub').textContent   = lojaAberta ? 'Aceitando pedidos' : 'Fora do horário';
-        btn.disabled  = false;
+        document.getElementById('statusSub').textContent = lojaAberta ? 'Aceitando pedidos' : 'Fora do horário';
+        btn.disabled = false;
         btn.className = `btn-toggle ${lojaAberta?'fechar':'abrir'}`;
-        btn.innerHTML = lojaAberta
-            ? '<i class="fa-solid fa-circle-stop fa-xs"></i> Fechar loja'
-            : '<i class="fa-solid fa-circle-play fa-xs"></i> Abrir loja';
+        btn.innerHTML = lojaAberta ? '<i class="fa-solid fa-circle-stop fa-xs"></i> Fechar loja' : '<i class="fa-solid fa-circle-play fa-xs"></i> Abrir loja';
     }
 
     async function alternarStatus() {
@@ -483,62 +670,129 @@
                 lojaAberta = nova;
                 atualizarBotaoStatus();
                 feedback(`Loja ${nova ? 'aberta' : 'fechada'}!`, true);
-            } else {
-                feedback("Erro ao alterar status.", false);
-            }
+            } else feedback("Erro ao alterar status.", false);
         } catch { feedback("Erro de conexão.", false); }
     }
 
-    /* ===================== PRODUTOS ===================== */
+    // ===================== PRODUTOS =====================
     function renderizarProdutos(prods) {
-        document.getElementById('prodCount').textContent = prods?.length || 0;
+        todosProdutos = prods;
+        filtrarProdutosAdmin();
+    }
+
+    function filtrarProdutosAdmin() {
+        const categoria = document.getElementById('filtroCategoria').value;
+        const busca = document.getElementById('buscaProduto').value.toLowerCase();
+        let filtrados = todosProdutos;
+        if (categoria !== 'TODOS') filtrados = filtrados.filter(p => p.categoria === categoria);
+        if (busca) filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(busca));
+        document.getElementById('prodCount').textContent = filtrados.length;
         const lista = document.getElementById('lista-produtos-admin');
-        if (!prods?.length) { lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto.</p></div>`; return; }
+        if (!filtrados.length) {
+            lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto encontrado.</p></div>`;
+            return;
+        }
         const cats = {LANCHE:'🍔 Lanches',BEBIDA:'🥤 Bebidas',PORCAO:'🍟 Porções',SOBREMESA:'🍦 Sobremesas'};
         const grupos = {};
-        prods.forEach(p => { (grupos[p.categoria||'OUTROS'] ??= []).push(p); });
+        filtrados.forEach(p => { (grupos[p.categoria||'OUTROS'] ??= []).push(p); });
         lista.innerHTML = Object.entries(grupos).map(([cat, itens]) =>
             `<div class="sec-div"><span>${cats[cat]||cat}</span></div>` +
             itens.map(p => `
-            <div class="prod-item">
+            <div class="prod-item ${!p.ativo ? 'inactive' : ''}" data-id="${p.id}" data-ordem="${p.ordem || 0}">
+                <div class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
                 <div class="prod-emoji">${p.emoji||'🍽️'}</div>
                 <div class="prod-info">
                     <strong title="${p.nome}">${p.nome}</strong>
                     <div class="prod-meta">
                         <span class="prod-price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
                         <span class="prod-cat">${p.categoria}</span>
+                        ${!p.ativo ? `<span class="inactive-badge"><i class="fa-solid fa-eye-slash"></i> Inativo</span>` : ''}
                     </div>
                 </div>
                 <div class="prod-actions">
+                    <button class="btn-ic toggle-active" onclick="toggleAtivoProduto(${p.id}, ${!p.ativo})" title="${p.ativo ? 'Desativar' : 'Ativar'}">
+                        <i class="fa-solid ${p.ativo ? 'fa-eye' : 'fa-eye-slash'} fa-xs"></i>
+                    </button>
                     <button class="btn-ic edit" onclick='prepararEdicao(${JSON.stringify(p)})'><i class="fa-solid fa-pen fa-xs"></i></button>
+                    <button class="btn-ic duplicate" onclick="duplicarProduto(${p.id})"><i class="fa-solid fa-copy fa-xs"></i></button>
                     <button class="btn-ic del" onclick="excluirProduto(${p.id})"><i class="fa-solid fa-trash fa-xs"></i></button>
                 </div>
             </div>`).join('')
         ).join('');
+
+        // Inicializar drag and drop
+        initDragAndDrop();
+    }
+
+    async function toggleAtivoProduto(id, ativo) {
+        const key = document.getElementById('adminKey').value;
+        const produto = todosProdutos.find(p => p.id === id);
+        if (!produto) return;
+        const payload = { ...produto, ativo };
+        try {
+            const r = await fetch(`${API_URL}/produtos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
+                body: JSON.stringify(payload)
+            });
+            if (r.ok) {
+                feedback(`Produto ${ativo ? 'ativado' : 'desativado'}!`, true);
+                carregarDados();
+            } else feedback("Erro ao alterar status.", false);
+        } catch { feedback("Erro de conexão.", false); }
+    }
+
+    async function duplicarProduto(id) {
+        const original = todosProdutos.find(p => p.id === id);
+        if (!original) return;
+        const copia = {
+            ...original,
+            id: undefined,
+            nome: `${original.nome} (cópia)`,
+            ativo: true,
+            ordem: (todosProdutos.length + 1)
+        };
+        delete copia.id;
+        const key = document.getElementById('adminKey').value;
+        try {
+            const r = await fetch(`${API_URL}/produtos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
+                body: JSON.stringify(copia)
+            });
+            if (r.ok) {
+                feedback("Produto duplicado!", true);
+                carregarDados();
+            } else feedback("Erro ao duplicar.", false);
+        } catch { feedback("Erro de conexão.", false); }
     }
 
     function prepararEdicao(p) {
         idEdicao = p.id;
-        document.getElementById('nome').value      = p.nome||'';
+        document.getElementById('nome').value = p.nome||'';
         document.getElementById('descricao').value = p.descricao||'';
-        document.getElementById('preco').value     = p.preco||'';
+        document.getElementById('preco').value = p.preco||'';
         document.getElementById('categoria').value = p.categoria||'LANCHE';
-        document.getElementById('emoji').value     = p.emoji||'';
-        document.getElementById('formTitle').textContent      = p.nome;
+        document.getElementById('emoji').value = p.emoji||'';
+        document.getElementById('ativoProduto').value = p.ativo ? 'true' : 'false';
+        document.getElementById('formTitle').textContent = p.nome;
         document.getElementById('btnSalvarLabel').textContent = 'Salvar Alterações';
-        document.getElementById('btnCancelar').style.display  = 'block';
+        document.getElementById('btnCancelar').style.display = 'block';
         document.getElementById('editBanner').classList.add('vis');
+        updatePreview();
         document.querySelector('.panel:has(#btnSalvar)').scrollIntoView({behavior:'smooth',block:'start'});
     }
 
     function cancelarEdicao() {
         idEdicao = null;
         ['nome','descricao','preco','emoji'].forEach(id => document.getElementById(id).value='');
-        document.getElementById('categoria').value            = 'LANCHE';
-        document.getElementById('formTitle').textContent      = 'Novo Produto';
+        document.getElementById('categoria').value = 'LANCHE';
+        document.getElementById('ativoProduto').value = 'true';
+        document.getElementById('formTitle').textContent = 'Novo Produto';
         document.getElementById('btnSalvarLabel').textContent = 'Salvar no Cardápio';
-        document.getElementById('btnCancelar').style.display  = 'none';
+        document.getElementById('btnCancelar').style.display = 'none';
         document.getElementById('editBanner').classList.remove('vis');
+        updatePreview();
     }
 
     async function salvarProduto() {
@@ -549,7 +803,9 @@
         if (!nome || isNaN(prec)) { feedback("Preencha nome e preço.", false); return; }
         const emojiMap = {LANCHE:'🍔',BEBIDA:'🥤',PORCAO:'🍟',SOBREMESA:'🍦'};
         const produto = {
-            nome, preco: prec, categoria: cat, ativo: true, ordem: 0,
+            nome, preco: prec, categoria: cat,
+            ativo: document.getElementById('ativoProduto').value === 'true',
+            ordem: idEdicao ? (todosProdutos.find(p => p.id === idEdicao)?.ordem || 0) : (todosProdutos.length + 1),
             descricao: document.getElementById('descricao').value.trim(),
             emoji: document.getElementById('emoji').value.trim() || emojiMap[cat] || '🍽️',
             loja: { id: LOJA_ID_NUM }
@@ -566,7 +822,8 @@
     }
 
     async function excluirProduto(id) {
-        if (!confirm("Remover este produto?")) return;
+        const confirmed = await showConfirm("Tem certeza que deseja excluir este produto?");
+        if (!confirmed) return;
         const key = document.getElementById('adminKey').value;
         try {
             const r = await fetch(`${API_URL}/produtos/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
@@ -575,7 +832,82 @@
         } catch { feedback("Erro de conexão.", false); }
     }
 
-    /* ===================== ADICIONAIS ===================== */
+    // ===================== DRAG AND DROP PARA ORDENAR =====================
+    function initDragAndDrop() {
+        const items = document.querySelectorAll('.prod-item');
+        items.forEach(item => {
+            item.setAttribute('draggable', 'true');
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragend', handleDragEnd);
+            item.addEventListener('dragover', handleDragOver);
+            item.addEventListener('dragenter', handleDragEnter);
+            item.addEventListener('dragleave', handleDragLeave);
+            item.addEventListener('drop', handleDrop);
+        });
+    }
+
+    let dragSrcElement = null;
+    function handleDragStart(e) {
+        dragSrcElement = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+        this.classList.add('dragging');
+    }
+    function handleDragEnd(e) {
+        document.querySelectorAll('.prod-item').forEach(item => {
+            item.classList.remove('dragging', 'drag-over');
+        });
+    }
+    function handleDragOver(e) {
+        if (e.preventDefault) e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+    function handleDragEnter(e) {
+        this.classList.add('drag-over');
+    }
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+    async function handleDrop(e) {
+        e.stopPropagation();
+        if (dragSrcElement !== this) {
+            const parent = this.parentNode;
+            const items = Array.from(parent.children).filter(c => c.classList && c.classList.contains('prod-item'));
+            const fromIndex = items.indexOf(dragSrcElement);
+            const toIndex = items.indexOf(this);
+            if (fromIndex !== -1 && toIndex !== -1) {
+                // Reordenar visualmente
+                if (fromIndex < toIndex) {
+                    this.parentNode.insertBefore(dragSrcElement, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(dragSrcElement, this);
+                }
+                // Atualizar ordem no backend
+                const novosProdutos = [...todosProdutos];
+                const [movido] = novosProdutos.splice(fromIndex, 1);
+                novosProdutos.splice(toIndex, 0, movido);
+                // Atualizar campo ordem de cada produto
+                const updates = novosProdutos.map((p, idx) => ({ id: p.id, ordem: idx + 1 }));
+                const key = document.getElementById('adminKey').value;
+                for (const update of updates) {
+                    const prod = novosProdutos.find(p => p.id === update.id);
+                    const payload = { ...prod, ordem: update.ordem };
+                    await fetch(`${API_URL}/produtos/${update.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
+                        body: JSON.stringify(payload)
+                    });
+                }
+                feedback("Ordem atualizada!", true);
+                carregarDados(); // recarregar para sincronizar
+            }
+        }
+        this.classList.remove('drag-over');
+        return false;
+    }
+
+    // ===================== ADICIONAIS (mantido igual) =====================
     function renderizarAdics(adics) {
         document.getElementById('adicCount').textContent = adics?.length || 0;
         const lista = document.getElementById('lista-adicionais');
@@ -593,7 +925,6 @@
             </div>
         </div>`).join('');
     }
-
     function prepararEdicaoAdic(a) {
         adicEdicaoId = a.id;
         document.getElementById('adic-nome').value  = a.nome||'';
@@ -604,7 +935,6 @@
         document.getElementById('adicCancelar').style.display = 'block';
         document.getElementById('adicEditBanner').classList.add('vis');
     }
-
     function cancelarEdicaoAdic() {
         adicEdicaoId = null;
         ['adic-nome','adic-preco','adic-emoji'].forEach(id => document.getElementById(id).value='');
@@ -613,7 +943,6 @@
         document.getElementById('adicCancelar').style.display  = 'none';
         document.getElementById('adicEditBanner').classList.remove('vis');
     }
-
     async function salvarAdic() {
         const key = document.getElementById('adminKey').value;
         const nome = document.getElementById('adic-nome').value.trim();
@@ -627,9 +956,9 @@
             else { feedback("Erro ao salvar adicional.", false); }
         } catch { feedback("Erro de conexão.", false); }
     }
-
     async function excluirAdic(id) {
-        if (!confirm("Remover este adicional?")) return;
+        const confirmed = await showConfirm("Remover este adicional?");
+        if (!confirmed) return;
         const key = document.getElementById('adminKey').value;
         try {
             const r = await fetch(`${API_URL}/adicionais/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
@@ -638,7 +967,7 @@
         } catch { feedback("Erro de conexão.",false); }
     }
 
-    /* ===================== BANNERS ===================== */
+    // ===================== BANNERS (mantido igual) =====================
     function renderizarBanners(banners) {
         document.getElementById('bannerCount').textContent = banners?.length || 0;
         const lista = document.getElementById('lista-banners');
@@ -661,7 +990,6 @@
             </div>
         </div>`).join('');
     }
-
     function prepararEdicaoBanner(b) {
         bannerEdicaoId = b.id;
         document.getElementById('banner-titulo').value = b.titulo||'';
@@ -674,7 +1002,6 @@
         document.getElementById('bannerCancelar').style.display = 'block';
         document.getElementById('bannerEditBanner').classList.add('vis');
     }
-
     function cancelarEdicaoBanner() {
         bannerEdicaoId = null;
         ['banner-titulo','banner-desc','banner-emoji'].forEach(id => document.getElementById(id).value='');
@@ -685,7 +1012,6 @@
         document.getElementById('bannerCancelar').style.display = 'none';
         document.getElementById('bannerEditBanner').classList.remove('vis');
     }
-
     async function salvarBanner() {
         const key   = document.getElementById('adminKey').value;
         const titulo = document.getElementById('banner-titulo').value.trim();
@@ -705,7 +1031,6 @@
             else { feedback("Erro ao salvar banner.", false); }
         } catch { feedback("Erro de conexão.", false); }
     }
-
     async function toggleBanner(id) {
         const key = document.getElementById('adminKey').value;
         try {
@@ -714,9 +1039,9 @@
             else { feedback("Erro ao atualizar.", false); }
         } catch { feedback("Erro de conexão.", false); }
     }
-
     async function excluirBanner(id) {
-        if (!confirm("Remover este banner?")) return;
+        const confirmed = await showConfirm("Remover este banner?");
+        if (!confirmed) return;
         const key = document.getElementById('adminKey').value;
         try {
             const r = await fetch(`${API_URL}/banners/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
@@ -725,48 +1050,40 @@
         } catch { feedback("Erro de conexão.",false); }
     }
 
-    /* ===================== PEDIDOS ===================== */
+    // ===================== PEDIDOS (mantido igual) =====================
     async function carregarPedidos() {
         const key  = document.getElementById('adminKey').value;
-        const rota = filtroPedidos === 'hoje'
-            ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje`
-            : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
+        const rota = filtroPedidos === 'hoje' ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje` : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
         try {
             const r = await fetch(rota, { headers: { 'Admin-Key': key } });
             if (r.ok) renderizarPedidos(await r.json());
             else renderizarPedidos([]);
         } catch (e) { console.error(e); }
     }
-
     function filtrarPedidos(tipo, btn) {
         filtroPedidos = tipo;
         document.querySelectorAll('.filtro-btn').forEach(b => b.className = 'filtro-btn inativo');
         btn.className = 'filtro-btn ativo';
         carregarPedidos();
     }
-
     function iniciarAutoRefresh() {
         if (refreshTimer) clearInterval(refreshTimer);
         refreshCountdown = REFRESH_INTERVAL;
-
         const countdownTimer = setInterval(() => {
             refreshCountdown--;
             const label = document.getElementById('refreshLabel');
             if (label) label.textContent = `Atualiza em ${refreshCountdown}s`;
             if (refreshCountdown <= 0) refreshCountdown = REFRESH_INTERVAL;
         }, 1000);
-
         refreshTimer = setInterval(async () => {
             refreshCountdown = REFRESH_INTERVAL;
             await carregarPedidos();
         }, REFRESH_INTERVAL * 1000);
-
         window.addEventListener('beforeunload', () => {
             clearInterval(refreshTimer);
             clearInterval(countdownTimer);
         });
     }
-
     async function avancarStatus(id, statusAtual) {
         const prox = STATUS_PROX[statusAtual];
         if (!prox || prox === statusAtual) return;
@@ -786,42 +1103,34 @@
             }
         } catch { feedback("Erro de conexão.", false); }
     }
-
     async function excluirPedido(id) {
-        if (!confirm('Remover este pedido do histórico?')) return;
+        const confirmed = await showConfirm("Remover este pedido do histórico?");
+        if (!confirmed) return;
         const key = document.getElementById('adminKey').value;
         try {
             await fetch(`${API_URL}/pedidos/${id}`, { method:'DELETE', headers:{'Admin-Key':key} });
             carregarPedidos();
         } catch { feedback('Erro ao remover pedido.', false); }
     }
-
     function renderizarPedidos(pedidos) {
         const total = pedidos.reduce((s, p) => s + parseFloat(p.total), 0);
-        document.getElementById('pedidos-qtd').textContent     = pedidos.length;
+        document.getElementById('pedidos-qtd').textContent = pedidos.length;
         document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
-
         const novosIds = new Set(pedidos.map(p => p.id));
-        const novos    = pedidos.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
+        const novos = pedidos.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
         ultimosPedidosIds = novosIds;
-
-        if (novos.length > 0) {
-            feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
-        }
-
+        if (novos.length > 0) feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
         const lista = document.getElementById('lista-pedidos');
         if (!pedidos.length) {
             lista.innerHTML = `<div class="empty-adm" style="padding:40px"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido ${filtroPedidos === 'hoje' ? 'hoje' : 'registrado'}</p></div>`;
             return;
         }
-
         lista.innerHTML = pedidos.map(p => {
             let itens = [];
             try { itens = JSON.parse(p.itensJson || '[]'); } catch {}
             const isNovo = novos.some(n => n.id === p.id);
             const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
             const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
-
             const itensHtml = itens.map(item => {
                 let html = `<div class="pedido-item-linha">
                     <span style="font-weight:800">${item.qtd}x</span>
@@ -835,7 +1144,6 @@
                 if (mods.length) html += `<div class="pedido-item-mods">${mods.join('<br>')}</div>`;
                 return html;
             }).join('');
-
             return `
             <div class="pedido-card ${isNovo?'pedido-novo':''}">
                 <div class="pedido-top">
@@ -861,7 +1169,6 @@
         }).join('');
     }
 
-    /* ===================== FEEDBACK ===================== */
     function feedback(msg, ok=true) {
         const el  = document.getElementById('feedback');
         const ico = el.querySelector('i');
