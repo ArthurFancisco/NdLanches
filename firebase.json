@@ -8,11 +8,11 @@
       "**/node_modules/**"
     ],
     "cleanUrls": true,
-   "rewrites": [
-  {
-    "source": "/admin/**",
-    "destination": "/admin.html"
-  }
-]
+    "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/admin.html"
+      }
+    ]
   }
 }
