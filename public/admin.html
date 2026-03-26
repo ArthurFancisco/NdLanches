@@ -863,46 +863,66 @@
     }
 
     async function salvarProduto() {
-        const key = document.getElementById('adminKey').value;
-        const nome = document.getElementById('nome').value.trim();
-        const prec = parseFloat(document.getElementById('preco').value);
-        const cat  = document.getElementById('categoria').value;
-        if (!nome || isNaN(prec)) { feedback("Preencha nome e preço.", false); return; }
-        const emojiMap = {LANCHE:'🍔',BEBIDA:'🥤',PORCAO:'🍟',SOBREMESA:'🍦'};
-        let imagemUrl = document.getElementById('imagemUrl').value.trim();
+    const key = document.getElementById('adminKey').value;
+    const nome = document.getElementById('nome').value.trim();
+    const prec = parseFloat(document.getElementById('preco').value);
+    const cat  = document.getElementById('categoria').value;
+    if (!nome || isNaN(prec)) { feedback("Preencha nome e preço.", false); return; }
+    const emojiMap = {LANCHE:'🍔',BEBIDA:'🥤',PORCAO:'🍟',SOBREMESA:'🍦'};
+    let imagemUrl = document.getElementById('imagemUrl').value.trim();
 
-        // Se tiver um arquivo selecionado, faz upload primeiro
-        if (selectedImageFile) {
-            try {
-                feedback("Enviando imagem...", true);
-                imagemUrl = await fazerUpload(selectedImageFile);
-                feedback("Imagem enviada com sucesso!", true);
-            } catch (e) {
-                feedback("Erro no upload: " + e.message, false);
-                return;
-            }
-        }
-
-        const produto = {
-            nome, preco: prec, categoria: cat,
-            ativo: document.getElementById('ativoProduto').value === 'true',
-            ordem: idEdicao ? (todosProdutos.find(p => p.id === idEdicao)?.ordem || 0) : (todosProdutos.length + 1),
-            descricao: document.getElementById('descricao').value.trim(),
-            emoji: document.getElementById('emoji').value.trim() || emojiMap[cat] || '🍽️',
-            imagemUrl: imagemUrl || null,
-            loja: { id: LOJA_ID_NUM }
-        };
-        const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
-        const btn = document.getElementById('btnSalvar');
-        btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin fa-xs"></i> Salvando...';
+    // Se tiver um arquivo selecionado, faz upload primeiro
+    if (selectedImageFile) {
         try {
-            const r = await fetch(url,{method:idEdicao?'PUT':'POST',headers:{'Content-Type':'application/json','Admin-Key':key},body:JSON.stringify(produto)});
-            if (r.ok) { feedback(idEdicao?'Produto atualizado!':'Produto cadastrado!', true); cancelarEdicao(); carregarDados(); }
-            else { feedback("Erro ao salvar.", false); }
-        } catch { feedback("Erro de conexão.", false); }
-        finally { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk fa-xs"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>'; }
+            feedback("Enviando imagem...", true);
+            imagemUrl = await fazerUpload(selectedImageFile);
+            feedback("Imagem enviada com sucesso!", true);
+        } catch (e) {
+            feedback("Erro no upload: " + e.message, false);
+            return;
+        }
     }
 
+    const produto = {
+        nome,
+        preco: prec,
+        categoria: cat,
+        ativo: document.getElementById('ativoProduto').value === 'true',
+        ordem: idEdicao ? (todosProdutos.find(p => p.id === idEdicao)?.ordem || 0) : (todosProdutos.length + 1),
+        descricao: document.getElementById('descricao').value.trim() || "",
+        emoji: document.getElementById('emoji').value.trim() || emojiMap[cat] || '🍽️',
+        imagemUrl: imagemUrl || null,
+        removiveis: [],  // 🔧 lista vazia para evitar erro
+        loja: { id: LOJA_ID_NUM }
+    };
+    const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin fa-xs"></i> Salvando...';
+    try {
+        const r = await fetch(url, {
+            method: idEdicao ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
+            body: JSON.stringify(produto)
+        });
+        if (r.ok) {
+            const data = await r.json();
+            feedback(idEdicao ? 'Produto atualizado!' : 'Produto cadastrado!', true);
+            cancelarEdicao();
+            carregarDados();
+        } else {
+            let errorMsg = "Erro ao salvar.";
+            try {
+                const errorText = await r.text();
+                if (errorText) errorMsg = errorText;
+            } catch(e) {}
+            feedback(errorMsg, false);
+        }
+    } catch (e) {
+        feedback("Erro de conexão: " + e.message, false);
+    } finally {
+        btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk fa-xs"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>';
+    }
+}
     async function excluirProduto(id) {
         const confirmed = await showConfirm("Tem certeza que deseja excluir este produto?");
         if (!confirmed) return;
