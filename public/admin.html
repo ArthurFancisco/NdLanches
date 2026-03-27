@@ -2,80 +2,334 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Admin Dashboard - ND Lanches</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
     <style>
-        :root {
-            --g1:#0b3d18; --g2:#145a28; --g3:#1b7a36;
-            --am:#f5c518; --am-dark:#d4a800;
-            --bg:#0f1a12; --surface:#162119; --surface2:#1e2e22;
-            --border:rgba(255,255,255,0.08);
-            --text:#e8f0ea; --text-muted:#7a9b80;
-            --danger:#ef4444; --success:#22c55e;
-            --radius:16px; --radius-sm:10px;
-            --shadow:0 8px 32px rgba(0,0,0,0.3);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        *{box-sizing:border-box;margin:0;padding:0;}
-        body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-        .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-        .topbar-brand{display:flex;align-items:center;gap:12px;}
-        .topbar-icon{width:38px;height:38px;background:var(--am);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
-        .topbar-title{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:2px;}
-        .topbar-title span{color:var(--am);}
-        .key-wrap{position:relative;display:flex;align-items:center;}
-        .key-wrap i{position:absolute;left:12px;color:var(--text-muted);font-size:.85rem;}
-        #adminKey{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 14px 9px 36px;border-radius:50px;font-family:'Nunito',sans-serif;font-size:.88rem;width:200px;outline:none;transition:border-color .2s;}
-        #adminKey:focus{border-color:var(--am);}
+        :root {
+            --g1: #0b3d18;
+            --g2: #145a28;
+            --g3: #1b7a36;
+            --am: #f5c518;
+            --am-dark: #d4a800;
+            --bg: #0f1a12;
+            --surface: #162119;
+            --surface2: #1e2e22;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #e8f0ea;
+            --text-muted: #7a9b80;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
-        .dashboard{max-width:1200px;margin:0 auto;padding:28px 20px 0;display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:22px;align-items:start;}
-        @media(max-width:900px){.dashboard{grid-template-columns:1fr 1fr;}}
-        @media(max-width:620px){.dashboard{grid-template-columns:1fr;} #adminKey{width:140px;}}
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 0;
+            margin: 0;
+        }
 
-        .panel{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
-        .panel-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-        .panel-header h2{font-family:'Bebas Neue',cursive;font-size:1.25rem;letter-spacing:1.5px;display:flex;align-items:center;gap:9px;}
-        .panel-header h2 i{color:var(--am);font-size:.95rem;}
-        .panel-body{padding:18px 20px;}
+        /* Topbar */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--am);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .topbar-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+        .topbar-title span {
+            color: var(--am);
+        }
+        .key-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .key-wrap i {
+            position: absolute;
+            left: 12px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        #adminKey {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 9px 14px 9px 36px;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.88rem;
+            width: 200px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #adminKey:focus {
+            border-color: var(--am);
+        }
 
-        .status-display{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--radius-sm);padding:16px;margin-bottom:14px;border:1px solid var(--border);}
-        .status-led{width:13px;height:13px;border-radius:50%;background:#555;transition:all .3s;}
-        .status-led.on{background:var(--success);box-shadow:0 0 12px rgba(34,197,94,.5);animation:ledPulse 2s infinite;}
-        .status-led.off{background:var(--danger);}
-        @keyframes ledPulse{0%,100%{box-shadow:0 0 8px rgba(34,197,94,.4)}50%{box-shadow:0 0 18px rgba(34,197,94,.7)}}
-        .status-info{display:flex;align-items:center;gap:12px;}
-        .status-text strong{display:block;font-size:.95rem;font-weight:800;}
-        .status-text span{font-size:.78rem;color:var(--text-muted);}
-        .btn-toggle{padding:9px 20px;border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;transition:all .25s;}
-        .btn-toggle.abrir{background:var(--success);color:white;}
-        .btn-toggle.fechar{background:var(--danger);color:white;}
-        .btn-toggle:disabled{opacity:.6;cursor:not-allowed;}
+        /* Dashboard - grid responsivo */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
 
-        .form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
-        .form-group label{font-size:.75rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
-        .form-group input,.form-group select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 13px;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:.91rem;outline:none;transition:border-color .2s;width:100%;}
-        .form-group input:focus,.form-group select:focus{border-color:var(--am);}
-        .form-group select option{background:#1e2e22;}
-        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-        .btn-save{width:100%;padding:12px;background:var(--am);color:var(--g1);border:none;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .22s;margin-top:4px;}
-        .btn-save:hover{background:var(--am-dark);transform:translateY(-1px);}
-        .btn-cancel{width:100%;padding:10px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:8px;transition:all .2s;}
-        .btn-cancel:hover{border-color:var(--danger);color:var(--danger);}
-        .edit-banner-bar{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:14px;font-size:.83rem;font-weight:700;color:var(--am);display:none;align-items:center;gap:8px;}
-        .edit-banner-bar.vis{display:flex;}
+        /* Painéis */
+        .panel {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .panel:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .panel-header h2 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.25rem;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .panel-header h2 i {
+            color: var(--am);
+            font-size: 0.95rem;
+        }
+        .panel-body {
+            padding: 20px;
+        }
 
-        .prod-count{background:var(--am);color:var(--g1);font-size:.72rem;font-weight:800;padding:2px 9px;border-radius:50px;}
+        /* Status */
+        .status-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface2);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+        .status-led {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #555;
+            transition: all 0.3s;
+        }
+        .status-led.on {
+            background: var(--success);
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+            animation: ledPulse 2s infinite;
+        }
+        .status-led.off {
+            background: var(--danger);
+        }
+        @keyframes ledPulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
+            50% { box-shadow: 0 0 18px rgba(34, 197, 94, 0.7); }
+        }
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .status-text strong {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 800;
+        }
+        .status-text span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .btn-toggle {
+            padding: 9px 20px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .btn-toggle.abrir {
+            background: var(--success);
+            color: white;
+        }
+        .btn-toggle.fechar {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-toggle:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
+        /* Formulários */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 13px;
+            border-radius: var(--radius-sm);
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.91rem;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--am);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .btn-save {
+            width: 100%;
+            padding: 12px;
+            background: var(--am);
+            color: var(--g1);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.22s;
+            margin-top: 4px;
+        }
+        .btn-save:hover {
+            background: var(--am-dark);
+            transform: translateY(-1px);
+        }
+        .btn-cancel {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .btn-cancel:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .edit-banner-bar {
+            background: rgba(245, 197, 24, 0.1);
+            border: 1px solid rgba(245, 197, 24, 0.25);
+            border-radius: var(--radius-sm);
+            padding: 9px 13px;
+            margin-bottom: 14px;
+            font-size: 0.83rem;
+            font-weight: 700;
+            color: var(--am);
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .edit-banner-bar.vis {
+            display: flex;
+        }
+
+        /* Produtos, adicionais, banners */
+        .prod-count {
+            background: var(--am);
+            color: var(--g1);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 9px;
+            border-radius: 50px;
+        }
         .filter-bar {
             display: flex;
             gap: 12px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        .filter-bar select, .filter-bar input {
+        .filter-bar select,
+        .filter-bar input {
             background: var(--surface2);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
@@ -87,7 +341,8 @@
             flex: 1;
             min-width: 120px;
         }
-        .filter-bar select:focus, .filter-bar input:focus {
+        .filter-bar select:focus,
+        .filter-bar input:focus {
             border-color: var(--am);
         }
 
@@ -95,7 +350,6 @@
             max-height: 500px;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: var(--surface2) transparent;
         }
         .prod-item {
             display: flex;
@@ -106,20 +360,75 @@
             cursor: grab;
             transition: background 0.2s;
         }
-        .prod-item.dragging { opacity: 0.5; cursor: grabbing; }
-        .prod-item.drag-over { border-top: 2px solid var(--am); }
-        .prod-item.inactive { opacity: 0.6; }
-        .drag-handle { cursor: grab; color: var(--text-muted); font-size: 1rem; width: 24px; text-align: center; }
-        .drag-handle:active { cursor: grabbing; }
-        .prod-emoji{width:40px;height:40px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
-        .prod-info{flex:1;min-width:0;}
-        .prod-info strong{display:block;font-size:.92rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .prod-meta{display:flex;gap:8px;margin-top:3px;align-items:center;flex-wrap:wrap;}
-        .prod-price{font-size:.84rem;font-weight:700;color:var(--am);}
-        .prod-cat{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:50px;color:var(--text-muted);}
+        .prod-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        .prod-item.drag-over {
+            border-top: 2px solid var(--am);
+        }
+        .prod-item.inactive {
+            opacity: 0.6;
+        }
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-muted);
+            font-size: 1rem;
+            width: 24px;
+            text-align: center;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        .prod-emoji {
+            width: 40px;
+            height: 40px;
+            background: var(--surface2);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .prod-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .prod-info strong {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .prod-meta {
+            display: flex;
+            gap: 8px;
+            margin-top: 3px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .prod-price {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--am);
+        }
+        .prod-cat {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 50px;
+            color: var(--text-muted);
+        }
         .inactive-badge {
             font-size: 0.7rem;
-            background: rgba(239,68,68,0.2);
+            background: rgba(239, 68, 68, 0.2);
             color: var(--danger);
             padding: 2px 8px;
             border-radius: 50px;
@@ -127,28 +436,69 @@
             align-items: center;
             gap: 4px;
         }
-        .prod-actions{display:flex;gap:7px;}
-        .btn-ic{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;transition:all .2s;}
-        .btn-ic.edit{background:rgba(245,197,24,.12);color:var(--am);}
-        .btn-ic.edit:hover{background:var(--am);color:var(--g1);}
-        .btn-ic.del{background:rgba(239,68,68,.1);color:var(--danger);}
-        .btn-ic.del:hover{background:var(--danger);color:white;}
-        .btn-ic.duplicate{background:rgba(34,197,94,.12);color:var(--success);}
-        .btn-ic.duplicate:hover{background:var(--success);color:white;}
-        .btn-ic.toggle-active{background:rgba(245,197,24,.12);color:var(--am);}
-        .btn-ic.toggle-active:hover{background:var(--am);color:var(--g1);}
+        .prod-actions {
+            display: flex;
+            gap: 7px;
+        }
+        .btn-ic {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            transition: all 0.2s;
+        }
+        .btn-ic.edit {
+            background: rgba(245, 197, 24, 0.12);
+            color: var(--am);
+        }
+        .btn-ic.edit:hover {
+            background: var(--am);
+            color: var(--g1);
+        }
+        .btn-ic.del {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        .btn-ic.del:hover {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-ic.duplicate {
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--success);
+        }
+        .btn-ic.duplicate:hover {
+            background: var(--success);
+            color: white;
+        }
+        .btn-ic.toggle-active {
+            background: rgba(245, 197, 24, 0.12);
+            color: var(--am);
+        }
+        .btn-ic.toggle-active:hover {
+            background: var(--am);
+            color: var(--g1);
+        }
 
+        /* Confirmação modal */
         .confirm-modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(4px);
             z-index: 1000;
             display: none;
             align-items: center;
             justify-content: center;
         }
-        .confirm-modal.show { display: flex; }
+        .confirm-modal.show {
+            display: flex;
+        }
         .confirm-card {
             background: var(--surface);
             border-radius: var(--radius);
@@ -159,8 +509,15 @@
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
         }
-        .confirm-card h3 { font-size: 1.3rem; margin-bottom: 12px; color: var(--am); }
-        .confirm-card p { margin-bottom: 24px; color: var(--text-muted); }
+        .confirm-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: var(--am);
+        }
+        .confirm-card p {
+            margin-bottom: 24px;
+            color: var(--text-muted);
+        }
         .confirm-actions {
             display: flex;
             gap: 12px;
@@ -174,9 +531,17 @@
             border: none;
             font-family: inherit;
         }
-        .btn-confirm-yes { background: var(--danger); color: white; }
-        .btn-confirm-no { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-confirm-yes {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-confirm-no {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
 
+        /* Pré-visualização */
         .preview-card {
             margin-top: 20px;
             background: var(--surface2);
@@ -185,11 +550,21 @@
             border: 1px solid var(--border);
             text-align: center;
         }
-        .preview-card .preview-emoji { font-size: 2rem; margin-bottom: 8px; }
-        .preview-card .preview-name { font-weight: 800; font-size: 0.9rem; }
-        .preview-card .preview-price { color: var(--am); font-weight: 700; font-size: 0.85rem; }
+        .preview-card .preview-emoji {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .preview-card .preview-name {
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+        .preview-card .preview-price {
+            color: var(--am);
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
 
-        /* Estilos para upload de imagem */
+        /* Upload de imagem */
         .image-preview {
             margin-top: 10px;
             text-align: center;
@@ -219,67 +594,380 @@
         }
 
         /* Listas de adicionais e banners */
-        .empty-adm{text-align:center;padding:36px 16px;color:var(--text-muted);}
-        .empty-adm i{font-size:2.2rem;margin-bottom:10px;display:block;}
-        .sec-div{display:flex;align-items:center;gap:10px;margin-bottom:12px;margin-top:4px;}
-        .sec-div span{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);white-space:nowrap;}
-        .sec-div::after{content:'';flex:1;height:1px;background:var(--border);}
-        #lista-adicionais{max-height:460px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent;}
-        .adic-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
-        .adic-item:last-child{border-bottom:none;}
-        .adic-em{width:38px;height:38px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
-        .adic-info-col{flex:1;min-width:0;}
-        .adic-info-col strong{display:block;font-size:.9rem;font-weight:800;}
-        .adic-info-col span{font-size:.82rem;font-weight:700;color:var(--am);}
+        .empty-adm {
+            text-align: center;
+            padding: 36px 16px;
+            color: var(--text-muted);
+        }
+        .empty-adm i {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .sec-div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            margin-top: 4px;
+        }
+        .sec-div span {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .sec-div::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        #lista-adicionais {
+            max-height: 460px;
+            overflow-y: auto;
+        }
+        .adic-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .adic-item:last-child {
+            border-bottom: none;
+        }
+        .adic-em {
+            width: 38px;
+            height: 38px;
+            background: var(--surface2);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .adic-info-col {
+            flex: 1;
+            min-width: 0;
+        }
+        .adic-info-col strong {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+        .adic-info-col span {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--am);
+        }
 
-        .banner-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-        .banner-item:last-child{border-bottom:none;}
-        .banner-item-em{width:38px;height:38px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
-        .banner-info{flex:1;min-width:0;}
-        .banner-info strong{display:block;font-size:.9rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .banner-info span{font-size:.78rem;color:var(--text-muted);}
-        .banner-ativo-pill{padding:2px 9px;border-radius:50px;font-size:.7rem;font-weight:800;text-transform:uppercase;}
-        .banner-ativo-pill.on{background:rgba(34,197,94,.15);color:var(--success);}
-        .banner-ativo-pill.off{background:rgba(107,114,128,.12);color:var(--text-muted);}
+        .banner-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .banner-item:last-child {
+            border-bottom: none;
+        }
+        .banner-item-em {
+            width: 38px;
+            height: 38px;
+            background: var(--surface2);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .banner-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .banner-info strong {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .banner-info span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .banner-ativo-pill {
+            padding: 2px 9px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .banner-ativo-pill.on {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+        .banner-ativo-pill.off {
+            background: rgba(107, 114, 128, 0.12);
+            color: var(--text-muted);
+        }
 
-        .filtro-btn{padding:7px 14px;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:all .2s;}
-        .filtro-btn.ativo{background:var(--am);border:2px solid var(--am);color:var(--g1);}
-        .filtro-btn.inativo{background:transparent;border:2px solid var(--border);color:var(--text-muted);}
-        .resumo-dia{background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:7px 16px;font-size:.82rem;font-weight:700;color:var(--text-muted);}
-        .refresh-indicator{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted);}
-        .refresh-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:ledPulse 2s infinite;}
-        #lista-pedidos{max-height:600px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent;}
-        .pedido-card{padding:16px 20px;border-bottom:1px solid var(--border);transition:background .15s;}
-        .pedido-card:hover{background:var(--surface2);}
-        .pedido-card:last-child{border-bottom:none;}
-        .pedido-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
-        .pedido-id{font-size:.75rem;color:var(--text-muted);font-weight:700;}
-        .pedido-hora{font-size:.75rem;color:var(--text-muted);}
-        .pedido-valor{font-weight:800;font-size:1rem;color:var(--am);}
-        .status-badge{padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border:none;transition:opacity .2s;font-family:'Nunito',sans-serif;}
-        .status-badge:hover{opacity:.8;}
-        .status-RECEBIDO{background:rgba(59,130,246,.15);color:#60a5fa;}
-        .status-PREPARO{background:rgba(245,197,24,.15);color:var(--am);}
-        .status-PRONTO{background:rgba(34,197,94,.15);color:var(--success);}
-        .status-ENTREGUE{background:rgba(107,114,128,.15);color:var(--text-muted);}
-        .status-CANCELADO{background:rgba(239,68,68,.15);color:var(--danger);}
-        .pedido-itens{display:flex;flex-direction:column;gap:4px;}
-        .pedido-item-linha{font-size:.85rem;color:var(--text);display:flex;gap:8px;flex-wrap:wrap;}
-        .pedido-item-mods{font-size:.78rem;color:var(--text-muted);padding-left:20px;line-height:1.6;}
-        .pedido-obs{margin-top:6px;font-size:.8rem;color:var(--text-muted);font-style:italic;padding:6px 10px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--border);}
-        .btn-del-pedido{background:rgba(239,68,68,.1);color:var(--danger);border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:all .2s;flex-shrink:0;}
-        .btn-del-pedido:hover{background:var(--danger);color:white;}
-        @keyframes newPedido { 0%{background:rgba(245,197,24,.15)} 50%{background:rgba(245,197,24,.3)} 100%{background:transparent} }
-        .pedido-novo { animation: newPedido 2s ease; }
+        /* Pedidos */
+        .filtro-btn {
+            padding: 7px 14px;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filtro-btn.ativo {
+            background: var(--am);
+            border: 2px solid var(--am);
+            color: var(--g1);
+        }
+        .filtro-btn.inativo {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-muted);
+        }
+        .resumo-dia {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 7px 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .refresh-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: ledPulse 2s infinite;
+        }
+        #lista-pedidos {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .pedido-card {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+        .pedido-card:hover {
+            background: var(--surface2);
+        }
+        .pedido-card:last-child {
+            border-bottom: none;
+        }
+        .pedido-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .pedido-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+        .pedido-hora {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .pedido-valor {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--am);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+            font-family: 'Nunito', sans-serif;
+        }
+        .status-badge:hover {
+            opacity: 0.8;
+        }
+        .status-RECEBIDO {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+        }
+        .status-PREPARO {
+            background: rgba(245, 197, 24, 0.15);
+            color: var(--am);
+        }
+        .status-PRONTO {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+        .status-ENTREGUE {
+            background: rgba(107, 114, 128, 0.15);
+            color: var(--text-muted);
+        }
+        .status-CANCELADO {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+        .pedido-itens {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .pedido-item-linha {
+            font-size: 0.85rem;
+            color: var(--text);
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .pedido-item-mods {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        .pedido-obs {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 6px 10px;
+            background: var(--surface2);
+            border-radius: 6px;
+            border-left: 3px solid var(--border);
+        }
+        .btn-del-pedido {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-del-pedido:hover {
+            background: var(--danger);
+            color: white;
+        }
+        @keyframes newPedido {
+            0% { background: rgba(245, 197, 24, 0.15); }
+            50% { background: rgba(245, 197, 24, 0.3); }
+            100% { background: transparent; }
+        }
+        .pedido-novo {
+            animation: newPedido 2s ease;
+        }
 
-        .feedback{position:fixed;bottom:26px;right:22px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:13px 18px;border-radius:var(--radius-sm);font-weight:700;font-size:.88rem;box-shadow:var(--shadow);opacity:0;transform:translateY(14px);pointer-events:none;transition:all .3s;z-index:500;display:flex;align-items:center;gap:9px;max-width:300px;}
-        .feedback.show{opacity:1;transform:translateY(0);}
-        .feedback.ok i{color:var(--success);}
-        .feedback.err i{color:var(--danger);}
+        /* Feedback */
+        .feedback {
+            position: fixed;
+            bottom: 26px;
+            right: 22px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 13px 18px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.88rem;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(14px);
+            pointer-events: none;
+            transition: all 0.3s;
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            max-width: 300px;
+        }
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .feedback.ok i {
+            color: var(--success);
+        }
+        .feedback.err i {
+            color: var(--danger);
+        }
 
-        .skel{background:var(--surface2);border-radius:6px;animation:skelA 1.2s infinite ease-in-out;}
-        @keyframes skelA{0%,100%{opacity:.5}50%{opacity:1}}
-        .skel-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+        /* Skeleton */
+        .skel {
+            background: var(--surface2);
+            border-radius: 6px;
+            animation: skelA 1.2s infinite ease-in-out;
+        }
+        @keyframes skelA {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .skel-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+            .topbar {
+                padding: 0 16px;
+            }
+            .topbar-title {
+                font-size: 1.2rem;
+            }
+            #adminKey {
+                width: 160px;
+                font-size: 0.8rem;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .filter-bar {
+                flex-direction: column;
+            }
+            .pedido-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -297,187 +985,178 @@
 
 <div class="dashboard">
 
-    <!-- COLUNA 1: Status + Configurações + Form Produto -->
-    <div style="display:flex;flex-direction:column;gap:20px">
-        <div class="panel">
-            <div class="panel-header"><h2><i class="fa-solid fa-circle-dot"></i> Status da Loja</h2></div>
-            <div class="panel-body">
-                <div class="status-display">
-                    <div class="status-info">
-                        <div class="status-led" id="statusLed"></div>
-                        <div class="status-text">
-                            <strong id="statusLabel">Carregando...</strong>
-                            <span id="statusSub">Aguardando</span>
-                        </div>
-                    </div>
-                    <button class="btn-toggle" id="btnStatus" onclick="alternarStatus()" disabled>Aguarde</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="panel-header"><h2><i class="fa-solid fa-shop"></i> Configurações</h2></div>
-            <div class="panel-body">
-                <div class="form-group">
-                    <label>WhatsApp (com DDD, sem máscara)</label>
-                    <input type="text" id="lojaWhatsapp" placeholder="5517999999999">
-                </div>
-                <div class="form-group">
-                    <label>Mensagem quando loja está fechada</label>
-                    <input type="text" id="lojaMensagemFechado" placeholder="Voltamos em breve!">
-                </div>
-                <button class="btn-save" onclick="salvarConfigLoja()">
-                    <i class="fa-solid fa-floppy-disk fa-sm"></i> Salvar Configurações
-                </button>
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="panel-header"><h2><i class="fa-solid fa-burger"></i> <span id="formTitle">Novo Produto</span></h2></div>
-            <div class="panel-body">
-                <div class="edit-banner-bar" id="editBanner"><i class="fa-solid fa-pencil fa-xs"></i> Modo edição</div>
-                <div class="form-group"><label>Nome</label><input type="text" id="nome" placeholder="Ex: X-Burguer Especial"></div>
-                <div class="form-group"><label>Descrição / Ingredientes</label>
-                    <input type="text" id="descricao" placeholder="Ex: Pão, hambúrguer, queijo, alface, tomate"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Preço (R$)</label><input type="number" id="preco" step="0.01" min="0" placeholder="0,00"></div>
-                    <div class="form-group"><label>Categoria</label>
-                        <select id="categoria" onchange="autoEmojiPorCategoria()">
-                            <option value="LANCHE">🍔 Lanche</option>
-                            <option value="BEBIDA">🥤 Bebida</option>
-                            <option value="PORCAO">🍟 Porção</option>
-                            <option value="SOBREMESA">🍦 Sobremesa</option>
-                        </select>
+    <!-- COLUNA 1 -->
+    <div class="panel">
+        <div class="panel-header"><h2><i class="fa-solid fa-circle-dot"></i> Status da Loja</h2></div>
+        <div class="panel-body">
+            <div class="status-display">
+                <div class="status-info">
+                    <div class="status-led" id="statusLed"></div>
+                    <div class="status-text">
+                        <strong id="statusLabel">Carregando...</strong>
+                        <span id="statusSub">Aguardando</span>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Emoji</label><input type="text" id="emoji" placeholder="🍔" maxlength="4"></div>
-                    <div class="form-group"><label>Ativo</label>
-                        <select id="ativoProduto">
-                            <option value="true">✅ Ativo</option>
-                            <option value="false">❌ Inativo</option>
-                        </select>
-                    </div>
-                </div>
-                <!-- Upload de imagem -->
-                <div class="form-group">
-                    <label>Imagem do produto</label>
-                    <label for="imagemFile" class="file-input-label">
-                        <i class="fa-solid fa-cloud-upload-alt"></i> Selecione uma imagem
-                    </label>
-                    <input type="file" id="imagemFile" accept="image/*" onchange="previewImagem(this)">
-                    <div class="image-preview" id="previewImagemDiv"></div>
-                </div>
-                <div class="form-group">
-                    <label>OU URL da imagem (opcional)</label>
-                    <input type="text" id="imagemUrl" placeholder="https://exemplo.com/imagem.jpg">
-                </div>
-                <div class="preview-card" id="previewCard">
-                    <div class="preview-emoji" id="previewEmoji">🍔</div>
-                    <div class="preview-name" id="previewName">Nome do produto</div>
-                    <div class="preview-price" id="previewPrice">R$ 0,00</div>
-                </div>
-                <button class="btn-save" id="btnSalvar" onclick="salvarProduto()">
-                    <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>
-                </button>
-                <button class="btn-cancel" id="btnCancelar" onclick="cancelarEdicao()" style="display:none">
-                    <i class="fa-solid fa-xmark fa-xs"></i> Cancelar edição
-                </button>
+                <button class="btn-toggle" id="btnStatus" onclick="alternarStatus()" disabled>Aguarde</button>
             </div>
         </div>
     </div>
 
-    <!-- COLUNA 2: Adicionais + Banners -->
-    <div style="display:flex;flex-direction:column;gap:20px">
-        <!-- Formulário de Adicional -->
-        <div class="panel">
-            <div class="panel-header"><h2><i class="fa-solid fa-circle-plus"></i> <span id="adicFormTitle">Novo Adicional</span></h2></div>
-            <div class="panel-body">
-                <div class="edit-banner-bar" id="adicEditBanner"><i class="fa-solid fa-pencil fa-xs"></i> Editando adicional</div>
-                <div class="form-group"><label>Nome</label>
-                    <input type="text" id="adic-nome" placeholder="Ex: Bacon extra"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Preço (R$)</label>
-                        <input type="number" id="adic-preco" step="0.01" min="0" placeholder="0,00"></div>
-                    <div class="form-group"><label>Emoji</label>
-                        <input type="text" id="adic-emoji" placeholder="🥓" maxlength="4"></div>
-                </div>
-                <button class="btn-save" onclick="salvarAdic()">
-                    <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="adicBtnLabel">Salvar Adicional</span>
-                </button>
-                <button class="btn-cancel" id="adicCancelar" onclick="cancelarEdicaoAdic()" style="display:none">
-                    <i class="fa-solid fa-xmark fa-xs"></i> Cancelar
-                </button>
+    <div class="panel">
+        <div class="panel-header"><h2><i class="fa-solid fa-shop"></i> Configurações</h2></div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label>WhatsApp (com DDD, sem máscara)</label>
+                <input type="text" id="lojaWhatsapp" placeholder="5517999999999">
             </div>
+            <div class="form-group">
+                <label>Mensagem quando loja está fechada</label>
+                <input type="text" id="lojaMensagemFechado" placeholder="Voltamos em breve!">
+            </div>
+            <button class="btn-save" onclick="salvarConfigLoja()">
+                <i class="fa-solid fa-floppy-disk fa-sm"></i> Salvar Configurações
+            </button>
         </div>
+    </div>
 
-        <!-- Lista de Adicionais -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-list"></i> Adicionais</h2>
-                <span class="prod-count" id="adicCount">–</span>
-            </div>
-            <div class="panel-body">
-                <div id="lista-adicionais">
-                    <div class="skel-row"><div class="skel" style="width:38px;height:38px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:60%;margin-bottom:7px"></div><div class="skel" style="height:12px;width:30%"></div></div></div>
+    <div class="panel">
+        <div class="panel-header"><h2><i class="fa-solid fa-burger"></i> <span id="formTitle">Novo Produto</span></h2></div>
+        <div class="panel-body">
+            <div class="edit-banner-bar" id="editBanner"><i class="fa-solid fa-pencil fa-xs"></i> Modo edição</div>
+            <div class="form-group"><label>Nome</label><input type="text" id="nome" placeholder="Ex: X-Burguer Especial"></div>
+            <div class="form-group"><label>Descrição / Ingredientes</label>
+                <input type="text" id="descricao" placeholder="Ex: Pão, hambúrguer, queijo, alface, tomate"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Preço (R$)</label><input type="number" id="preco" step="0.01" min="0" placeholder="0,00"></div>
+                <div class="form-group"><label>Categoria</label>
+                    <select id="categoria" onchange="autoEmojiPorCategoria()">
+                        <option value="LANCHE">🍔 Lanche</option>
+                        <option value="BEBIDA">🥤 Bebida</option>
+                        <option value="PORCAO">🍟 Porção</option>
+                        <option value="SOBREMESA">🍦 Sobremesa</option>
+                    </select>
                 </div>
             </div>
+            <div class="form-row">
+                <div class="form-group"><label>Emoji</label><input type="text" id="emoji" placeholder="🍔" maxlength="4"></div>
+                <div class="form-group"><label>Ativo</label>
+                    <select id="ativoProduto">
+                        <option value="true">✅ Ativo</option>
+                        <option value="false">❌ Inativo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Imagem do produto</label>
+                <label for="imagemFile" class="file-input-label">
+                    <i class="fa-solid fa-cloud-upload-alt"></i> Selecione uma imagem
+                </label>
+                <input type="file" id="imagemFile" accept="image/*" onchange="previewImagem(this)">
+                <div class="image-preview" id="previewImagemDiv"></div>
+            </div>
+            <div class="form-group">
+                <label>OU URL da imagem (opcional)</label>
+                <input type="text" id="imagemUrl" placeholder="https://exemplo.com/imagem.jpg">
+            </div>
+            <div class="preview-card" id="previewCard">
+                <div class="preview-emoji" id="previewEmoji">🍔</div>
+                <div class="preview-name" id="previewName">Nome do produto</div>
+                <div class="preview-price" id="previewPrice">R$ 0,00</div>
+            </div>
+            <button class="btn-save" id="btnSalvar" onclick="salvarProduto()">
+                <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>
+            </button>
+            <button class="btn-cancel" id="btnCancelar" onclick="cancelarEdicao()" style="display:none">
+                <i class="fa-solid fa-xmark fa-xs"></i> Cancelar edição
+            </button>
         </div>
+    </div>
 
-        <!-- Formulário de Banner -->
-        <div class="panel">
-            <div class="panel-header"><h2><i class="fa-solid fa-bullhorn"></i> <span id="bannerFormTitle">Novo Banner</span></h2></div>
-            <div class="panel-body">
-                <div class="edit-banner-bar" id="bannerEditBanner"><i class="fa-solid fa-pencil fa-xs"></i> Editando banner</div>
-                <div class="form-group"><label>Título</label>
-                    <input type="text" id="banner-titulo" placeholder="Ex: 🔥 Promoção de hoje!"></div>
-                <div class="form-group"><label>Descrição</label>
-                    <input type="text" id="banner-desc" placeholder="Ex: X-Burguer por R$ 15,00 até meia-noite!"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Cor</label>
-                        <select id="banner-cor">
-                            <option value="amarelo">🟡 Amarelo</option>
-                            <option value="verde">🟢 Verde</option>
-                            <option value="vermelho">🔴 Vermelho</option>
-                            <option value="azul">🔵 Azul</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Emoji</label>
-                        <input type="text" id="banner-emoji" placeholder="🔥" maxlength="4"></div>
-                </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px">
-                    <div>
-                        <div style="font-size:.82rem;font-weight:800;color:var(--text)">Ativar banner agora</div>
-                        <div style="font-size:.74rem;color:var(--text-muted)">Aparece no cardápio imediatamente</div>
-                    </div>
-                    <label style="cursor:pointer;display:flex;align-items:center;gap:8px">
-                        <input type="checkbox" id="banner-ativo" style="width:18px;height:18px;cursor:pointer;accent-color:var(--am)">
-                    </label>
-                </div>
-                <button class="btn-save" onclick="salvarBanner()">
-                    <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="bannerBtnLabel">Publicar Banner</span>
-                </button>
-                <button class="btn-cancel" id="bannerCancelar" onclick="cancelarEdicaoBanner()" style="display:none">
-                    <i class="fa-solid fa-xmark fa-xs"></i> Cancelar
-                </button>
+    <!-- COLUNA 2 -->
+    <div class="panel">
+        <div class="panel-header"><h2><i class="fa-solid fa-circle-plus"></i> <span id="adicFormTitle">Novo Adicional</span></h2></div>
+        <div class="panel-body">
+            <div class="edit-banner-bar" id="adicEditBanner"><i class="fa-solid fa-pencil fa-xs"></i> Editando adicional</div>
+            <div class="form-group"><label>Nome</label>
+                <input type="text" id="adic-nome" placeholder="Ex: Bacon extra"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Preço (R$)</label>
+                    <input type="number" id="adic-preco" step="0.01" min="0" placeholder="0,00"></div>
+                <div class="form-group"><label>Emoji</label>
+                    <input type="text" id="adic-emoji" placeholder="🥓" maxlength="4"></div>
             </div>
+            <button class="btn-save" onclick="salvarAdic()">
+                <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="adicBtnLabel">Salvar Adicional</span>
+            </button>
+            <button class="btn-cancel" id="adicCancelar" onclick="cancelarEdicaoAdic()" style="display:none">
+                <i class="fa-solid fa-xmark fa-xs"></i> Cancelar
+            </button>
         </div>
+    </div>
 
-        <!-- Lista de Banners -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-rectangle-ad"></i> Banners</h2>
-                <span class="prod-count" id="bannerCount">–</span>
-            </div>
-            <div class="panel-body">
-                <div id="lista-banners">
-                    <div class="empty-adm"><i class="fa-solid fa-bullhorn"></i><p>Nenhum banner.</p></div>
-                </div>
+    <div class="panel">
+        <div class="panel-header">
+            <h2><i class="fa-solid fa-list"></i> Adicionais</h2>
+            <span class="prod-count" id="adicCount">–</span>
+        </div>
+        <div class="panel-body">
+            <div id="lista-adicionais">
+                <div class="skel-row"><div class="skel" style="width:38px;height:38px;border-radius:9px;flex-shrink:0"></div><div style="flex:1"><div class="skel" style="height:13px;width:60%;margin-bottom:7px"></div><div class="skel" style="height:12px;width:30%"></div></div></div>
             </div>
         </div>
     </div>
 
-    <!-- COLUNA 3: Lista de Produtos -->
+    <div class="panel">
+        <div class="panel-header"><h2><i class="fa-solid fa-bullhorn"></i> <span id="bannerFormTitle">Novo Banner</span></h2></div>
+        <div class="panel-body">
+            <div class="edit-banner-bar" id="bannerEditBanner"><i class="fa-solid fa-pencil fa-xs"></i> Editando banner</div>
+            <div class="form-group"><label>Título</label>
+                <input type="text" id="banner-titulo" placeholder="Ex: 🔥 Promoção de hoje!"></div>
+            <div class="form-group"><label>Descrição</label>
+                <input type="text" id="banner-desc" placeholder="Ex: X-Burguer por R$ 15,00 até meia-noite!"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Cor</label>
+                    <select id="banner-cor">
+                        <option value="amarelo">🟡 Amarelo</option>
+                        <option value="verde">🟢 Verde</option>
+                        <option value="vermelho">🔴 Vermelho</option>
+                        <option value="azul">🔵 Azul</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Emoji</label>
+                    <input type="text" id="banner-emoji" placeholder="🔥" maxlength="4"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px">
+                <div>
+                    <div style="font-size:.82rem;font-weight:800;color:var(--text)">Ativar banner agora</div>
+                    <div style="font-size:.74rem;color:var(--text-muted)">Aparece no cardápio imediatamente</div>
+                </div>
+                <label style="cursor:pointer;display:flex;align-items:center;gap:8px">
+                    <input type="checkbox" id="banner-ativo" style="width:18px;height:18px;cursor:pointer;accent-color:var(--am)">
+                </label>
+            </div>
+            <button class="btn-save" onclick="salvarBanner()">
+                <i class="fa-solid fa-floppy-disk fa-sm"></i> <span id="bannerBtnLabel">Publicar Banner</span>
+            </button>
+            <button class="btn-cancel" id="bannerCancelar" onclick="cancelarEdicaoBanner()" style="display:none">
+                <i class="fa-solid fa-xmark fa-xs"></i> Cancelar
+            </button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <h2><i class="fa-solid fa-rectangle-ad"></i> Banners</h2>
+            <span class="prod-count" id="bannerCount">–</span>
+        </div>
+        <div class="panel-body">
+            <div id="lista-banners">
+                <div class="empty-adm"><i class="fa-solid fa-bullhorn"></i><p>Nenhum banner.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUNA 3 -->
     <div class="panel">
         <div class="panel-header">
             <h2><i class="fa-solid fa-list-ul"></i> Produtos</h2>
@@ -503,7 +1182,7 @@
 </div>
 
 <!-- PEDIDOS -->
-<div style="max-width:1200px;margin:22px auto 60px;padding:0 20px">
+<div style="max-width:1400px;margin:0 auto 60px;padding:0 20px">
     <div class="panel">
         <div class="panel-header">
             <h2><i class="fa-solid fa-receipt"></i> Pedidos</h2>
@@ -573,48 +1252,62 @@
     let confirmResolve = null;
     function showConfirm(message) {
         return new Promise((resolve) => {
-            document.getElementById('confirmMessage').textContent = message;
-            document.getElementById('confirmModal').classList.add('show');
+            const modal = document.getElementById('confirmModal');
+            const msgEl = document.getElementById('confirmMessage');
+            if (!modal || !msgEl) {
+                resolve(confirm(message));
+                return;
+            }
+            msgEl.textContent = message;
+            modal.classList.add('show');
             confirmResolve = resolve;
         });
     }
-    document.getElementById('confirmYesBtn').onclick = () => {
-        document.getElementById('confirmModal').classList.remove('show');
+    document.getElementById('confirmYesBtn')?.addEventListener('click', () => {
+        document.getElementById('confirmModal')?.classList.remove('show');
         if (confirmResolve) confirmResolve(true);
-    };
-    document.getElementById('confirmNoBtn').onclick = () => {
-        document.getElementById('confirmModal').classList.remove('show');
+    });
+    document.getElementById('confirmNoBtn')?.addEventListener('click', () => {
+        document.getElementById('confirmModal')?.classList.remove('show');
         if (confirmResolve) confirmResolve(false);
-    };
+    });
 
     // ===================== PRÉ-VISUALIZAÇÃO =====================
     function updatePreview() {
-        const nome = document.getElementById('nome').value.trim() || "Nome do produto";
-        const preco = parseFloat(document.getElementById('preco').value) || 0;
-        const emoji = document.getElementById('emoji').value.trim() || "🍔";
-        document.getElementById('previewName').textContent = nome;
-        document.getElementById('previewPrice').textContent = `R$ ${preco.toFixed(2)}`;
-        document.getElementById('previewEmoji').textContent = emoji;
+        const nomeEl = document.getElementById('nome');
+        const precoEl = document.getElementById('preco');
+        const emojiEl = document.getElementById('emoji');
+        const previewName = document.getElementById('previewName');
+        const previewPrice = document.getElementById('previewPrice');
+        const previewEmoji = document.getElementById('previewEmoji');
+        if (!nomeEl || !precoEl || !emojiEl || !previewName || !previewPrice || !previewEmoji) return;
+        const nome = nomeEl.value.trim() || "Nome do produto";
+        const preco = parseFloat(precoEl.value) || 0;
+        const emoji = emojiEl.value.trim() || "🍔";
+        previewName.textContent = nome;
+        previewPrice.textContent = `R$ ${preco.toFixed(2)}`;
+        previewEmoji.textContent = emoji;
     }
-    document.getElementById('nome').addEventListener('input', updatePreview);
-    document.getElementById('preco').addEventListener('input', updatePreview);
-    document.getElementById('emoji').addEventListener('input', updatePreview);
+    document.getElementById('nome')?.addEventListener('input', updatePreview);
+    document.getElementById('preco')?.addEventListener('input', updatePreview);
+    document.getElementById('emoji')?.addEventListener('input', updatePreview);
 
     const emojiPorCategoria = { LANCHE:'🍔', BEBIDA:'🥤', PORCAO:'🍟', SOBREMESA:'🍦' };
     function autoEmojiPorCategoria() {
-        const cat = document.getElementById('categoria').value;
+        const cat = document.getElementById('categoria')?.value;
         const emojiInput = document.getElementById('emoji');
-        if (!emojiInput.value.trim()) {
+        if (cat && emojiInput && !emojiInput.value.trim()) {
             emojiInput.value = emojiPorCategoria[cat] || '🍽️';
             updatePreview();
         }
     }
-    document.getElementById('categoria').addEventListener('change', autoEmojiPorCategoria);
+    document.getElementById('categoria')?.addEventListener('change', autoEmojiPorCategoria);
 
     // ===================== UPLOAD DE IMAGEM =====================
     let selectedImageFile = null;
     function previewImagem(input) {
         const previewDiv = document.getElementById('previewImagemDiv');
+        if (!previewDiv) return;
         previewDiv.innerHTML = '';
         if (input.files && input.files[0]) {
             selectedImageFile = input.files[0];
@@ -636,7 +1329,7 @@
     async function fazerUpload(file) {
         const formData = new FormData();
         formData.append('file', file);
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         const response = await fetch(`${API_URL}/upload/imagem`, {
             method: 'POST',
             headers: { 'Admin-Key': key },
@@ -656,8 +1349,10 @@
             const rLoja = await fetch(`${API_URL}/loja/${LOJA_SLUG}`);
             if (rLoja.ok) {
                 const loja = await rLoja.json();
-                document.getElementById('lojaWhatsapp').value = loja.whatsapp || '';
-                document.getElementById('lojaMensagemFechado').value = loja.mensagemFechado || '';
+                const lojaWhatsapp = document.getElementById('lojaWhatsapp');
+                const lojaMensagem = document.getElementById('lojaMensagemFechado');
+                if (lojaWhatsapp) lojaWhatsapp.value = loja.whatsapp || '';
+                if (lojaMensagem) lojaMensagem.value = loja.mensagemFechado || '';
             }
 
             const rP = await fetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
@@ -669,7 +1364,7 @@
             const rA = await fetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
             if (rA.ok) renderizarAdics(await rA.json());
 
-            const key = document.getElementById('adminKey').value;
+            const key = document.getElementById('adminKey')?.value || '';
             const rBan = await fetch(`${API_URL}/banners/loja/${LOJA_ID_NUM}`, { headers:{'Admin-Key':key} });
             if (rBan.ok) renderizarBanners(await rBan.json());
 
@@ -683,9 +1378,9 @@
 
     // ===================== CONFIGURAÇÕES LOJA =====================
     async function salvarConfigLoja() {
-        const key = document.getElementById('adminKey').value;
-        const whatsapp = document.getElementById('lojaWhatsapp').value.trim();
-        const mensagemFechado = document.getElementById('lojaMensagemFechado').value.trim();
+        const key = document.getElementById('adminKey')?.value || '';
+        const whatsapp = document.getElementById('lojaWhatsapp')?.value.trim() || '';
+        const mensagemFechado = document.getElementById('lojaMensagemFechado')?.value.trim() || '';
         const payload = { whatsapp, mensagemFechado };
         try {
             const response = await fetch(`${API_URL}/loja/${LOJA_SLUG}`, {
@@ -701,16 +1396,20 @@
     // ===================== STATUS =====================
     function atualizarBotaoStatus() {
         const btn = document.getElementById('btnStatus');
-        document.getElementById('statusLed').className = `status-led ${lojaAberta?'on':'off'}`;
-        document.getElementById('statusLabel').textContent = lojaAberta ? 'Loja Aberta' : 'Loja Fechada';
-        document.getElementById('statusSub').textContent = lojaAberta ? 'Aceitando pedidos' : 'Fora do horário';
+        const led = document.getElementById('statusLed');
+        const label = document.getElementById('statusLabel');
+        const sub = document.getElementById('statusSub');
+        if (!btn || !led || !label || !sub) return;
+        led.className = `status-led ${lojaAberta?'on':'off'}`;
+        label.textContent = lojaAberta ? 'Loja Aberta' : 'Loja Fechada';
+        sub.textContent = lojaAberta ? 'Aceitando pedidos' : 'Fora do horário';
         btn.disabled = false;
         btn.className = `btn-toggle ${lojaAberta?'fechar':'abrir'}`;
         btn.innerHTML = lojaAberta ? '<i class="fa-solid fa-circle-stop fa-xs"></i> Fechar loja' : '<i class="fa-solid fa-circle-play fa-xs"></i> Abrir loja';
     }
 
     async function alternarStatus() {
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         const nova = !lojaAberta;
         try {
             const r = await fetch(`${API_URL}/loja/status`, {
@@ -733,13 +1432,15 @@
     }
 
     function filtrarProdutosAdmin() {
-        const categoria = document.getElementById('filtroCategoria').value;
-        const busca = document.getElementById('buscaProduto').value.toLowerCase();
+        const categoria = document.getElementById('filtroCategoria')?.value || 'TODOS';
+        const busca = document.getElementById('buscaProduto')?.value.toLowerCase() || '';
         let filtrados = todosProdutos;
         if (categoria !== 'TODOS') filtrados = filtrados.filter(p => p.categoria === categoria);
         if (busca) filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(busca));
-        document.getElementById('prodCount').textContent = filtrados.length;
+        const prodCount = document.getElementById('prodCount');
+        if (prodCount) prodCount.textContent = filtrados.length;
         const lista = document.getElementById('lista-produtos-admin');
+        if (!lista) return;
         if (!filtrados.length) {
             lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto encontrado.</p></div>`;
             return;
@@ -775,7 +1476,7 @@
     }
 
     async function toggleAtivoProduto(id, ativo) {
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         const produto = todosProdutos.find(p => p.id === id);
         if (!produto) return;
         const payload = { ...produto, ativo };
@@ -803,7 +1504,7 @@
             ordem: (todosProdutos.length + 1)
         };
         delete copia.id;
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         try {
             const r = await fetch(`${API_URL}/produtos`, {
                 method: 'POST',
@@ -819,114 +1520,143 @@
 
     function prepararEdicao(p) {
         idEdicao = p.id;
-        document.getElementById('nome').value = p.nome||'';
-        document.getElementById('descricao').value = p.descricao||'';
-        document.getElementById('preco').value = p.preco||'';
-        document.getElementById('categoria').value = p.categoria||'LANCHE';
-        document.getElementById('emoji').value = p.emoji||'';
-        document.getElementById('ativoProduto').value = p.ativo ? 'true' : 'false';
-        document.getElementById('imagemUrl').value = p.imagemUrl || '';
-        // limpar preview de imagem
+        const nome = document.getElementById('nome');
+        const descricao = document.getElementById('descricao');
+        const preco = document.getElementById('preco');
+        const categoria = document.getElementById('categoria');
+        const emoji = document.getElementById('emoji');
+        const ativoProduto = document.getElementById('ativoProduto');
+        const imagemUrl = document.getElementById('imagemUrl');
+        const formTitle = document.getElementById('formTitle');
+        const btnSalvarLabel = document.getElementById('btnSalvarLabel');
+        const btnCancelar = document.getElementById('btnCancelar');
+        const editBanner = document.getElementById('editBanner');
+        if (nome) nome.value = p.nome||'';
+        if (descricao) descricao.value = p.descricao||'';
+        if (preco) preco.value = p.preco||'';
+        if (categoria) categoria.value = p.categoria||'LANCHE';
+        if (emoji) emoji.value = p.emoji||'';
+        if (ativoProduto) ativoProduto.value = p.ativo ? 'true' : 'false';
+        if (imagemUrl) imagemUrl.value = p.imagemUrl || '';
         const previewDiv = document.getElementById('previewImagemDiv');
-        previewDiv.innerHTML = '';
+        if (previewDiv) previewDiv.innerHTML = '';
         selectedImageFile = null;
-        document.getElementById('imagemFile').value = '';
-        if (p.imagemUrl) {
+        const imagemFile = document.getElementById('imagemFile');
+        if (imagemFile) imagemFile.value = '';
+        if (p.imagemUrl && previewDiv) {
             const img = document.createElement('img');
             img.src = p.imagemUrl;
             img.style.maxWidth = '100%';
             img.style.maxHeight = '150px';
             previewDiv.appendChild(img);
         }
-        document.getElementById('formTitle').textContent = p.nome;
-        document.getElementById('btnSalvarLabel').textContent = 'Salvar Alterações';
-        document.getElementById('btnCancelar').style.display = 'block';
-        document.getElementById('editBanner').classList.add('vis');
+        if (formTitle) formTitle.textContent = p.nome;
+        if (btnSalvarLabel) btnSalvarLabel.textContent = 'Salvar Alterações';
+        if (btnCancelar) btnCancelar.style.display = 'block';
+        if (editBanner) editBanner.classList.add('vis');
         updatePreview();
-        document.querySelector('.panel:has(#btnSalvar)').scrollIntoView({behavior:'smooth',block:'start'});
+        const panel = document.querySelector('.panel:has(#btnSalvar)');
+        if (panel) panel.scrollIntoView({behavior:'smooth',block:'start'});
     }
 
     function cancelarEdicao() {
         idEdicao = null;
-        ['nome','descricao','preco','emoji','imagemUrl'].forEach(id => document.getElementById(id).value='');
-        document.getElementById('categoria').value = 'LANCHE';
-        document.getElementById('ativoProduto').value = 'true';
-        document.getElementById('formTitle').textContent = 'Novo Produto';
-        document.getElementById('btnSalvarLabel').textContent = 'Salvar no Cardápio';
-        document.getElementById('btnCancelar').style.display = 'none';
-        document.getElementById('editBanner').classList.remove('vis');
-        document.getElementById('previewImagemDiv').innerHTML = '';
+        const ids = ['nome','descricao','preco','emoji','imagemUrl'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        const categoria = document.getElementById('categoria');
+        if (categoria) categoria.value = 'LANCHE';
+        const ativoProduto = document.getElementById('ativoProduto');
+        if (ativoProduto) ativoProduto.value = 'true';
+        const formTitle = document.getElementById('formTitle');
+        if (formTitle) formTitle.textContent = 'Novo Produto';
+        const btnSalvarLabel = document.getElementById('btnSalvarLabel');
+        if (btnSalvarLabel) btnSalvarLabel.textContent = 'Salvar no Cardápio';
+        const btnCancelar = document.getElementById('btnCancelar');
+        if (btnCancelar) btnCancelar.style.display = 'none';
+        const editBanner = document.getElementById('editBanner');
+        if (editBanner) editBanner.classList.remove('vis');
+        const previewDiv = document.getElementById('previewImagemDiv');
+        if (previewDiv) previewDiv.innerHTML = '';
         selectedImageFile = null;
-        document.getElementById('imagemFile').value = '';
+        const imagemFile = document.getElementById('imagemFile');
+        if (imagemFile) imagemFile.value = '';
         updatePreview();
         autoEmojiPorCategoria();
     }
 
     async function salvarProduto() {
-    const key = document.getElementById('adminKey').value;
-    const nome = document.getElementById('nome').value.trim();
-    const prec = parseFloat(document.getElementById('preco').value);
-    const cat  = document.getElementById('categoria').value;
-    if (!nome || isNaN(prec)) { feedback("Preencha nome e preço.", false); return; }
-    const emojiMap = {LANCHE:'🍔',BEBIDA:'🥤',PORCAO:'🍟',SOBREMESA:'🍦'};
-    let imagemUrl = document.getElementById('imagemUrl').value.trim();
+        const key = document.getElementById('adminKey')?.value || '';
+        const nome = document.getElementById('nome')?.value.trim() || '';
+        const prec = parseFloat(document.getElementById('preco')?.value);
+        const cat  = document.getElementById('categoria')?.value;
+        if (!nome || isNaN(prec)) { feedback("Preencha nome e preço.", false); return; }
+        const emojiMap = {LANCHE:'🍔',BEBIDA:'🥤',PORCAO:'🍟',SOBREMESA:'🍦'};
+        let imagemUrl = document.getElementById('imagemUrl')?.value.trim() || '';
 
-    // Se tiver um arquivo selecionado, faz upload primeiro
-    if (selectedImageFile) {
-        try {
-            feedback("Enviando imagem...", true);
-            imagemUrl = await fazerUpload(selectedImageFile);
-            feedback("Imagem enviada com sucesso!", true);
-        } catch (e) {
-            feedback("Erro no upload: " + e.message, false);
-            return;
-        }
-    }
-
-    const produto = {
-        nome,
-        preco: prec,
-        categoria: cat,
-        ativo: document.getElementById('ativoProduto').value === 'true',
-        ordem: idEdicao ? (todosProdutos.find(p => p.id === idEdicao)?.ordem || 0) : (todosProdutos.length + 1),
-        descricao: document.getElementById('descricao').value.trim() || "",
-        emoji: document.getElementById('emoji').value.trim() || emojiMap[cat] || '🍽️',
-        imagemUrl: imagemUrl || null,
-        removiveis: [],  // 🔧 lista vazia para evitar erro
-        loja: { id: LOJA_ID_NUM }
-    };
-    const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
-    const btn = document.getElementById('btnSalvar');
-    btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin fa-xs"></i> Salvando...';
-    try {
-        const r = await fetch(url, {
-            method: idEdicao ? 'PUT' : 'POST',
-            headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
-            body: JSON.stringify(produto)
-        });
-        if (r.ok) {
-            const data = await r.json();
-            feedback(idEdicao ? 'Produto atualizado!' : 'Produto cadastrado!', true);
-            cancelarEdicao();
-            carregarDados();
-        } else {
-            let errorMsg = "Erro ao salvar.";
+        if (selectedImageFile) {
             try {
-                const errorText = await r.text();
-                if (errorText) errorMsg = errorText;
-            } catch(e) {}
-            feedback(errorMsg, false);
+                feedback("Enviando imagem...", true);
+                imagemUrl = await fazerUpload(selectedImageFile);
+                feedback("Imagem enviada com sucesso!", true);
+            } catch (e) {
+                feedback("Erro no upload: " + e.message, false);
+                return;
+            }
         }
-    } catch (e) {
-        feedback("Erro de conexão: " + e.message, false);
-    } finally {
-        btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk fa-xs"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>';
+
+        const produto = {
+            nome,
+            preco: prec,
+            categoria: cat,
+            ativo: document.getElementById('ativoProduto')?.value === 'true',
+            ordem: idEdicao ? (todosProdutos.find(p => p.id === idEdicao)?.ordem || 0) : (todosProdutos.length + 1),
+            descricao: document.getElementById('descricao')?.value.trim() || "",
+            emoji: document.getElementById('emoji')?.value.trim() || emojiMap[cat] || '🍽️',
+            imagemUrl: imagemUrl || null,
+            removiveis: [],
+            loja: { id: LOJA_ID_NUM }
+        };
+        const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
+        const btn = document.getElementById('btnSalvar');
+        if (btn) {
+            btn.disabled=true;
+            btn.innerHTML='<i class="fa-solid fa-spinner fa-spin fa-xs"></i> Salvando...';
+        }
+        try {
+            const r = await fetch(url, {
+                method: idEdicao ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json', 'Admin-Key': key },
+                body: JSON.stringify(produto)
+            });
+            if (r.ok) {
+                feedback(idEdicao ? 'Produto atualizado!' : 'Produto cadastrado!', true);
+                cancelarEdicao();
+                carregarDados();
+            } else {
+                let errorMsg = "Erro ao salvar.";
+                try {
+                    const errorText = await r.text();
+                    if (errorText) errorMsg = errorText;
+                } catch(e) {}
+                feedback(errorMsg, false);
+            }
+        } catch (e) {
+            feedback("Erro de conexão: " + e.message, false);
+        } finally {
+            if (btn) {
+                btn.disabled=false;
+                btn.innerHTML='<i class="fa-solid fa-floppy-disk fa-xs"></i> <span id="btnSalvarLabel">Salvar no Cardápio</span>';
+            }
+        }
     }
-}
+
     async function excluirProduto(id) {
         const confirmed = await showConfirm("Tem certeza que deseja excluir este produto?");
         if (!confirmed) return;
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         try {
             const r = await fetch(`${API_URL}/produtos/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
             if (r.ok) { feedback("Removido!", true); carregarDados(); }
@@ -983,7 +1713,7 @@
                 const [movido] = novosProdutos.splice(fromIndex, 1);
                 novosProdutos.splice(toIndex, 0, movido);
                 const updates = novosProdutos.map((p, idx) => ({ id: p.id, ordem: idx + 1 }));
-                const key = document.getElementById('adminKey').value;
+                const key = document.getElementById('adminKey')?.value || '';
                 for (const update of updates) {
                     const prod = novosProdutos.find(p => p.id === update.id);
                     const payload = { ...prod, ordem: update.ordem };
@@ -1003,8 +1733,10 @@
 
     // ===================== ADICIONAIS =====================
     function renderizarAdics(adics) {
-        document.getElementById('adicCount').textContent = adics?.length || 0;
+        const countEl = document.getElementById('adicCount');
+        if (countEl) countEl.textContent = adics?.length || 0;
         const lista = document.getElementById('lista-adicionais');
+        if (!lista) return;
         if (!adics?.length) { lista.innerHTML=`<div class="empty-adm"><i class="fa-solid fa-circle-plus"></i><p>Nenhum adicional.</p></div>`; return; }
         lista.innerHTML = adics.map(a => `
         <div class="adic-item">
@@ -1021,28 +1753,43 @@
     }
     function prepararEdicaoAdic(a) {
         adicEdicaoId = a.id;
-        document.getElementById('adic-nome').value  = a.nome||'';
-        document.getElementById('adic-preco').value = a.preco||'';
-        document.getElementById('adic-emoji').value = a.emoji||'';
-        document.getElementById('adicFormTitle').textContent = a.nome;
-        document.getElementById('adicBtnLabel').textContent  = 'Salvar Alterações';
-        document.getElementById('adicCancelar').style.display = 'block';
-        document.getElementById('adicEditBanner').classList.add('vis');
+        const nome = document.getElementById('adic-nome');
+        const preco = document.getElementById('adic-preco');
+        const emoji = document.getElementById('adic-emoji');
+        const title = document.getElementById('adicFormTitle');
+        const btnLabel = document.getElementById('adicBtnLabel');
+        const cancel = document.getElementById('adicCancelar');
+        const editBanner = document.getElementById('adicEditBanner');
+        if (nome) nome.value = a.nome||'';
+        if (preco) preco.value = a.preco||'';
+        if (emoji) emoji.value = a.emoji||'';
+        if (title) title.textContent = a.nome;
+        if (btnLabel) btnLabel.textContent = 'Salvar Alterações';
+        if (cancel) cancel.style.display = 'block';
+        if (editBanner) editBanner.classList.add('vis');
     }
     function cancelarEdicaoAdic() {
         adicEdicaoId = null;
-        ['adic-nome','adic-preco','adic-emoji'].forEach(id => document.getElementById(id).value='');
-        document.getElementById('adicFormTitle').textContent   = 'Novo Adicional';
-        document.getElementById('adicBtnLabel').textContent    = 'Salvar Adicional';
-        document.getElementById('adicCancelar').style.display  = 'none';
-        document.getElementById('adicEditBanner').classList.remove('vis');
+        const ids = ['adic-nome','adic-preco','adic-emoji'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        const title = document.getElementById('adicFormTitle');
+        if (title) title.textContent = 'Novo Adicional';
+        const btnLabel = document.getElementById('adicBtnLabel');
+        if (btnLabel) btnLabel.textContent = 'Salvar Adicional';
+        const cancel = document.getElementById('adicCancelar');
+        if (cancel) cancel.style.display = 'none';
+        const editBanner = document.getElementById('adicEditBanner');
+        if (editBanner) editBanner.classList.remove('vis');
     }
     async function salvarAdic() {
-        const key = document.getElementById('adminKey').value;
-        const nome = document.getElementById('adic-nome').value.trim();
-        const prec = parseFloat(document.getElementById('adic-preco').value);
+        const key = document.getElementById('adminKey')?.value || '';
+        const nome = document.getElementById('adic-nome')?.value.trim() || '';
+        const prec = parseFloat(document.getElementById('adic-preco')?.value);
         if (!nome || isNaN(prec)) { feedback("Preencha nome e preço do adicional.", false); return; }
-        const payload = { nome, preco: prec, emoji: document.getElementById('adic-emoji').value.trim() || '➕', ativo: true, loja: { id: LOJA_ID_NUM } };
+        const payload = { nome, preco: prec, emoji: document.getElementById('adic-emoji')?.value.trim() || '➕', ativo: true, loja: { id: LOJA_ID_NUM } };
         const url = adicEdicaoId ? `${API_URL}/adicionais/${adicEdicaoId}` : `${API_URL}/adicionais`;
         try {
             const r = await fetch(url,{method:adicEdicaoId?'PUT':'POST',headers:{'Content-Type':'application/json','Admin-Key':key},body:JSON.stringify(payload)});
@@ -1053,7 +1800,7 @@
     async function excluirAdic(id) {
         const confirmed = await showConfirm("Remover este adicional?");
         if (!confirmed) return;
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         try {
             const r = await fetch(`${API_URL}/adicionais/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
             if (r.ok) { feedback("Adicional removido!",true); carregarDados(); }
@@ -1063,8 +1810,10 @@
 
     // ===================== BANNERS =====================
     function renderizarBanners(banners) {
-        document.getElementById('bannerCount').textContent = banners?.length || 0;
+        const countEl = document.getElementById('bannerCount');
+        if (countEl) countEl.textContent = banners?.length || 0;
         const lista = document.getElementById('lista-banners');
+        if (!lista) return;
         if (!banners?.length) { lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-bullhorn"></i><p>Nenhum banner.</p></div>`; return; }
         lista.innerHTML = banners.map(b => `
         <div class="banner-item">
@@ -1086,37 +1835,56 @@
     }
     function prepararEdicaoBanner(b) {
         bannerEdicaoId = b.id;
-        document.getElementById('banner-titulo').value = b.titulo||'';
-        document.getElementById('banner-desc').value   = b.descricao||'';
-        document.getElementById('banner-cor').value    = b.cor||'amarelo';
-        document.getElementById('banner-emoji').value  = b.emoji||'🔥';
-        document.getElementById('banner-ativo').checked = b.ativo||false;
-        document.getElementById('bannerFormTitle').textContent = b.titulo;
-        document.getElementById('bannerBtnLabel').textContent  = 'Salvar Alterações';
-        document.getElementById('bannerCancelar').style.display = 'block';
-        document.getElementById('bannerEditBanner').classList.add('vis');
+        const titulo = document.getElementById('banner-titulo');
+        const desc = document.getElementById('banner-desc');
+        const cor = document.getElementById('banner-cor');
+        const emoji = document.getElementById('banner-emoji');
+        const ativo = document.getElementById('banner-ativo');
+        const formTitle = document.getElementById('bannerFormTitle');
+        const btnLabel = document.getElementById('bannerBtnLabel');
+        const cancel = document.getElementById('bannerCancelar');
+        const editBanner = document.getElementById('bannerEditBanner');
+        if (titulo) titulo.value = b.titulo||'';
+        if (desc) desc.value = b.descricao||'';
+        if (cor) cor.value = b.cor||'amarelo';
+        if (emoji) emoji.value = b.emoji||'🔥';
+        if (ativo) ativo.checked = b.ativo||false;
+        if (formTitle) formTitle.textContent = b.titulo;
+        if (btnLabel) btnLabel.textContent = 'Salvar Alterações';
+        if (cancel) cancel.style.display = 'block';
+        if (editBanner) editBanner.classList.add('vis');
     }
     function cancelarEdicaoBanner() {
         bannerEdicaoId = null;
-        ['banner-titulo','banner-desc','banner-emoji'].forEach(id => document.getElementById(id).value='');
-        document.getElementById('banner-cor').value   = 'amarelo';
-        document.getElementById('banner-ativo').checked = false;
-        document.getElementById('bannerFormTitle').textContent  = 'Novo Banner';
-        document.getElementById('bannerBtnLabel').textContent   = 'Publicar Banner';
-        document.getElementById('bannerCancelar').style.display = 'none';
-        document.getElementById('bannerEditBanner').classList.remove('vis');
+        const ids = ['banner-titulo','banner-desc','banner-emoji'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        const cor = document.getElementById('banner-cor');
+        if (cor) cor.value = 'amarelo';
+        const ativo = document.getElementById('banner-ativo');
+        if (ativo) ativo.checked = false;
+        const formTitle = document.getElementById('bannerFormTitle');
+        if (formTitle) formTitle.textContent = 'Novo Banner';
+        const btnLabel = document.getElementById('bannerBtnLabel');
+        if (btnLabel) btnLabel.textContent = 'Publicar Banner';
+        const cancel = document.getElementById('bannerCancelar');
+        if (cancel) cancel.style.display = 'none';
+        const editBanner = document.getElementById('bannerEditBanner');
+        if (editBanner) editBanner.classList.remove('vis');
     }
     async function salvarBanner() {
-        const key   = document.getElementById('adminKey').value;
-        const titulo = document.getElementById('banner-titulo').value.trim();
+        const key   = document.getElementById('adminKey')?.value || '';
+        const titulo = document.getElementById('banner-titulo')?.value.trim() || '';
         if (!titulo) { feedback("Preencha o título do banner.", false); return; }
         const payload = {
             titulo,
-            descricao: document.getElementById('banner-desc').value.trim(),
-            cor:       document.getElementById('banner-cor').value,
-            emoji:     document.getElementById('banner-emoji').value.trim() || '🔥',
-            ativo:     document.getElementById('banner-ativo').checked,
-            loja:      { id: LOJA_ID_NUM }
+            descricao: document.getElementById('banner-desc')?.value.trim() || '',
+            cor: document.getElementById('banner-cor')?.value,
+            emoji: document.getElementById('banner-emoji')?.value.trim() || '🔥',
+            ativo: document.getElementById('banner-ativo')?.checked || false,
+            loja: { id: LOJA_ID_NUM }
         };
         const url = bannerEdicaoId ? `${API_URL}/banners/${bannerEdicaoId}` : `${API_URL}/banners`;
         try {
@@ -1126,7 +1894,7 @@
         } catch { feedback("Erro de conexão.", false); }
     }
     async function toggleBanner(id) {
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         try {
             const r = await fetch(`${API_URL}/banners/${id}/toggle`, { method: 'PATCH', headers: { 'Admin-Key': key } });
             if (r.ok) { feedback("Banner atualizado!", true); carregarDados(); }
@@ -1136,7 +1904,7 @@
     async function excluirBanner(id) {
         const confirmed = await showConfirm("Remover este banner?");
         if (!confirmed) return;
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         try {
             const r = await fetch(`${API_URL}/banners/${id}`,{method:'DELETE',headers:{'Admin-Key':key}});
             if (r.ok) { feedback("Banner removido!",true); carregarDados(); }
@@ -1146,7 +1914,7 @@
 
     // ===================== PEDIDOS =====================
     async function carregarPedidos() {
-        const key  = document.getElementById('adminKey').value;
+        const key  = document.getElementById('adminKey')?.value || '';
         const rota = filtroPedidos === 'hoje' ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje` : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
         try {
             const r = await fetch(rota, { headers: { 'Admin-Key': key } });
@@ -1181,7 +1949,7 @@
     async function avancarStatus(id, statusAtual) {
         const prox = STATUS_PROX[statusAtual];
         if (!prox || prox === statusAtual) return;
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         try {
             const response = await fetch(`${API_URL}/pedidos/${id}/status`, {
                 method: 'PATCH',
@@ -1200,7 +1968,7 @@
     async function excluirPedido(id) {
         const confirmed = await showConfirm("Remover este pedido do histórico?");
         if (!confirmed) return;
-        const key = document.getElementById('adminKey').value;
+        const key = document.getElementById('adminKey')?.value || '';
         try {
             await fetch(`${API_URL}/pedidos/${id}`, { method:'DELETE', headers:{'Admin-Key':key} });
             carregarPedidos();
@@ -1208,13 +1976,16 @@
     }
     function renderizarPedidos(pedidos) {
         const total = pedidos.reduce((s, p) => s + parseFloat(p.total), 0);
-        document.getElementById('pedidos-qtd').textContent = pedidos.length;
-        document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
+        const qtdEl = document.getElementById('pedidos-qtd');
+        const receitaEl = document.getElementById('pedidos-receita');
+        if (qtdEl) qtdEl.textContent = pedidos.length;
+        if (receitaEl) receitaEl.textContent = `R$ ${total.toFixed(2)}`;
         const novosIds = new Set(pedidos.map(p => p.id));
         const novos = pedidos.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
         ultimosPedidosIds = novosIds;
         if (novos.length > 0) feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
         const lista = document.getElementById('lista-pedidos');
+        if (!lista) return;
         if (!pedidos.length) {
             lista.innerHTML = `<div class="empty-adm" style="padding:40px"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido ${filtroPedidos === 'hoje' ? 'hoje' : 'registrado'}</p></div>`;
             return;
@@ -1265,10 +2036,12 @@
 
     function feedback(msg, ok=true) {
         const el  = document.getElementById('feedback');
-        const ico = el.querySelector('i');
-        document.getElementById('feedbackMsg').textContent = msg;
+        const ico = el?.querySelector('i');
+        const msgEl = document.getElementById('feedbackMsg');
+        if (!el || !msgEl) return;
+        msgEl.textContent = msg;
         el.className = `feedback ${ok?'ok':'err'} show`;
-        ico.className = ok ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation';
+        if (ico) ico.className = ok ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation';
         setTimeout(() => el.classList.remove('show'), 3000);
     }
 
