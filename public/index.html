@@ -19,18 +19,18 @@
         }
 
         :root {
-            --primary: #2A6B3C;          /* Verde musgo escuro - principal */
-            --primary-light: #3D8F40;     /* Verde médio - para destaques */
-            --primary-dark: #1E4A2A;      /* Tom mais escuro */
-            --accent: #4CAF50;            /* Verde vivo para ações */
-            --bg: #FBFBF7;                /* Off-white suave */
+            --primary: #2A6B3C;
+            --primary-light: #3D8F40;
+            --primary-dark: #1E4A2A;
+            --accent: #4CAF50;
+            --bg: #FBFBF7;
             --card-bg: #FFFFFF;
-            --text: #1F2A1F;              /* Quase preto com tom verde */
+            --text: #1F2A1F;
             --text-light: #5A6B5A;
             --border: rgba(0, 0, 0, 0.05);
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 20px 35px -10px rgba(0, 0, 0, 0.1), 0 5px 12px -6px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 8px 20px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.03);
+            --shadow-lg: 0 20px 35px -10px rgba(0,0,0,0.1), 0 5px 12px -6px rgba(0,0,0,0.05);
             --radius: 28px;
             --radius-sm: 20px;
             --transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
@@ -45,7 +45,7 @@
             min-height: 100vh;
         }
 
-        /* ----- HEADER COM GRADIENTE VERDE E TOQUE ELEGANTE ----- */
+        /* ----- HEADER COM GRADIENTE VERDE ----- */
         header {
             background: linear-gradient(135deg, #1F3B2A 0%, #2A5536 100%);
             color: white;
@@ -63,10 +63,7 @@
             background-size: 40px;
             opacity: 0.15;
         }
-        .header-inner {
-            position: relative;
-            z-index: 2;
-        }
+        .header-inner { position: relative; z-index: 2; }
         .header-logo-icon {
             width: 90px;
             height: 90px;
@@ -77,28 +74,25 @@
             align-items: center;
             justify-content: center;
             font-size: 3rem;
-            box-shadow: 0 20px 30px -8px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 20px 30px -8px rgba(0,0,0,0.25);
             transition: transform 0.3s;
-        }
-        .header-logo-icon:hover {
-            transform: scale(1.02);
         }
         h1 {
             font-family: 'Playfair Display', serif;
             font-size: 3.2rem;
             font-weight: 700;
             letter-spacing: -0.5px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .tagline {
             font-size: 0.9rem;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.85);
+            color: rgba(255,255,255,0.85);
             letter-spacing: 1px;
             margin-top: 6px;
         }
 
-        /* STATUS PILL - VERDE SUAVE */
+        /* STATUS PILL */
         #status-loja {
             display: inline-flex;
             align-items: center;
@@ -112,9 +106,9 @@
             backdrop-filter: blur(6px);
         }
         .aberto {
-            background: rgba(76, 175, 80, 0.2);
+            background: rgba(76,175,80,0.2);
             color: #c8e6c9;
-            border: 1px solid rgba(76, 175, 80, 0.4);
+            border: 1px solid rgba(76,175,80,0.4);
         }
         .aberto::before {
             content: '';
@@ -127,20 +121,20 @@
             animation: pulse 1.5s infinite;
         }
         .fechado {
-            background: rgba(244, 67, 54, 0.2);
+            background: rgba(244,67,54,0.2);
             color: #ffcdd2;
-            border: 1px solid rgba(244, 67, 54, 0.4);
+            border: 1px solid rgba(244,67,54,0.4);
         }
         .fechado::before {
             content: '○';
             font-size: 0.8rem;
         }
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.1); }
+            0%,100%{opacity:1;transform:scale(1);}
+            50%{opacity:0.6;transform:scale(1.1);}
         }
 
-        /* BANNERS - TONS DE VERDE */
+        /* BANNERS */
         #banner-container {
             max-width: 1100px;
             margin: 0 auto;
@@ -177,16 +171,16 @@
             .banner-emoji { font-size: 2rem; }
         }
 
-        /* TABS - DESIGN MODERNO COM INDICADORES */
+        /* TABS */
         .tabs-wrapper {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(251, 251, 247, 0.92);
+            background: rgba(251,251,247,0.92);
             backdrop-filter: blur(20px);
             padding: 16px 0;
             margin-top: -20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
         }
         .tabs-container {
             position: relative;
@@ -205,7 +199,7 @@
         .tab-btn {
             padding: 10px 26px;
             border-radius: 60px;
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0,0,0,0.08);
             background: white;
             cursor: pointer;
             font-weight: 700;
@@ -226,7 +220,7 @@
             background: var(--primary);
             color: white;
             border-color: var(--primary);
-            box-shadow: 0 6px 14px rgba(42, 107, 60, 0.25);
+            box-shadow: 0 6px 14px rgba(42,107,60,0.25);
         }
         .scroll-indicator {
             position: absolute;
@@ -264,7 +258,7 @@
             .scroll-right { right: 5px; }
         }
 
-        /* SKELETON - ADAPTADO */
+        /* SKELETON */
         .skeleton-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -311,17 +305,14 @@
             align-items: center;
             gap: 12px;
         }
-        .section-title i {
-            font-size: 1.6rem;
-            color: var(--primary);
-        }
+        .section-title i { font-size: 1.6rem; color: var(--primary); }
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 24px;
         }
 
-        /* CARD - ELEGANTE */
+        /* CARD */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -339,9 +330,7 @@
             box-shadow: var(--shadow-md);
             border-color: var(--primary-light);
         }
-        .card:active {
-            transform: scale(0.98);
-        }
+        .card:active { transform: scale(0.98); }
         .card-img {
             width: 130px;
             height: 100%;
@@ -353,11 +342,7 @@
             flex-shrink: 0;
             position: relative;
         }
-        .card-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; }
         .card-img .img-placeholder {
             width: 100%;
             height: 100%;
@@ -376,7 +361,7 @@
             font-size: 0.65rem;
             font-weight: 800;
             text-transform: uppercase;
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0,0,0,0.55);
             backdrop-filter: blur(2px);
             color: white;
             z-index: 2;
@@ -432,25 +417,21 @@
             font-size: 1.2rem;
             transition: var(--transition);
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(42, 107, 60, 0.25);
+            box-shadow: 0 4px 10px rgba(42,107,60,0.25);
         }
-        .card-add-btn:active {
-            transform: scale(0.9);
-        }
-        .btn-feedback {
-            animation: btnPulse 0.3s ease;
-        }
+        .card-add-btn:active { transform: scale(0.9); }
+        .btn-feedback { animation: btnPulse 0.3s ease; }
         @keyframes btnPulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.15); background: var(--primary-light); }
             100% { transform: scale(1); }
         }
 
-        /* MODAIS - FLUIDOS */
+        /* MODAIS */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(8px);
             z-index: 300;
             display: flex;
@@ -471,13 +452,11 @@
             border-radius: 40px 40px 0 0;
             padding: 28px;
             transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: transform 0.4s cubic-bezier(0.2,0.9,0.4,1.1);
             max-height: 92vh;
             overflow-y: auto;
         }
-        .modal-overlay.open .modal {
-            transform: translateY(0);
-        }
+        .modal-overlay.open .modal { transform: translateY(0); }
         .modal-handle {
             width: 50px;
             height: 5px;
@@ -498,11 +477,9 @@
             transition: 0.2s;
             font-size: 1rem;
         }
-        .btn-close-modal:hover {
-            background: #E0E0E0;
-        }
+        .btn-close-modal:hover { background: #E0E0E0; }
 
-        /* CARRINHO FLUTUANTE - DESTAQUE VERDE */
+        /* CARRINHO FLUTUANTE */
         .cart-bar {
             position: fixed;
             bottom: 24px;
@@ -518,13 +495,11 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.3);
             z-index: 200;
-            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: transform 0.4s cubic-bezier(0.2,0.9,0.4,1.1);
         }
-        .cart-bar.visible {
-            transform: translateX(-50%) translateY(0);
-        }
+        .cart-bar.visible { transform: translateX(-50%) translateY(0); }
         .cart-badge {
             background: var(--accent);
             color: var(--primary-dark);
@@ -532,15 +507,10 @@
             border-radius: 40px;
             font-weight: 800;
         }
-        .cart-bar-label {
-            font-weight: 700;
-        }
-        .cart-bar-total {
-            font-weight: 800;
-            font-size: 1.1rem;
-        }
+        .cart-bar-label { font-weight: 700; }
+        .cart-bar-total { font-weight: 800; font-size: 1.1rem; }
 
-        /* COMPONENTES COMUNS */
+        /* OUTROS COMPONENTES */
         .restored-banner {
             display: none;
             background: #E8F5E9;
@@ -555,6 +525,22 @@
         }
         .restored-banner.show { display: flex; }
 
+        /* OVERLAY DE LOJA FECHADA – CORREÇÃO */
+        #loja-fechada-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        #loja-fechada-overlay.show {
+            display: flex;
+        }
         .fechada-card {
             background: white;
             border-radius: 48px;
@@ -565,8 +551,18 @@
             box-shadow: var(--shadow-lg);
         }
         .fechada-card .icon { font-size: 4rem; margin-bottom: 20px; }
+        .fechada-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+        .fechada-card p {
+            color: var(--text-light);
+            margin-bottom: 16px;
+        }
 
-        /* FORMULÁRIOS - BORDAS VERDES */
+        /* FORMULÁRIOS */
         .custom-input, select, textarea {
             width: 100%;
             padding: 14px 18px;
@@ -580,7 +576,7 @@
         .custom-input:focus, select:focus, textarea:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(42, 107, 60, 0.1);
+            box-shadow: 0 0 0 3px rgba(42,107,60,0.1);
         }
         .btn-confirmar, .btn-whatsapp {
             width: 100%;
@@ -595,15 +591,8 @@
             justify-content: center;
             gap: 10px;
         }
-        .btn-confirmar {
-            background: var(--primary);
-            color: white;
-        }
-        .btn-whatsapp {
-            background: #25D366;
-            color: white;
-            margin-top: 12px;
-        }
+        .btn-confirmar { background: var(--primary); color: white; }
+        .btn-whatsapp { background: #25D366; color: white; margin-top: 12px; }
         .btn-confirmar:hover, .btn-whatsapp:hover {
             transform: translateY(-2px);
             filter: brightness(1.03);
@@ -617,13 +606,13 @@
             color: var(--text-light);
             border-top: 1px solid var(--border);
         }
-
         .help-text {
             font-size: 0.7rem;
             color: var(--text-light);
             margin-top: 5px;
         }
 
+        /* Responsividade */
         @media (max-width: 600px) {
             .grid { grid-template-columns: 1fr; }
             .card { height: 130px; }
@@ -682,7 +671,7 @@
         <span id="cartTotal" class="cart-bar-total">R$ 0,00</span>
     </div>
 
-    <!-- LOJA FECHADA OVERLAY -->
+    <!-- LOJA FECHADA OVERLAY (bloqueia tudo) -->
     <div id="loja-fechada-overlay">
         <div class="fechada-card">
             <div class="icon">🔒</div>
@@ -762,7 +751,7 @@
     </footer>
 
     <script>
-        // ===================== JAVASCRIPT (INTEGRALMENTE MANTIDO) =====================
+        // ===================== JAVASCRIPT (integralmente mantido, apenas com garantia do overlay) =====================
         const API_URL   = "https://nd-lanches-api.onrender.com/api";
         const LOJA_SLUG = "nd-lanches";
         const LOJA_ID   = 1;
@@ -884,6 +873,14 @@
                 document.getElementById('msg-fechado').textContent = lojaInfo.mensagemFechado;
             }
             document.getElementById('loja-fechada-overlay').classList.add('show');
+            // Impede scroll da página enquanto o overlay está ativo
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Função para remover overlay (caso precise em algum futuro)
+        function esconderOverlayFechado() {
+            document.getElementById('loja-fechada-overlay').classList.remove('show');
+            document.body.style.overflow = '';
         }
 
         function renderizarBanners(banners) {
