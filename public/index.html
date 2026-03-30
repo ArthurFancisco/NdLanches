@@ -380,19 +380,85 @@
             font-size: 1rem;
         }
 
-        /* QUANTIDADE CONTROLS */
+        /* CUSTOMIZAÇÃO */
+        .cm-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+        .cm-emoji-box {
+            width: 72px; height: 72px;
+            background: var(--sage);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+        .cm-header h3 { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 700; color: var(--text); }
+        .preco-base { font-size: 0.85rem; color: var(--emerald); font-weight: 600; margin-top: 4px; }
+
+        .section-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-mid);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .chip {
+            padding: 8px 16px;
+            background: var(--sage);
+            border-radius: 40px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--emerald-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chip.removed {
+            background: #FFE8E5;
+            color: #B03020;
+            text-decoration: line-through;
+        }
+
+        .adic-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(0,0,0,0.08);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .adic-row.adic-sel {
+            border-color: var(--emerald);
+            background: var(--sage);
+        }
+        .adic-nome { font-weight: 600; font-size: 0.9rem; }
+        .adic-price { font-weight: 700; font-size: 0.85rem; color: var(--emerald); }
+
+        /* CONTROLE DE QUANTIDADE */
         .quantidade-control {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin: 16px 0;
+            justify-content: space-between;
             background: #F5F5F5;
-            padding: 8px 16px;
+            padding: 12px 20px;
             border-radius: 60px;
-            width: fit-content;
+            margin: 20px 0;
         }
+        .quantidade-control-left { display: flex; align-items: center; gap: 16px; }
         .qty-btn {
-            width: 40px; height: 40px;
+            width: 44px; height: 44px;
             border-radius: 30px;
             border: none;
             background: white;
@@ -400,14 +466,24 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: all 0.1s ease;
         }
-        .qty-btn:active { transform: scale(0.9); }
-        .qty-value {
-            font-size: 1.2rem;
+        .qty-value { font-size: 1.2rem; font-weight: 700; min-width: 40px; text-align: center; }
+        .quantidade-label { font-weight: 600; color: var(--text-mid); }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin: 8px 0 18px;
+            border-top: 1.5px solid rgba(0,0,0,0.08);
             font-weight: 700;
-            min-width: 40px;
-            text-align: center;
+        }
+        .total-row .valor {
+            font-family: 'Fraunces', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--emerald);
         }
 
         /* FORMULÁRIOS */
@@ -456,9 +532,8 @@
             color: var(--text-muted);
             cursor: pointer;
             margin-top: 12px;
-            min-height: 48px;
         }
-        .btn-limpar:hover { background: #FFF0EE; color: var(--danger); border-color: rgba(217,79,61,0.2); }
+        .btn-limpar:hover { background: #FFF0EE; color: var(--danger); }
 
         /* DELIVERY SELECTOR */
         .delivery-selector {
@@ -499,16 +574,12 @@
             border-bottom: 1px solid rgba(0,0,0,0.055);
         }
         .cart-item-info { flex: 1; }
-        .cart-item-info h4 { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+        .cart-item-info h4 { font-weight: 700; font-size: 0.95rem; }
         .cart-item-info p { font-size: 0.76rem; color: var(--text-muted); margin-top: 4px; }
         .cart-item-detail { display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
-        .cart-item-qty-price { font-size: 0.82rem; font-weight: 600; color: var(--text-mid); background: var(--sage-light); padding: 3px 10px; border-radius: 40px; }
+        .cart-item-qty-price { font-size: 0.82rem; font-weight: 600; background: var(--sage); padding: 3px 10px; border-radius: 40px; }
         .cart-item-unit-price { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: var(--emerald); }
-        .cart-item-actions {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
+        .cart-item-actions { display: flex; gap: 6px; align-items: center; }
         .qty-item-btn {
             width: 32px; height: 32px;
             border-radius: 20px;
@@ -524,9 +595,6 @@
             width: 40px; height: 40px;
             border-radius: 12px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .restored-banner {
@@ -621,11 +689,12 @@
         </div>
     </div>
 
-    <!-- MODAL CUSTOMIZAÇÃO COM QUANTIDADE -->
+    <!-- MODAL CUSTOMIZAÇÃO -->
     <div class="modal-overlay" id="customOverlay" onclick="fecharModalFora(event,'customOverlay')">
         <div class="modal">
             <button class="btn-close-modal" onclick="fecharModal('customOverlay')"><i class="fa fa-times"></i></button>
             <div class="modal-handle"></div>
+            
             <div class="cm-header">
                 <div class="cm-emoji-box" id="cm-emoji">🍔</div>
                 <div>
@@ -633,52 +702,88 @@
                     <div id="cm-preco-base" class="preco-base">A partir de R$ 0,00</div>
                 </div>
             </div>
+
             <div id="section-ingredientes" style="margin-bottom:24px; display:none;">
                 <label class="section-label">Retirar ingredientes?</label>
                 <div id="chips-ingredientes" class="chips-wrap"></div>
-                <span class="help-text">↳ Clique nos itens para removê-los</span>
+                <span style="font-size:0.7rem; color:var(--text-muted);">↳ Clique nos itens para removê-los</span>
             </div>
+
             <div style="margin-bottom:24px;">
                 <label class="section-label">Turbine seu pedido</label>
                 <div id="adicionais-grid"></div>
             </div>
+
             <div class="input-group">
                 <label class="section-label">Observação</label>
                 <textarea id="obs-texto" class="custom-input" rows="2" maxlength="140" placeholder="Ex: carne bem passada..."></textarea>
             </div>
+
             <!-- CONTROLE DE QUANTIDADE -->
             <div class="quantidade-control">
-                <button type="button" class="qty-btn" id="decrementQty">-</button>
-                <span class="qty-value" id="itemQty">1</span>
-                <button type="button" class="qty-btn" id="incrementQty">+</button>
-                <span style="margin-left: 10px; font-weight: 500;">unidade(s)</span>
+                <div class="quantidade-control-left">
+                    <button type="button" class="qty-btn" id="decrementQty">−</button>
+                    <span class="qty-value" id="itemQty">1</span>
+                    <button type="button" class="qty-btn" id="incrementQty">+</button>
+                    <span class="quantidade-label">unidade(s)</span>
+                </div>
             </div>
-            <div class="total-row"><span>Total do Item</span><span id="cm-total" class="valor">R$ 0,00</span></div>
-            <button class="btn-confirmar" id="confirmarBtn"><i class="fa fa-plus"></i> Adicionar ao Pedido</button>
+
+            <div class="total-row">
+                <span>Total do Item</span>
+                <span id="cm-total" class="valor">R$ 0,00</span>
+            </div>
+
+            <button class="btn-confirmar" id="confirmarBtn">
+                <i class="fa fa-plus"></i> Adicionar ao Pedido
+            </button>
         </div>
     </div>
 
-    <!-- MODAL CARRINHO COM AJUSTE DE QUANTIDADE POR ITEM -->
+    <!-- MODAL CARRINHO -->
     <div class="modal-overlay" id="cartOverlay" onclick="fecharModalFora(event,'cartOverlay')">
         <div class="modal">
             <button class="btn-close-modal" onclick="fecharModal('cartOverlay')"><i class="fa fa-times"></i></button>
             <div class="modal-handle"></div>
-            <h2 style="font-family:'Fraunces',serif;">🛒 Seu Pedido</h2>
+            <h2 style="font-family:'Fraunces',serif; margin-bottom:20px;">🛒 Seu Pedido</h2>
             <div id="cartItemsList" style="margin-bottom:22px; max-height:280px; overflow-y:auto;"></div>
-            <div class="input-group"><label class="section-label">Como te chamamos?</label><input type="text" id="nomeCliente" class="custom-input" placeholder="Seu nome completo"></div>
+            
+            <div class="input-group">
+                <label class="section-label">Como te chamamos?</label>
+                <input type="text" id="nomeCliente" class="custom-input" placeholder="Seu nome completo">
+            </div>
+
             <label class="section-label">Como deseja receber?</label>
             <div class="delivery-selector">
                 <button type="button" id="btnEntrega" class="delivery-option" onclick="setTipoPedido('ENTREGA')">🏍️ Entrega</button>
                 <button type="button" id="btnRetirada" class="delivery-option active" onclick="setTipoPedido('RETIRADA')">🏠 Retirada</button>
             </div>
+
             <div id="camposEndereco">
                 <input type="text" id="ruaNum" class="custom-input" placeholder="Rua e Número">
                 <input type="text" id="bairro" class="custom-input" placeholder="Bairro">
                 <input type="text" id="referencia" class="custom-input" placeholder="Ponto de referência">
             </div>
-            <div class="input-group"><label class="section-label">Forma de Pagamento</label><select id="pagamento" class="custom-input" onchange="checkTroco(this.value)"><option value="PIX">📱 PIX</option><option value="CARTAO">💳 Cartão</option><option value="DINHEIRO">💵 Dinheiro</option></select></div>
-            <div id="campoTroco" style="display:none;"><label class="section-label">Troco para quanto?</label><input type="number" id="valorTroco" class="custom-input" placeholder="Ex: 50"></div>
-            <div class="total-pedido-row"><span>Total a Pagar</span><span id="cartTotal2">R$ 0,00</span></div>
+
+            <div class="input-group">
+                <label class="section-label">Forma de Pagamento</label>
+                <select id="pagamento" class="custom-input" onchange="checkTroco(this.value)">
+                    <option value="PIX">📱 PIX</option>
+                    <option value="CARTAO">💳 Cartão</option>
+                    <option value="DINHEIRO">💵 Dinheiro</option>
+                </select>
+            </div>
+
+            <div id="campoTroco" style="display:none;">
+                <label class="section-label">Troco para quanto?</label>
+                <input type="number" id="valorTroco" class="custom-input" placeholder="Ex: 50">
+            </div>
+
+            <div class="total-pedido-row" style="display:flex; justify-content:space-between; padding:18px 0; border-top:2px solid rgba(0,0,0,0.07); margin-bottom:20px;">
+                <span>Total a Pagar</span>
+                <span id="cartTotal2" style="font-family:'Fraunces',serif; font-size:1.4rem; font-weight:700; color:var(--emerald);">R$ 0,00</span>
+            </div>
+
             <button class="btn-whatsapp" onclick="enviarWhatsApp()"><i class="fa-brands fa-whatsapp"></i> ENVIAR PEDIDO</button>
             <button class="btn-limpar" onclick="limparCarrinho()">Esvaziar Carrinho</button>
         </div>
@@ -689,7 +794,7 @@
 
     <script>
         // ============================================================
-        // CARDÁPIO DIGITAL - VERSÃO COMPLETA COM QUANTIDADE
+        // CARDÁPIO DIGITAL - VERSÃO COMPLETA
         // ============================================================
         const API_URL = "https://nd-lanches-api.onrender.com/api";
         const LOJA_SLUG = "nd-lanches";
@@ -701,14 +806,12 @@
         let prodAtual = null, ingrsAtivos = {}, adicQtd = {}, precoUnitarioBase = 0;
         let tipoPedidoSelecionado = 'RETIRADA';
         let lojaInfo = {};
-        let currentQty = 1; // quantidade no modal de customização
+        let currentQty = 1;
 
-        // Elementos DOM
         const customOverlay = document.getElementById('customOverlay');
         const cartOverlay = document.getElementById('cartOverlay');
         const tabsContainer = document.getElementById('tabsContainer');
 
-        // Scroll tabs
         function scrollTabs(direction) { tabsContainer.scrollBy({ left: direction * 200, behavior: 'smooth' }); }
         function updateScrollIndicators() {
             const left = document.getElementById('scrollLeft'), right = document.getElementById('scrollRight');
@@ -718,7 +821,6 @@
             if(right) right.classList.toggle('show', sl < max - 10);
         }
 
-        // Carregamento inicial
         async function carregarCardapio() {
             mostrarSkeletons();
             const cartRestored = restaurarCarrinho();
@@ -808,7 +910,6 @@
             sections.forEach(s=>observer.observe(s));
         }
 
-        // Modal customização com quantidade
         function abrirCustom(id) {
             if(!lojaAberta) return;
             prodAtual = todosProdutos.find(p=>p.id===id);
@@ -828,7 +929,7 @@
                 document.getElementById('chips-ingredientes').innerHTML = ingrs.map((item,idx)=>{ ingrsAtivos[idx]=true; return `<div class="chip" id="chip-${idx}" onclick="toggleIngr(${idx})">${item}</div>`; }).join('');
             } else secIng.style.display = 'none';
             const secAdic = document.getElementById('adicionais-grid');
-            secAdic.innerHTML = todosAdicionais.length ? todosAdicionais.map(a=>`<div class="adic-row" id="adic-${a.id}" onclick="toggleAdic(${a.id}, ${a.preco})"><span class="adic-nome">${a.emoji||'➕'} ${a.nome}</span><span class="adic-price">+ R$ ${a.preco.toFixed(2).replace('.',',')}</span></div>`).join('') : '<p>Nenhum adicional disponível.</p>';
+            secAdic.innerHTML = todosAdicionais.length ? todosAdicionais.map(a=>`<div class="adic-row" id="adic-${a.id}" onclick="toggleAdic(${a.id})"><span class="adic-nome">${a.emoji||'➕'} ${a.nome}</span><span class="adic-price">+ R$ ${a.preco.toFixed(2).replace('.',',')}</span></div>`).join('') : '<p>Nenhum adicional disponível.</p>';
             atualizarTotalModal();
             customOverlay.classList.add('open');
         }
@@ -841,7 +942,7 @@
             const total = precoItem * currentQty;
             document.getElementById('cm-total').textContent = `R$ ${total.toFixed(2).replace('.',',')}`;
         }
-        // eventos quantidade
+
         document.getElementById('decrementQty')?.addEventListener('click',()=>{ if(currentQty>1){ currentQty--; document.getElementById('itemQty').textContent = currentQty; atualizarTotalModal(); } });
         document.getElementById('incrementQty')?.addEventListener('click',()=>{ currentQty++; document.getElementById('itemQty').textContent = currentQty; atualizarTotalModal(); });
         document.getElementById('confirmarBtn')?.addEventListener('click', ()=>{
@@ -862,7 +963,6 @@
             mostrarToast('✅ Adicionado ao pedido!');
         });
 
-        // Carrinho com ajuste de quantidade por item
         function abrirModalCarrinho() { renderizarListaCarrinho(); cartOverlay.classList.add('open'); }
         function renderizarListaCarrinho() {
             const list = document.getElementById('cartItemsList');
@@ -912,7 +1012,6 @@
             document.getElementById('cartBar').classList.toggle('visible', qtd>0 && lojaAberta);
         }
 
-        // Outras funções auxiliares
         function setTipoPedido(tipo) {
             tipoPedidoSelecionado = tipo;
             document.getElementById('btnEntrega').classList.toggle('active', tipo==='ENTREGA');
