@@ -1992,7 +1992,7 @@ function showSkeletons() {
                 </div>`).join('')}
         </div>`;
 }
-const CAT_META = { LANCHE:{emoji:'🍔',label:'Lanches'}, BEBIDA:{emoji:'🥤',label:'Bebidas'}, PASTEL:{emoji:'🥟',label:'Pastéis'}, SOBREMESA:{emoji:'🍦',label:'Sobremesas'} };
+const CAT_META = { LANCHE:{emoji:'🍔',label:'Lanches'}, BEBIDA:{emoji:'🥤',label:'Bebidas'}, PASTEL:{emoji:'🥟',label:'Pastéis'}};
 
 function renderProducts(list, filter = 'TODOS') {
     const active = list.filter(p => p.ativo !== false);
@@ -2179,7 +2179,7 @@ document.getElementById('confirmOrderBtn').onclick = async () => {
     const sub = getCartTotal(); const fee = tipo === 'ENTREGA' ? DELIVERY_FEE : 0; const total = sub + fee;
     let itensMsg = '';
     cart.forEach(item => { const extS = (item.extras||[]).reduce((a,e)=>a+e.preco,0); const iTotal = (item.price + extS) * item.quantity; itensMsg += `▪️ ${item.quantity}x ${item.name} — ${fmt(iTotal)}\n`; if (item.removals?.length) itensMsg += `   ❌ Sem: ${item.removals.join(', ')}\n`; if (item.extras?.length) itensMsg += `   ➕ Extra: ${item.extras.map(e=>e.nome).join(', ')}\n`; if (item.observation) itensMsg += `   📝 ${item.observation}\n`; });
-    const msg = [`*🍔 NOVO PEDIDO — ND LANCHES*`,'',`*Cliente:* ${nome}${phone ? ` | ${phone}` : ''}`,`*Entrega:* ${tipo === 'ENTREGA' ? 'Delivery' : 'Retirada no local'}`,endereco,'','━━━━━━━━━━━━━━━━━━','*ITENS:*',itensMsg.trim(),'━━━━━━━━━━━━━━━━━━',fee ? `Subtotal: ${fmt(sub)}\nTaxa de entrega: ${fmt(fee)}` : '',`*TOTAL: ${fmt(total)}*`,'',`*Pagamento:* ${paymentMethod}${trocoInfo}`].filter(l=>l).join('\n');
+    const msg = [`*NOVO PEDIDO — ND LANCHES*`,'',`*Cliente:* ${nome}${phone ? ` | ${phone}` : ''}`,`*Entrega:* ${tipo === 'ENTREGA' ? 'Delivery' : 'Retirada no local'}`,endereco,'','━━━━━━━━━━━━━━━━━━','*ITENS:*',itensMsg.trim(),'━━━━━━━━━━━━━━━━━━',fee ? `Subtotal: ${fmt(sub)}\nTaxa de entrega: ${fmt(fee)}` : '',`*TOTAL: ${fmt(total)}*`,'',`*Pagamento:* ${paymentMethod}${trocoInfo}`].filter(l=>l).join('\n');
     saveUserData(); localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(cart));
     const btn = document.getElementById('confirmOrderBtn'); const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Enviando...'; btn.disabled = true;
     try { await apiFetch('/pedidos', { method: 'POST', body: JSON.stringify({ nomeCliente: nome, total, status: 'RECEBIDO', itensJson: JSON.stringify(cart), observacao: `${tipo} | ${paymentMethod}`, loja: { id: LOJA_ID } }) }); } catch(e) { /* silent */ }

@@ -359,7 +359,7 @@
         const lista = document.getElementById('lista-produtos-admin');
         if (!lista) return;
         if (!filtrados.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto</p></div>'; return; }
-        const cats = { LANCHE:'🍔 Lanches', BEBIDA:'🥤 Bebidas', PORCAO:'🍟 Porções', SOBREMESA:'🍦 Sobremesas' };
+        const cats = { LANCHE:'🍔 Lanches', BEBIDA:'🥤 Bebidas', PORCAO:'🥟 Pastel'};
         const grupos = {};
         filtrados.forEach(p => { (grupos[p.categoria||'OUTROS'] ??= []).push(p); });
         lista.innerHTML = Object.entries(grupos).map(([cat, itens]) => `<div class="sec-div"><span>${cats[cat]||cat}</span></div>` + itens.map(p => `
