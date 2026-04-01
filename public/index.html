@@ -192,13 +192,6 @@
             font-style: italic;
         }
 
-        .header-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 12px;
-        }
-
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -210,6 +203,7 @@
             font-family: 'Poppins', sans-serif;
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255,255,255,0.2);
+            margin-top: 12px;
         }
 
         .status-pill.open {
@@ -234,33 +228,6 @@
         @keyframes blink {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.4; transform: scale(0.8); }
-        }
-
-        .header-stats {
-            display: flex;
-            gap: 20px;
-        }
-
-        .stat-chip {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.15);
-            backdrop-filter: blur(4px);
-            border-radius: var(--r-sm);
-            padding: 6px 12px;
-            text-align: center;
-        }
-
-        .stat-chip .val {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--gold);
-        }
-
-        .stat-chip .lbl {
-            font-size: 0.65rem;
-            color: rgba(255,255,255,0.6);
-            display: block;
         }
 
         /* ========== TABS ========== */
@@ -1676,10 +1643,10 @@
             .app { padding: 12px 12px 80px; }
             header { padding: 24px 20px 28px; border-radius: var(--r-xl); }
             .header-title-block h1 { font-size: 1.7rem; }
-            .header-stats { display: none; }
             .extras-grid { grid-template-columns: 1fr; }
             .modal-footer { flex-direction: column; }
             .modal-footer .btn-add-cart { width: 100%; justify-content: center; }
+            .delivery-cards { flex-direction: column; grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -1702,18 +1669,6 @@
                 <div id="statusIndicator" class="status-pill open">
                     <span class="status-dot"></span>
                     <span id="statusText">Verificando...</span>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="header-stats">
-                    <div class="stat-chip">
-                        <span class="val">⭐ 4.9</span>
-                        <span class="lbl">Avaliação</span>
-                    </div>
-                    <div class="stat-chip">
-                        <span class="val">~30min</span>
-                        <span class="lbl">Entrega</span>
-                    </div>
                 </div>
             </div>
         </div>
