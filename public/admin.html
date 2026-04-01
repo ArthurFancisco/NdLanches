@@ -188,7 +188,7 @@
     // ================================================================
     // ADMIN: CRUD completo + upload + pedidos (corrigido)
     // ================================================================
-  const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
+    const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
     const LOJA_SLUG = "nd-lanches";
     const LOJA_ID_NUM = 1;
     const REFRESH_INTERVAL = 30;
@@ -203,6 +203,18 @@
 
     const STATUS_PROX = { RECEBIDO:'PREPARO', PREPARO:'PRONTO', PRONTO:'ENTREGUE', ENTREGUE:'ENTREGUE', CANCELADO:'CANCELADO' };
     const STATUS_LABEL = { RECEBIDO:'📥 Recebido', PREPARO:'🔥 Em preparo', PRONTO:'✅ Pronto', ENTREGUE:'🏍️ Entregue', CANCELADO:'❌ Cancelado' };
+
+    // ========== FUNÇÃO PARA ADICIONAR HEADER NGROK ==========
+    async function fetchWithNgrok(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                'ngrok-skip-browser-warning': 'any-value'
+            }
+        });
+        return response;
+    }
 
     // ========== CONFIRMAÇÃO ==========
     let confirmResolve = null;
@@ -269,7 +281,7 @@
         const formData = new FormData();
         formData.append('file', file);
         const key = document.getElementById('adminKey')?.value || '';
-        const res = await fetch(`${API_URL}/upload/imagem`, { method: 'POST', headers: { 'Admin-Key': key }, body: formData });
+        const res = await fetchWithNgrok(`${API_URL}/upload/imagem`, { method: 'POST', headers: { 'Admin-Key': key }, body: formData });
         if (!res.ok) throw new Error('Upload falhou');
         const data = await res.json();
         return data.url;
@@ -278,21 +290,21 @@
     // ========== CARREGAR DADOS ==========
     async function carregarDados() {
         try {
-            const rS = await fetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
+            const rS = await fetchWithNgrok(`${API_URL}/loja/${LOJA_SLUG}/status`);
             if (rS.ok) { lojaAberta = await rS.json(); atualizarBotaoStatus(); }
-            const rLoja = await fetch(`${API_URL}/loja/${LOJA_SLUG}`);
+            const rLoja = await fetchWithNgrok(`${API_URL}/loja/${LOJA_SLUG}`);
             if (rLoja.ok) {
                 const loja = await rLoja.json();
                 if (document.getElementById('lojaWhatsapp')) document.getElementById('lojaWhatsapp').value = loja.whatsapp || '';
                 if (document.getElementById('lojaMensagemFechado')) document.getElementById('lojaMensagemFechado').value = loja.mensagemFechado || '';
                 if (document.getElementById('horarioFuncionamento')) document.getElementById('horarioFuncionamento').value = loja.horarioFuncionamento || '';
             }
-            const rP = await fetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
+            const rP = await fetchWithNgrok(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
             if (rP.ok) { todosProdutos = await rP.json(); renderizarProdutos(todosProdutos); }
-            const rA = await fetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
+            const rA = await fetchWithNgrok(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
             if (rA.ok) renderizarAdics(await rA.json());
             const key = document.getElementById('adminKey')?.value || '';
-            const rBan = await fetch(`${API_URL}/banners/loja/${LOJA_ID_NUM}`, { headers: { 'Admin-Key': key } });
+            const rBan = await fetchWithNgrok(`${API_URL}/banners/loja/${LOJA_ID_NUM}`, { headers: { 'Admin-Key': key } });
             if (rBan.ok) renderizarBanners(await rBan.json());
             await carregarPedidos();
             iniciarAutoRefresh();
@@ -306,7 +318,7 @@
         const horarioFuncionamento = document.getElementById('horarioFuncionamento')?.value.trim() || '';
         const payload = { whatsapp, mensagemFechado, horarioFuncionamento };
         try {
-            const res = await fetch(`${API_URL}/loja/${LOJA_SLUG}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
+            const res = await fetchWithNgrok(`${API_URL}/loja/${LOJA_SLUG}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
             if (res.ok) feedback("Configurações salvas!", true);
             else feedback("Erro ao salvar", false);
         } catch(e) { feedback("Erro de conexão", false); }
@@ -329,7 +341,7 @@
         const key = document.getElementById('adminKey')?.value || '';
         const nova = !lojaAberta;
         try {
-            const r = await fetch(`${API_URL}/loja/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(nova) });
+            const r = await fetchWithNgrok(`${API_URL}/loja/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(nova) });
             if (r.ok) { lojaAberta = nova; atualizarBotaoStatus(); feedback(`Loja ${nova ? 'aberta' : 'fechada'}!`, true); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -377,7 +389,7 @@
         if (!produto) return;
         const payload = { ...produto, ativo };
         try {
-            const r = await fetch(`${API_URL}/produtos/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
+            const r = await fetchWithNgrok(`${API_URL}/produtos/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
             if (r.ok) { feedback(ativo ? 'Ativado' : 'Desativado', true); carregarDados(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -389,7 +401,7 @@
         delete copia.id;
         const key = document.getElementById('adminKey')?.value || '';
         try {
-            const r = await fetch(`${API_URL}/produtos`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(copia) });
+            const r = await fetchWithNgrok(`${API_URL}/produtos`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(copia) });
             if (r.ok) { feedback("Duplicado!", true); carregarDados(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -457,7 +469,7 @@
         const btn = document.getElementById('btnSalvar');
         if(btn) btn.disabled = true;
         try {
-            const r = await fetch(url, { method: idEdicao ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(produto) });
+            const r = await fetchWithNgrok(url, { method: idEdicao ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(produto) });
             if (r.ok) { feedback(idEdicao ? 'Atualizado!' : 'Cadastrado!', true); cancelarEdicao(); carregarDados(); }
             else { feedback("Erro ao salvar", false); }
         } catch(e) { feedback("Erro: "+e.message, false); }
@@ -467,7 +479,7 @@
         if (!(await showConfirm("Excluir este produto?"))) return;
         const key = document.getElementById('adminKey')?.value || '';
         try {
-            const r = await fetch(`${API_URL}/produtos/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
+            const r = await fetchWithNgrok(`${API_URL}/produtos/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
             if (r.ok) { feedback("Removido", true); carregarDados(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -504,7 +516,7 @@
                 const key = document.getElementById('adminKey')?.value || '';
                 for (const u of updates) {
                     const prod = novos.find(p => p.id === u.id);
-                    await fetch(`${API_URL}/produtos/${u.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify({ ...prod, ordem: u.ordem }) });
+                    await fetchWithNgrok(`${API_URL}/produtos/${u.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify({ ...prod, ordem: u.ordem }) });
                 }
                 feedback("Ordem atualizada", true);
                 carregarDados();
@@ -535,7 +547,7 @@
         const payload = { nome, preco: prec, emoji: document.getElementById('adic-emoji')?.value.trim() || '➕', ativo: true, loja: { id: LOJA_ID_NUM } };
         const url = adicEdicaoId ? `${API_URL}/adicionais/${adicEdicaoId}` : `${API_URL}/adicionais`;
         try {
-            const r = await fetch(url, { method: adicEdicaoId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
+            const r = await fetchWithNgrok(url, { method: adicEdicaoId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
             if(r.ok) { feedback(adicEdicaoId ? 'Atualizado' : 'Cadastrado', true); cancelarEdicaoAdic(); carregarDados(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -544,7 +556,7 @@
         if(!(await showConfirm("Excluir adicional?"))) return;
         const key = document.getElementById('adminKey')?.value || '';
         try {
-            const r = await fetch(`${API_URL}/adicionais/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
+            const r = await fetchWithNgrok(`${API_URL}/adicionais/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
             if(r.ok) { feedback("Removido", true); carregarDados(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -573,7 +585,7 @@
         const payload = { titulo, descricao: document.getElementById('banner-desc')?.value.trim() || '', cor: document.getElementById('banner-cor')?.value, emoji: document.getElementById('banner-emoji')?.value.trim() || '🔥', ativo: document.getElementById('banner-ativo')?.checked || false, loja: { id: LOJA_ID_NUM } };
         const url = bannerEdicaoId ? `${API_URL}/banners/${bannerEdicaoId}` : `${API_URL}/banners`;
         try {
-            const r = await fetch(url, { method: bannerEdicaoId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
+            const r = await fetchWithNgrok(url, { method: bannerEdicaoId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
             if(r.ok) { feedback(bannerEdicaoId ? 'Atualizado' : 'Publicado', true); cancelarEdicaoBanner(); carregarDados(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -581,7 +593,7 @@
     async function toggleBanner(id) {
         const key = document.getElementById('adminKey')?.value || '';
         try {
-            const r = await fetch(`${API_URL}/banners/${id}/toggle`, { method: 'PATCH', headers: { 'Admin-Key': key } });
+            const r = await fetchWithNgrok(`${API_URL}/banners/${id}/toggle`, { method: 'PATCH', headers: { 'Admin-Key': key } });
             if(r.ok) { feedback("Banner atualizado", true); carregarDados(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -590,7 +602,7 @@
         if(!(await showConfirm("Excluir banner?"))) return;
         const key = document.getElementById('adminKey')?.value || '';
         try {
-            const r = await fetch(`${API_URL}/banners/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
+            const r = await fetchWithNgrok(`${API_URL}/banners/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
             if(r.ok) { feedback("Removido", true); carregarDados(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -601,7 +613,7 @@
         const key = document.getElementById('adminKey')?.value || '';
         const rota = filtroPedidos === 'hoje' ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje` : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
         try {
-            const r = await fetch(rota, { headers: { 'Admin-Key': key } });
+            const r = await fetchWithNgrok(rota, { headers: { 'Admin-Key': key } });
             if (r.ok) renderizarPedidos(await r.json());
             else renderizarPedidos([]);
         } catch(e) { console.error(e); }
@@ -632,7 +644,7 @@
         if (!prox || prox === statusAtual) return;
         const key = document.getElementById('adminKey')?.value || '';
         try {
-            const res = await fetch(`${API_URL}/pedidos/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify({ status: prox }) });
+            const res = await fetchWithNgrok(`${API_URL}/pedidos/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify({ status: prox }) });
             if(res.ok) { feedback(`Pedido #${id} → ${prox}`, true); carregarPedidos(); }
             else feedback("Erro", false);
         } catch(e) { feedback("Erro", false); }
@@ -641,7 +653,7 @@
         if(!(await showConfirm("Remover pedido?"))) return;
         const key = document.getElementById('adminKey')?.value || '';
         try {
-            await fetch(`${API_URL}/pedidos/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
+            await fetchWithNgrok(`${API_URL}/pedidos/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
             carregarPedidos();
         } catch(e) { feedback("Erro", false); }
     }
