@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
@@ -1834,6 +1833,8 @@
                         <button class="tab-btn" data-cat="LANCHE"><span class="tab-emoji">🍔</span> Lanches</button>
                         <button class="tab-btn" data-cat="BEBIDA"><span class="tab-emoji">🥤</span> Bebidas</button>
                         <button class="tab-btn" data-cat="PASTEL"><span class="tab-emoji">🥟</span> Pastéis</button>
+                        <button class="tab-btn" data-cat="BATATA"><span class="tab-emoji">🍟</span> Batatas fritas</button>
+                        <button class="tab-btn" data-cat="PIZZA"><span class="tab-emoji">🍕</span> Pizzas</button>
                     </div>
                 </div>
                 <div id="productsContainer"></div>
@@ -2244,7 +2245,7 @@
                 </div>`).join('')}
         </div>`;
         }
-        const CAT_META = { LANCHE: { emoji: '🍔', label: 'Lanches' }, BEBIDA: { emoji: '🥤', label: 'Bebidas' }, PASTEL: { emoji: '🥟', label: 'Pastéis' } };
+        const CAT_META = { LANCHE: { emoji: '🍔', label: 'Lanches' }, BEBIDA: { emoji: '🥤', label: 'Bebidas' }, PASTEL: { emoji: '🥟', label: 'Pastéis' }, BATATA: { emoji: '🍟', label: 'Batatas fritas' }, PIZZA: { emoji: '🍕', label: 'Pizzas' } };
 
         function renderProducts(list, filter = 'TODOS') {
             const active = list.filter(p => p.ativo !== false);

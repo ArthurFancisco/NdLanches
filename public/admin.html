@@ -1039,6 +1039,8 @@
                             <option value="LANCHE">🍔 Lanche</option>
                             <option value="BEBIDA">🥤 Bebida</option>
                             <option value="PASTEL">🥟 Pastel</option>
+                            <option value="BATATA">🍟 Batata</option>
+                            <option value="PIZZA">🍕 Pizzas</option>
                         </select></div>
                 </div>
                 <div class="form-row">
@@ -1152,6 +1154,8 @@
                         <option value="LANCHE">🍔 Lanches</option>
                         <option value="BEBIDA">🥤 Bebidas</option>
                         <option value="PORCAO">🥟 Pastel</option>
+                        <option value="BATATA">🍟 Batata</option>
+                        <option value="PIZZA">🍕 Pizzas</option>
                     </select><input type="text" id="buscaProduto" placeholder="🔍 Buscar..."
                         onkeyup="filtrarProdutosAdmin()"></div>
                 <div id="lista-produtos-admin">
@@ -1268,7 +1272,7 @@
         document.getElementById('nome')?.addEventListener('input', updatePreview);
         document.getElementById('preco')?.addEventListener('input', updatePreview);
         document.getElementById('emoji')?.addEventListener('input', updatePreview);
-        const emojiPorCategoria = { LANCHE: '🍔', BEBIDA: '🥤', PASTEL: '🥟' };
+        const emojiPorCategoria = { LANCHE: '🍔', BEBIDA: '🥤', PASTEL: '🥟', BATATA: '🍟', PIZZA: '🍕' };
         function autoEmojiPorCategoria() {
             const cat = document.getElementById('categoria')?.value;
             const emojiInput = document.getElementById('emoji');
@@ -1378,7 +1382,7 @@
             const lista = document.getElementById('lista-produtos-admin');
             if (!lista) return;
             if (!filtrados.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto</p></div>'; return; }
-            const cats = { LANCHE: '🍔 Lanches', BEBIDA: '🥤 Bebidas', PASTEL: '🥟 Pastel' };
+            const cats = { LANCHE: '🍔 Lanches', BEBIDA: '🥤 Bebidas', PASTEL: '🥟 Pastel', BATATA: '🍟 Batata', PIZZA: '🍕 Pizzas' };
             const grupos = {};
             filtrados.forEach(p => { (grupos[p.categoria || 'OUTROS'] ??= []).push(p); });
             lista.innerHTML = Object.entries(grupos).map(([cat, itens]) => `<div class="sec-div"><span>${cats[cat] || cat}</span></div>` + itens.map(p => `
