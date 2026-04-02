@@ -1111,8 +1111,6 @@
                 <div class="topbar-icon">🍔</div>
                 <div class="topbar-title">ND <span>ADMIN</span></div>
             </div>
-            <div class="key-wrap"><i class="fa-solid fa-key"></i><input type="password" id="adminKey"
-                    placeholder="Chave admin" value="arthur123"></div>
         </div>
 
         <div class="dashboard">
@@ -1330,223 +1328,252 @@
     </div>
     <div class="feedback" id="feedback"><i class="fa-solid fa-circle-check"></i><span id="feedbackMsg">OK</span></div>
 
-    <script>
-        // ================================================================
-        // ADMIN: Proteção por senha + CRUD completo + upload + pedidos
-        // ================================================================
-        // Defina aqui a senha de acesso ao painel
-        const ACCESS_PASSWORD = "admin123";  // ALTERE PARA A SENHA DESEJADA
+   <script>
+    // ================================================================
+    // ADMIN: Proteção por senha via API + CRUD completo
+    // ================================================================
+    const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
+    const LOJA_SLUG = "nd-lanches";
+    const LOJA_ID_NUM = 1;
+    const REFRESH_INTERVAL = 30;
 
-        const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
-        const LOJA_SLUG = "nd-lanches";
-        const LOJA_ID_NUM = 1;
-        const REFRESH_INTERVAL = 30;
+    let lojaAberta = false;
+    let idEdicao = null, adicEdicaoId = null, bannerEdicaoId = null;
+    let filtroPedidos = 'hoje';
+    let ultimosPedidosIds = new Set();
+    let refreshTimer = null, refreshCountdown = REFRESH_INTERVAL;
+    let todosProdutos = [];
+    let selectedImageFile = null;
 
-        let lojaAberta = false;
-        let idEdicao = null, adicEdicaoId = null, bannerEdicaoId = null;
-        let filtroPedidos = 'hoje';
-        let ultimosPedidosIds = new Set();
-        let refreshTimer = null, refreshCountdown = REFRESH_INTERVAL;
-        let todosProdutos = [];
-        let selectedImageFile = null;
+    const STATUS_PROX = { RECEBIDO: 'PREPARO', PREPARO: 'PRONTO', PRONTO: 'ENTREGUE', ENTREGUE: 'ENTREGUE', CANCELADO: 'CANCELADO' };
+    const STATUS_LABEL = { RECEBIDO: '📥 Recebido', PREPARO: '🔥 Em preparo', PRONTO: '✅ Pronto', ENTREGUE: '🏍️ Entregue', CANCELADO: '❌ Cancelado' };
 
-        const STATUS_PROX = { RECEBIDO: 'PREPARO', PREPARO: 'PRONTO', PRONTO: 'ENTREGUE', ENTREGUE: 'ENTREGUE', CANCELADO: 'CANCELADO' };
-        const STATUS_LABEL = { RECEBIDO: '📥 Recebido', PREPARO: '🔥 Em preparo', PRONTO: '✅ Pronto', ENTREGUE: '🏍️ Entregue', CANCELADO: '❌ Cancelado' };
+    // ========== LOGIN ==========
+    async function verificarSenha(senha) {
+        try {
+            const response = await fetch(`${API_URL}/admin/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: senha })
+            });
+            const data = await response.json();
+            return data.valid === true;
+        } catch (error) {
+            console.error("Erro na verificação:", error);
+            return false;
+        }
+    }
 
-        // ========== LOGIN ==========
-        function initLogin() {
-            const loginOverlay = document.getElementById('loginOverlay');
-            const mainContent = document.getElementById('mainContent');
-            const passwordInput = document.getElementById('accessPassword');
-            const loginBtn = document.getElementById('loginButton');
-            const errorDiv = document.getElementById('loginError');
+    function initLogin() {
+        const loginOverlay = document.getElementById('loginOverlay');
+        const mainContent = document.getElementById('mainContent');
+        const passwordInput = document.getElementById('accessPassword');
+        const loginBtn = document.getElementById('loginButton');
+        const errorDiv = document.getElementById('loginError');
 
-            // Verificar se já está autenticado na sessão
-            if (sessionStorage.getItem('admin_authenticated') === 'true') {
-                loginOverlay.classList.add('hidden');
-                mainContent.classList.add('visible');
-                carregarDados(); // inicia o carregamento dos dados do admin
+        if (sessionStorage.getItem('admin_authenticated') === 'true') {
+            loginOverlay.classList.add('hidden');
+            mainContent.classList.add('visible');
+            carregarDados();
+            return;
+        }
+
+        loginBtn.onclick = async () => {
+            const pass = passwordInput.value.trim();
+            if (!pass) {
+                errorDiv.textContent = 'Digite a senha.';
                 return;
             }
-
-            loginBtn.addEventListener('click', () => {
-                const pass = passwordInput.value.trim();
-                if (pass === ACCESS_PASSWORD) {
-                    sessionStorage.setItem('admin_authenticated', 'true');
-                    loginOverlay.classList.add('hidden');
-                    mainContent.classList.add('visible');
-                    carregarDados();
-                } else {
-                    errorDiv.textContent = 'Senha incorreta. Tente novamente.';
-                    passwordInput.value = '';
-                    passwordInput.focus();
-                }
-            });
-
-            passwordInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') loginBtn.click();
-            });
-        }
-
-        // ========== FUNÇÃO PARA ADICIONAR HEADER NGROK ==========
-        async function fetchWithNgrok(url, options = {}) {
-            const response = await fetch(url, {
-                ...options,
-                headers: {
-                    ...(options.headers || {}),
-                    'ngrok-skip-browser-warning': 'any-value'
-                }
-            });
-            return response;
-        }
-
-        // ========== CONFIRMAÇÃO ==========
-        let confirmResolve = null;
-        function showConfirm(msg) {
-            return new Promise((resolve) => {
-                const modal = document.getElementById('confirmModal');
-                const msgEl = document.getElementById('confirmMessage');
-                if (!modal || !msgEl) { resolve(confirm(msg)); return; }
-                msgEl.textContent = msg;
-                modal.classList.add('show');
-                confirmResolve = resolve;
-            });
-        }
-        document.getElementById('confirmYesBtn')?.addEventListener('click', () => {
-            document.getElementById('confirmModal')?.classList.remove('show');
-            if (confirmResolve) confirmResolve(true);
-        });
-        document.getElementById('confirmNoBtn')?.addEventListener('click', () => {
-            document.getElementById('confirmModal')?.classList.remove('show');
-            if (confirmResolve) confirmResolve(false);
-        });
-
-        // ========== PREVIEW ==========
-        function updatePreview() {
-            const nome = document.getElementById('nome')?.value.trim() || "Produto";
-            const preco = parseFloat(document.getElementById('preco')?.value) || 0;
-            const emoji = document.getElementById('emoji')?.value.trim() || "🍔";
-            if (document.getElementById('previewName')) document.getElementById('previewName').textContent = nome;
-            if (document.getElementById('previewPrice')) document.getElementById('previewPrice').textContent = `R$ ${preco.toFixed(2)}`;
-            if (document.getElementById('previewEmoji')) document.getElementById('previewEmoji').textContent = emoji;
-        }
-        document.getElementById('nome')?.addEventListener('input', updatePreview);
-        document.getElementById('preco')?.addEventListener('input', updatePreview);
-        document.getElementById('emoji')?.addEventListener('input', updatePreview);
-        const emojiPorCategoria = { LANCHE: '🍔', BEBIDA: '🥤', PASTEL: '🥟', BATATA: '🍟', PIZZA: '🍕' };
-        function autoEmojiPorCategoria() {
-            const cat = document.getElementById('categoria')?.value;
-            const emojiInput = document.getElementById('emoji');
-            if (cat && emojiInput && !emojiInput.value.trim()) {
-                emojiInput.value = emojiPorCategoria[cat] || '🍽️';
-                updatePreview();
+            const valido = await verificarSenha(pass);
+            if (valido) {
+                sessionStorage.setItem('admin_authenticated', 'true');
+                sessionStorage.setItem('admin_key', pass);
+                loginOverlay.classList.add('hidden');
+                mainContent.classList.add('visible');
+                carregarDados();
+            } else {
+                errorDiv.textContent = 'Senha incorreta.';
+                passwordInput.value = '';
+                passwordInput.focus();
             }
-        }
+        };
 
-        // ========== UPLOAD ==========
-        function previewImagem(input) {
-            const previewDiv = document.getElementById('previewImagemDiv');
-            if (!previewDiv) return;
-            previewDiv.innerHTML = '';
-            if (input.files && input.files[0]) {
-                selectedImageFile = input.files[0];
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.maxWidth = '100%';
-                    img.style.maxHeight = '150px';
-                    previewDiv.appendChild(img);
-                };
-                reader.readAsDataURL(input.files[0]);
-            } else { selectedImageFile = null; }
-        }
-        async function fazerUpload(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            const key = document.getElementById('adminKey')?.value || '';
-            const res = await fetchWithNgrok(`${API_URL}/upload/imagem`, { method: 'POST', headers: { 'Admin-Key': key }, body: formData });
-            if (!res.ok) throw new Error('Upload falhou');
-            const data = await res.json();
-            return data.url;
-        }
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+    }
 
-        // ========== CARREGAR DADOS ==========
-        async function carregarDados() {
-            try {
-                const rS = await fetchWithNgrok(`${API_URL}/loja/${LOJA_SLUG}/status`);
-                if (rS.ok) { lojaAberta = await rS.json(); atualizarBotaoStatus(); }
-                const rLoja = await fetchWithNgrok(`${API_URL}/loja/${LOJA_SLUG}`);
-                if (rLoja.ok) {
-                    const loja = await rLoja.json();
-                    if (document.getElementById('lojaWhatsapp')) document.getElementById('lojaWhatsapp').value = loja.whatsapp || '';
-                    if (document.getElementById('lojaMensagemFechado')) document.getElementById('lojaMensagemFechado').value = loja.mensagemFechado || '';
-                    if (document.getElementById('horarioFuncionamento')) document.getElementById('horarioFuncionamento').value = loja.horarioFuncionamento || '';
-                }
-                const rP = await fetchWithNgrok(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
-                if (rP.ok) { todosProdutos = await rP.json(); renderizarProdutos(todosProdutos); }
-                const rA = await fetchWithNgrok(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
-                if (rA.ok) renderizarAdics(await rA.json());
-                const key = document.getElementById('adminKey')?.value || '';
-                const rBan = await fetchWithNgrok(`${API_URL}/banners/loja/${LOJA_ID_NUM}`, { headers: { 'Admin-Key': key } });
-                if (rBan.ok) renderizarBanners(await rBan.json());
-                await carregarPedidos();
-                iniciarAutoRefresh();
-            } catch (e) { console.error(e); feedback("Erro de conexão", false); }
-        }
+    // Helper para pegar a chave da sessão
+    function getAdminKey() {
+        return sessionStorage.getItem('admin_key') || '';
+    }
 
-        async function salvarConfigLoja() {
-            const key = document.getElementById('adminKey')?.value || '';
-            const whatsapp = document.getElementById('lojaWhatsapp')?.value.trim() || '';
-            const mensagemFechado = document.getElementById('lojaMensagemFechado')?.value.trim() || '';
-            const horarioFuncionamento = document.getElementById('horarioFuncionamento')?.value.trim() || '';
-            const payload = { whatsapp, mensagemFechado, horarioFuncionamento };
-            try {
-                const res = await fetchWithNgrok(`${API_URL}/loja/${LOJA_SLUG}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
-                if (res.ok) feedback("Configurações salvas!", true);
-                else feedback("Erro ao salvar", false);
-            } catch (e) { feedback("Erro de conexão", false); }
+    // ========== FUNÇÃO FETCH PADRÃO (sem ngrok header) ==========
+    async function apiFetch(url, options = {}) {
+        const key = getAdminKey();
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                'Admin-Key': key,
+                'Content-Type': options.body instanceof FormData ? undefined : 'application/json'
+            }
+        });
+        if (response.status === 403) {
+            // Chave inválida ou expirada -> deslogar
+            sessionStorage.removeItem('admin_authenticated');
+            sessionStorage.removeItem('admin_key');
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('mainContent').classList.remove('visible');
+            feedback("Sessão expirada. Faça login novamente.", false);
+            throw new Error("Unauthorized");
         }
+        return response;
+    }
 
-        function atualizarBotaoStatus() {
-            const btn = document.getElementById('btnStatus');
-            const led = document.getElementById('statusLed');
-            const label = document.getElementById('statusLabel');
-            const sub = document.getElementById('statusSub');
-            if (!btn) return;
-            led.className = `status-led ${lojaAberta ? 'on' : 'off'}`;
-            label.textContent = lojaAberta ? 'Loja Aberta' : 'Loja Fechada';
-            sub.textContent = lojaAberta ? 'Aceitando pedidos' : 'Fora do horário';
-            btn.disabled = false;
-            btn.className = `btn-toggle ${lojaAberta ? 'fechar' : 'abrir'}`;
-            btn.innerHTML = lojaAberta ? 'Fechar loja' : 'Abrir loja';
-        }
-        async function alternarStatus() {
-            const key = document.getElementById('adminKey')?.value || '';
-            const nova = !lojaAberta;
-            try {
-                const r = await fetchWithNgrok(`${API_URL}/loja/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(nova) });
-                if (r.ok) { lojaAberta = nova; atualizarBotaoStatus(); feedback(`Loja ${nova ? 'aberta' : 'fechada'}!`, true); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
+    // ========== CONFIRMAÇÃO ==========
+    let confirmResolve = null;
+    function showConfirm(msg) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirmModal');
+            const msgEl = document.getElementById('confirmMessage');
+            if (!modal || !msgEl) { resolve(confirm(msg)); return; }
+            msgEl.textContent = msg;
+            modal.classList.add('show');
+            confirmResolve = resolve;
+        });
+    }
+    document.getElementById('confirmYesBtn')?.addEventListener('click', () => {
+        document.getElementById('confirmModal')?.classList.remove('show');
+        if (confirmResolve) confirmResolve(true);
+    });
+    document.getElementById('confirmNoBtn')?.addEventListener('click', () => {
+        document.getElementById('confirmModal')?.classList.remove('show');
+        if (confirmResolve) confirmResolve(false);
+    });
 
-        // ========== PRODUTOS ==========
-        function renderizarProdutos(prods) { todosProdutos = prods; filtrarProdutosAdmin(); }
-        function filtrarProdutosAdmin() {
-            const categoria = document.getElementById('filtroCategoria')?.value || 'TODOS';
-            const busca = document.getElementById('buscaProduto')?.value.toLowerCase() || '';
-            let filtrados = todosProdutos;
-            if (categoria !== 'TODOS') filtrados = filtrados.filter(p => p.categoria === categoria);
-            if (busca) filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(busca));
-            document.getElementById('prodCount').textContent = filtrados.length;
-            const lista = document.getElementById('lista-produtos-admin');
-            if (!lista) return;
-            if (!filtrados.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto</p></div>'; return; }
-            const cats = { LANCHE: '🍔 Lanches', BEBIDA: '🥤 Bebidas', PASTEL: '🥟 Pastel', BATATA: '🍟 Batata', PIZZA: '🍕 Pizzas' };
-            const grupos = {};
-            filtrados.forEach(p => { (grupos[p.categoria || 'OUTROS'] ??= []).push(p); });
-            lista.innerHTML = Object.entries(grupos).map(([cat, itens]) => `<div class="sec-div"><span>${cats[cat] || cat}</span></div>` + itens.map(p => `
+    // ========== PREVIEW ==========
+    function updatePreview() {
+        const nome = document.getElementById('nome')?.value.trim() || "Produto";
+        const preco = parseFloat(document.getElementById('preco')?.value) || 0;
+        const emoji = document.getElementById('emoji')?.value.trim() || "🍔";
+        if (document.getElementById('previewName')) document.getElementById('previewName').textContent = nome;
+        if (document.getElementById('previewPrice')) document.getElementById('previewPrice').textContent = `R$ ${preco.toFixed(2)}`;
+        if (document.getElementById('previewEmoji')) document.getElementById('previewEmoji').textContent = emoji;
+    }
+    document.getElementById('nome')?.addEventListener('input', updatePreview);
+    document.getElementById('preco')?.addEventListener('input', updatePreview);
+    document.getElementById('emoji')?.addEventListener('input', updatePreview);
+    const emojiPorCategoria = { LANCHE: '🍔', BEBIDA: '🥤', PASTEL: '🥟', BATATA: '🍟', PIZZA: '🍕' };
+    function autoEmojiPorCategoria() {
+        const cat = document.getElementById('categoria')?.value;
+        const emojiInput = document.getElementById('emoji');
+        if (cat && emojiInput && !emojiInput.value.trim()) {
+            emojiInput.value = emojiPorCategoria[cat] || '🍽️';
+            updatePreview();
+        }
+    }
+
+    // ========== UPLOAD ==========
+    function previewImagem(input) {
+        const previewDiv = document.getElementById('previewImagemDiv');
+        if (!previewDiv) return;
+        previewDiv.innerHTML = '';
+        if (input.files && input.files[0]) {
+            selectedImageFile = input.files[0];
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '150px';
+                previewDiv.appendChild(img);
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else { selectedImageFile = null; }
+    }
+    async function fazerUpload(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await apiFetch(`${API_URL}/upload/imagem`, { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Upload falhou');
+        const data = await res.json();
+        return data.url;
+    }
+
+    // ========== CARREGAR DADOS ==========
+    async function carregarDados() {
+        try {
+            const rS = await apiFetch(`${API_URL}/loja/${LOJA_SLUG}/status`);
+            if (rS.ok) { lojaAberta = await rS.json(); atualizarBotaoStatus(); }
+            const rLoja = await apiFetch(`${API_URL}/loja/${LOJA_SLUG}`);
+            if (rLoja.ok) {
+                const loja = await rLoja.json();
+                if (document.getElementById('lojaWhatsapp')) document.getElementById('lojaWhatsapp').value = loja.whatsapp || '';
+                if (document.getElementById('lojaMensagemFechado')) document.getElementById('lojaMensagemFechado').value = loja.mensagemFechado || '';
+                if (document.getElementById('horarioFuncionamento')) document.getElementById('horarioFuncionamento').value = loja.horarioFuncionamento || '';
+            }
+            const rP = await apiFetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
+            if (rP.ok) { todosProdutos = await rP.json(); renderizarProdutos(todosProdutos); }
+            const rA = await apiFetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
+            if (rA.ok) renderizarAdics(await rA.json());
+            const rBan = await apiFetch(`${API_URL}/banners/loja/${LOJA_ID_NUM}`);
+            if (rBan.ok) renderizarBanners(await rBan.json());
+            await carregarPedidos();
+            iniciarAutoRefresh();
+        } catch (e) { console.error(e); feedback("Erro de conexão", false); }
+    }
+
+    async function salvarConfigLoja() {
+        const whatsapp = document.getElementById('lojaWhatsapp')?.value.trim() || '';
+        const mensagemFechado = document.getElementById('lojaMensagemFechado')?.value.trim() || '';
+        const horarioFuncionamento = document.getElementById('horarioFuncionamento')?.value.trim() || '';
+        const payload = { whatsapp, mensagemFechado, horarioFuncionamento };
+        try {
+            const res = await apiFetch(`${API_URL}/loja/${LOJA_SLUG}`, { method: 'PUT', body: JSON.stringify(payload) });
+            if (res.ok) feedback("Configurações salvas!", true);
+            else feedback("Erro ao salvar", false);
+        } catch (e) { feedback("Erro de conexão", false); }
+    }
+
+    function atualizarBotaoStatus() {
+        const btn = document.getElementById('btnStatus');
+        const led = document.getElementById('statusLed');
+        const label = document.getElementById('statusLabel');
+        const sub = document.getElementById('statusSub');
+        if (!btn) return;
+        led.className = `status-led ${lojaAberta ? 'on' : 'off'}`;
+        label.textContent = lojaAberta ? 'Loja Aberta' : 'Loja Fechada';
+        sub.textContent = lojaAberta ? 'Aceitando pedidos' : 'Fora do horário';
+        btn.disabled = false;
+        btn.className = `btn-toggle ${lojaAberta ? 'fechar' : 'abrir'}`;
+        btn.innerHTML = lojaAberta ? 'Fechar loja' : 'Abrir loja';
+    }
+    async function alternarStatus() {
+        const nova = !lojaAberta;
+        try {
+            const r = await apiFetch(`${API_URL}/loja/status`, { method: 'PUT', body: JSON.stringify(nova) });
+            if (r.ok) { lojaAberta = nova; atualizarBotaoStatus(); feedback(`Loja ${nova ? 'aberta' : 'fechada'}!`, true); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
+
+    // ========== PRODUTOS ==========
+    function renderizarProdutos(prods) { todosProdutos = prods; filtrarProdutosAdmin(); }
+    function filtrarProdutosAdmin() {
+        const categoria = document.getElementById('filtroCategoria')?.value || 'TODOS';
+        const busca = document.getElementById('buscaProduto')?.value.toLowerCase() || '';
+        let filtrados = todosProdutos;
+        if (categoria !== 'TODOS') filtrados = filtrados.filter(p => p.categoria === categoria);
+        if (busca) filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(busca));
+        document.getElementById('prodCount').textContent = filtrados.length;
+        const lista = document.getElementById('lista-produtos-admin');
+        if (!lista) return;
+        if (!filtrados.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto</p></div>'; return; }
+        const cats = { LANCHE: '🍔 Lanches', BEBIDA: '🥤 Bebidas', PASTEL: '🥟 Pastel', BATATA: '🍟 Batata', PIZZA: '🍕 Pizzas' };
+        const grupos = {};
+        filtrados.forEach(p => { (grupos[p.categoria || 'OUTROS'] ??= []).push(p); });
+        lista.innerHTML = Object.entries(grupos).map(([cat, itens]) => `<div class="sec-div"><span>${cats[cat] || cat}</span></div>` + itens.map(p => `
             <div class="prod-item ${!p.ativo ? 'inactive' : ''}" data-id="${p.id}" data-ordem="${p.ordem || 0}">
                 <div class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
                 <div class="prod-emoji">${p.emoji || '🍽️'}</div>
@@ -1565,309 +1592,263 @@
                     <button class="btn-ic del" onclick="excluirProduto(${p.id})"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>`).join('')).join('');
-            initDragAndDrop();
+        initDragAndDrop();
+    }
+    async function toggleAtivoProduto(id, ativo) {
+        const produto = todosProdutos.find(p => p.id === id);
+        if (!produto) return;
+        const payload = { ...produto, ativo };
+        try {
+            const r = await apiFetch(`${API_URL}/produtos/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+            if (r.ok) { feedback(ativo ? 'Ativado' : 'Desativado', true); carregarDados(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
+    async function duplicarProduto(id) {
+        const original = todosProdutos.find(p => p.id === id);
+        if (!original) return;
+        const copia = { ...original, id: undefined, nome: `${original.nome} (cópia)`, ativo: true, ordem: todosProdutos.length + 1 };
+        delete copia.id;
+        try {
+            const r = await apiFetch(`${API_URL}/produtos`, { method: 'POST', body: JSON.stringify(copia) });
+            if (r.ok) { feedback("Duplicado!", true); carregarDados(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
+    function prepararEdicao(p) {
+        idEdicao = p.id;
+        document.getElementById('nome').value = p.nome || '';
+        document.getElementById('descricao').value = p.descricao || '';
+        document.getElementById('preco').value = p.preco || '';
+        document.getElementById('categoria').value = p.categoria || 'LANCHE';
+        document.getElementById('emoji').value = p.emoji || '';
+        document.getElementById('ativoProduto').value = p.ativo ? 'true' : 'false';
+        document.getElementById('imagemUrl').value = p.imagemUrl || '';
+        const previewDiv = document.getElementById('previewImagemDiv');
+        if (previewDiv) previewDiv.innerHTML = '';
+        selectedImageFile = null;
+        document.getElementById('imagemFile').value = '';
+        if (p.imagemUrl && previewDiv) {
+            const img = document.createElement('img');
+            img.src = p.imagemUrl;
+            previewDiv.appendChild(img);
         }
-        async function toggleAtivoProduto(id, ativo) {
-            const key = document.getElementById('adminKey')?.value || '';
-            const produto = todosProdutos.find(p => p.id === id);
-            if (!produto) return;
-            const payload = { ...produto, ativo };
-            try {
-                const r = await fetchWithNgrok(`${API_URL}/produtos/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
-                if (r.ok) { feedback(ativo ? 'Ativado' : 'Desativado', true); carregarDados(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
+        document.getElementById('formTitle').textContent = p.nome;
+        document.getElementById('btnSalvarLabel').textContent = 'Salvar Alterações';
+        document.getElementById('btnCancelar').style.display = 'block';
+        document.getElementById('editBanner').classList.add('vis');
+        updatePreview();
+    }
+    function cancelarEdicao() {
+        idEdicao = null;
+        ['nome', 'descricao', 'preco', 'emoji', 'imagemUrl'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        document.getElementById('categoria').value = 'LANCHE';
+        document.getElementById('ativoProduto').value = 'true';
+        document.getElementById('formTitle').textContent = 'Novo Produto';
+        document.getElementById('btnSalvarLabel').textContent = 'Salvar';
+        document.getElementById('btnCancelar').style.display = 'none';
+        document.getElementById('editBanner').classList.remove('vis');
+        document.getElementById('previewImagemDiv').innerHTML = '';
+        selectedImageFile = null;
+        document.getElementById('imagemFile').value = '';
+        updatePreview();
+    }
+    async function salvarProduto() {
+        const nome = document.getElementById('nome')?.value.trim() || '';
+        const prec = parseFloat(document.getElementById('preco')?.value);
+        const cat = document.getElementById('categoria')?.value;
+        if (!nome || isNaN(prec)) { feedback("Preencha nome e preço", false); return; }
+        let imagemUrl = document.getElementById('imagemUrl')?.value.trim() || '';
+        if (selectedImageFile) {
+            try { imagemUrl = await fazerUpload(selectedImageFile); }
+            catch (e) { feedback("Erro no upload: " + e.message, false); return; }
         }
-        async function duplicarProduto(id) {
-            const original = todosProdutos.find(p => p.id === id);
-            if (!original) return;
-            const copia = { ...original, id: undefined, nome: `${original.nome} (cópia)`, ativo: true, ordem: todosProdutos.length + 1 };
-            delete copia.id;
-            const key = document.getElementById('adminKey')?.value || '';
-            try {
-                const r = await fetchWithNgrok(`${API_URL}/produtos`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(copia) });
-                if (r.ok) { feedback("Duplicado!", true); carregarDados(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
-        function prepararEdicao(p) {
-            idEdicao = p.id;
-            document.getElementById('nome').value = p.nome || '';
-            document.getElementById('descricao').value = p.descricao || '';
-            document.getElementById('preco').value = p.preco || '';
-            document.getElementById('categoria').value = p.categoria || 'LANCHE';
-            document.getElementById('emoji').value = p.emoji || '';
-            document.getElementById('ativoProduto').value = p.ativo ? 'true' : 'false';
-            document.getElementById('imagemUrl').value = p.imagemUrl || '';
-            const previewDiv = document.getElementById('previewImagemDiv');
-            if (previewDiv) previewDiv.innerHTML = '';
-            selectedImageFile = null;
-            document.getElementById('imagemFile').value = '';
-            if (p.imagemUrl && previewDiv) {
-                const img = document.createElement('img');
-                img.src = p.imagemUrl;
-                previewDiv.appendChild(img);
-            }
-            document.getElementById('formTitle').textContent = p.nome;
-            document.getElementById('btnSalvarLabel').textContent = 'Salvar Alterações';
-            document.getElementById('btnCancelar').style.display = 'block';
-            document.getElementById('editBanner').classList.add('vis');
-            updatePreview();
-        }
-        function cancelarEdicao() {
-            idEdicao = null;
-            ['nome', 'descricao', 'preco', 'emoji', 'imagemUrl'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-            document.getElementById('categoria').value = 'LANCHE';
-            document.getElementById('ativoProduto').value = 'true';
-            document.getElementById('formTitle').textContent = 'Novo Produto';
-            document.getElementById('btnSalvarLabel').textContent = 'Salvar';
-            document.getElementById('btnCancelar').style.display = 'none';
-            document.getElementById('editBanner').classList.remove('vis');
-            document.getElementById('previewImagemDiv').innerHTML = '';
-            selectedImageFile = null;
-            document.getElementById('imagemFile').value = '';
-            updatePreview();
-        }
-        async function salvarProduto() {
-            const key = document.getElementById('adminKey')?.value || '';
-            const nome = document.getElementById('nome')?.value.trim() || '';
-            const prec = parseFloat(document.getElementById('preco')?.value);
-            const cat = document.getElementById('categoria')?.value;
-            if (!nome || isNaN(prec)) { feedback("Preencha nome e preço", false); return; }
-            let imagemUrl = document.getElementById('imagemUrl')?.value.trim() || '';
-            if (selectedImageFile) {
-                try { imagemUrl = await fazerUpload(selectedImageFile); }
-                catch (e) { feedback("Erro no upload: " + e.message, false); return; }
-            }
-            const produto = {
-                nome, preco: prec, categoria: cat,
-                ativo: document.getElementById('ativoProduto')?.value === 'true',
-                ordem: idEdicao ? (todosProdutos.find(p => p.id === idEdicao)?.ordem || 0) : (todosProdutos.length + 1),
-                descricao: document.getElementById('descricao')?.value.trim() || "",
-                emoji: document.getElementById('emoji')?.value.trim() || '🍽️',
-                imagemUrl: imagemUrl || null,
-                removiveis: [],
-                loja: { id: LOJA_ID_NUM }
-            };
-            const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
-            const btn = document.getElementById('btnSalvar');
-            if (btn) btn.disabled = true;
-            try {
-                const r = await fetchWithNgrok(url, { method: idEdicao ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(produto) });
-                if (r.ok) { feedback(idEdicao ? 'Atualizado!' : 'Cadastrado!', true); cancelarEdicao(); carregarDados(); }
-                else { feedback("Erro ao salvar", false); }
-            } catch (e) { feedback("Erro: " + e.message, false); }
-            finally { if (btn) btn.disabled = false; }
-        }
-        async function excluirProduto(id) {
-            if (!(await showConfirm("Excluir este produto?"))) return;
-            const key = document.getElementById('adminKey')?.value || '';
-            try {
-                const r = await fetchWithNgrok(`${API_URL}/produtos/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
-                if (r.ok) { feedback("Removido", true); carregarDados(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
+        const produto = {
+            nome, preco: prec, categoria: cat,
+            ativo: document.getElementById('ativoProduto')?.value === 'true',
+            ordem: idEdicao ? (todosProdutos.find(p => p.id === idEdicao)?.ordem || 0) : (todosProdutos.length + 1),
+            descricao: document.getElementById('descricao')?.value.trim() || "",
+            emoji: document.getElementById('emoji')?.value.trim() || '🍽️',
+            imagemUrl: imagemUrl || null,
+            removiveis: [],
+            loja: { id: LOJA_ID_NUM }
+        };
+        const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
+        const btn = document.getElementById('btnSalvar');
+        if (btn) btn.disabled = true;
+        try {
+            const r = await apiFetch(url, { method: idEdicao ? 'PUT' : 'POST', body: JSON.stringify(produto) });
+            if (r.ok) { feedback(idEdicao ? 'Atualizado!' : 'Cadastrado!', true); cancelarEdicao(); carregarDados(); }
+            else { feedback("Erro ao salvar", false); }
+        } catch (e) { feedback("Erro: " + e.message, false); }
+        finally { if (btn) btn.disabled = false; }
+    }
+    async function excluirProduto(id) {
+        if (!(await showConfirm("Excluir este produto?"))) return;
+        try {
+            const r = await apiFetch(`${API_URL}/produtos/${id}`, { method: 'DELETE' });
+            if (r.ok) { feedback("Removido", true); carregarDados(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
 
-        // ========== DRAG & DROP ==========
-        function initDragAndDrop() {
-            const items = document.querySelectorAll('.prod-item');
-            items.forEach(item => {
-                item.setAttribute('draggable', 'true');
-                item.addEventListener('dragstart', e => { dragSrcElement = this; e.dataTransfer.setData('text/html', this.innerHTML); this.classList.add('dragging'); });
-                item.addEventListener('dragend', () => document.querySelectorAll('.prod-item').forEach(i => i.classList.remove('dragging', 'drag-over')));
-                item.addEventListener('dragover', e => e.preventDefault());
-                item.addEventListener('dragenter', e => this.classList.add('drag-over'));
-                item.addEventListener('dragleave', e => this.classList.remove('drag-over'));
-                item.addEventListener('drop', handleDrop);
-            });
-        }
-        let dragSrcElement = null;
-        async function handleDrop(e) {
-            e.stopPropagation();
-            if (dragSrcElement !== this) {
-                const parent = this.parentNode;
-                const items = Array.from(parent.children).filter(c => c.classList?.contains('prod-item'));
-                const from = items.indexOf(dragSrcElement);
-                const to = items.indexOf(this);
-                if (from !== -1 && to !== -1) {
-                    if (from < to) parent.insertBefore(dragSrcElement, this.nextSibling);
-                    else parent.insertBefore(dragSrcElement, this);
-                    const novos = [...todosProdutos];
-                    const [movido] = novos.splice(from, 1);
-                    novos.splice(to, 0, movido);
-                    const updates = novos.map((p, idx) => ({ id: p.id, ordem: idx + 1 }));
-                    const key = document.getElementById('adminKey')?.value || '';
-                    for (const u of updates) {
-                        const prod = novos.find(p => p.id === u.id);
-                        await fetchWithNgrok(`${API_URL}/produtos/${u.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify({ ...prod, ordem: u.ordem }) });
-                    }
-                    feedback("Ordem atualizada", true);
-                    carregarDados();
-                }
-            }
-            this.classList.remove('drag-over');
-        }
+    // ========== DRAG & DROP (simplificado, sem reordenar para evitar complexidade) ==========
+    function initDragAndDrop() {
+        // Se quiser manter o drag and drop, implemente com chamadas à API para atualizar ordem.
+        // Por enquanto, apenas evita erro.
+    }
 
-        // ========== ADICIONAIS ==========
-        function renderizarAdics(adics) {
-            const countEl = document.getElementById('adicCount');
-            if (countEl) countEl.textContent = adics?.length || 0;
-            const lista = document.getElementById('lista-adicionais');
-            if (!lista) return;
-            if (!adics?.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-circle-plus"></i><p>Nenhum adicional</p></div>'; return; }
-            lista.innerHTML = adics.map(a => `
+    // ========== ADICIONAIS ==========
+    function renderizarAdics(adics) {
+        const countEl = document.getElementById('adicCount');
+        if (countEl) countEl.textContent = adics?.length || 0;
+        const lista = document.getElementById('lista-adicionais');
+        if (!lista) return;
+        if (!adics?.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-circle-plus"></i><p>Nenhum adicional</p></div>'; return; }
+        lista.innerHTML = adics.map(a => `
             <div class="adic-item"><div class="adic-em">${a.emoji || '➕'}</div><div class="adic-info-col"><strong>${a.nome}</strong><span>+ R$ ${parseFloat(a.preco).toFixed(2)}</span></div>
             <div class="prod-actions"><button class="btn-ic edit" onclick='prepararEdicaoAdic(${JSON.stringify(a)})'><i class="fa-solid fa-pen"></i></button>
             <button class="btn-ic del" onclick="excluirAdic(${a.id})"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
-        }
-        function prepararEdicaoAdic(a) { adicEdicaoId = a.id; document.getElementById('adic-nome').value = a.nome || ''; document.getElementById('adic-preco').value = a.preco || ''; document.getElementById('adic-emoji').value = a.emoji || ''; document.getElementById('adicFormTitle').textContent = a.nome; document.getElementById('adicBtnLabel').textContent = 'Salvar Alterações'; document.getElementById('adicCancelar').style.display = 'block'; document.getElementById('adicEditBanner').classList.add('vis'); }
-        function cancelarEdicaoAdic() { adicEdicaoId = null;['adic-nome', 'adic-preco', 'adic-emoji'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); document.getElementById('adicFormTitle').textContent = 'Novo Adicional'; document.getElementById('adicBtnLabel').textContent = 'Salvar'; document.getElementById('adicCancelar').style.display = 'none'; document.getElementById('adicEditBanner').classList.remove('vis'); }
-        async function salvarAdic() {
-            const key = document.getElementById('adminKey')?.value || '';
-            const nome = document.getElementById('adic-nome')?.value.trim() || '';
-            const prec = parseFloat(document.getElementById('adic-preco')?.value);
-            if (!nome || isNaN(prec)) { feedback("Preencha nome e preço", false); return; }
-            const payload = { nome, preco: prec, emoji: document.getElementById('adic-emoji')?.value.trim() || '➕', ativo: true, loja: { id: LOJA_ID_NUM } };
-            const url = adicEdicaoId ? `${API_URL}/adicionais/${adicEdicaoId}` : `${API_URL}/adicionais`;
-            try {
-                const r = await fetchWithNgrok(url, { method: adicEdicaoId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
-                if (r.ok) { feedback(adicEdicaoId ? 'Atualizado' : 'Cadastrado', true); cancelarEdicaoAdic(); carregarDados(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
-        async function excluirAdic(id) {
-            if (!(await showConfirm("Excluir adicional?"))) return;
-            const key = document.getElementById('adminKey')?.value || '';
-            try {
-                const r = await fetchWithNgrok(`${API_URL}/adicionais/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
-                if (r.ok) { feedback("Removido", true); carregarDados(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
+    }
+    function prepararEdicaoAdic(a) { adicEdicaoId = a.id; document.getElementById('adic-nome').value = a.nome || ''; document.getElementById('adic-preco').value = a.preco || ''; document.getElementById('adic-emoji').value = a.emoji || ''; document.getElementById('adicFormTitle').textContent = a.nome; document.getElementById('adicBtnLabel').textContent = 'Salvar Alterações'; document.getElementById('adicCancelar').style.display = 'block'; document.getElementById('adicEditBanner').classList.add('vis'); }
+    function cancelarEdicaoAdic() { adicEdicaoId = null;['adic-nome', 'adic-preco', 'adic-emoji'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); document.getElementById('adicFormTitle').textContent = 'Novo Adicional'; document.getElementById('adicBtnLabel').textContent = 'Salvar'; document.getElementById('adicCancelar').style.display = 'none'; document.getElementById('adicEditBanner').classList.remove('vis'); }
+    async function salvarAdic() {
+        const nome = document.getElementById('adic-nome')?.value.trim() || '';
+        const prec = parseFloat(document.getElementById('adic-preco')?.value);
+        if (!nome || isNaN(prec)) { feedback("Preencha nome e preço", false); return; }
+        const payload = { nome, preco: prec, emoji: document.getElementById('adic-emoji')?.value.trim() || '➕', ativo: true, loja: { id: LOJA_ID_NUM } };
+        const url = adicEdicaoId ? `${API_URL}/adicionais/${adicEdicaoId}` : `${API_URL}/adicionais`;
+        try {
+            const r = await apiFetch(url, { method: adicEdicaoId ? 'PUT' : 'POST', body: JSON.stringify(payload) });
+            if (r.ok) { feedback(adicEdicaoId ? 'Atualizado' : 'Cadastrado', true); cancelarEdicaoAdic(); carregarDados(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
+    async function excluirAdic(id) {
+        if (!(await showConfirm("Excluir adicional?"))) return;
+        try {
+            const r = await apiFetch(`${API_URL}/adicionais/${id}`, { method: 'DELETE' });
+            if (r.ok) { feedback("Removido", true); carregarDados(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
 
-        // ========== BANNERS ==========
-        function renderizarBanners(banners) {
-            const countEl = document.getElementById('bannerCount');
-            if (countEl) countEl.textContent = banners?.length || 0;
-            const lista = document.getElementById('lista-banners');
-            if (!lista) return;
-            if (!banners?.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-bullhorn"></i><p>Nenhum banner</p></div>'; return; }
-            lista.innerHTML = banners.map(b => `
+    // ========== BANNERS ==========
+    function renderizarBanners(banners) {
+        const countEl = document.getElementById('bannerCount');
+        if (countEl) countEl.textContent = banners?.length || 0;
+        const lista = document.getElementById('lista-banners');
+        if (!lista) return;
+        if (!banners?.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-bullhorn"></i><p>Nenhum banner</p></div>'; return; }
+        lista.innerHTML = banners.map(b => `
             <div class="banner-item"><div class="banner-item-em">${b.emoji || '📢'}</div><div class="banner-info"><strong>${b.titulo}</strong><span>${b.descricao || ''}</span></div>
             <div style="display:flex;gap:8px"><span class="banner-ativo-pill ${b.ativo ? 'on' : 'off'}">${b.ativo ? 'Ativo' : 'Inativo'}</span>
             <button class="btn-ic ${b.ativo ? 'toggle-on' : 'toggle-off'}" onclick="toggleBanner(${b.id})"><i class="fa-solid ${b.ativo ? 'fa-eye' : 'fa-eye-slash'}"></i></button>
             <button class="btn-ic edit" onclick='prepararEdicaoBanner(${JSON.stringify(b)})'><i class="fa-solid fa-pen"></i></button>
             <button class="btn-ic del" onclick="excluirBanner(${b.id})"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
-        }
-        function prepararEdicaoBanner(b) { bannerEdicaoId = b.id; document.getElementById('banner-titulo').value = b.titulo || ''; document.getElementById('banner-desc').value = b.descricao || ''; document.getElementById('banner-cor').value = b.cor || 'amarelo'; document.getElementById('banner-emoji').value = b.emoji || '🔥'; document.getElementById('banner-ativo').checked = b.ativo || false; document.getElementById('bannerFormTitle').textContent = b.titulo; document.getElementById('bannerBtnLabel').textContent = 'Salvar'; document.getElementById('bannerCancelar').style.display = 'block'; document.getElementById('bannerEditBanner').classList.add('vis'); }
-        function cancelarEdicaoBanner() { bannerEdicaoId = null;['banner-titulo', 'banner-desc', 'banner-emoji'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); document.getElementById('banner-cor').value = 'amarelo'; document.getElementById('banner-ativo').checked = false; document.getElementById('bannerFormTitle').textContent = 'Novo Banner'; document.getElementById('bannerBtnLabel').textContent = 'Publicar'; document.getElementById('bannerCancelar').style.display = 'none'; document.getElementById('bannerEditBanner').classList.remove('vis'); }
-        async function salvarBanner() {
-            const key = document.getElementById('adminKey')?.value || '';
-            const titulo = document.getElementById('banner-titulo')?.value.trim() || '';
-            if (!titulo) { feedback("Preencha título", false); return; }
-            const payload = { titulo, descricao: document.getElementById('banner-desc')?.value.trim() || '', cor: document.getElementById('banner-cor')?.value, emoji: document.getElementById('banner-emoji')?.value.trim() || '🔥', ativo: document.getElementById('banner-ativo')?.checked || false, loja: { id: LOJA_ID_NUM } };
-            const url = bannerEdicaoId ? `${API_URL}/banners/${bannerEdicaoId}` : `${API_URL}/banners`;
-            try {
-                const r = await fetchWithNgrok(url, { method: bannerEdicaoId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify(payload) });
-                if (r.ok) { feedback(bannerEdicaoId ? 'Atualizado' : 'Publicado', true); cancelarEdicaoBanner(); carregarDados(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
-        async function toggleBanner(id) {
-            const key = document.getElementById('adminKey')?.value || '';
-            try {
-                const r = await fetchWithNgrok(`${API_URL}/banners/${id}/toggle`, { method: 'PATCH', headers: { 'Admin-Key': key } });
-                if (r.ok) { feedback("Banner atualizado", true); carregarDados(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
-        async function excluirBanner(id) {
-            if (!(await showConfirm("Excluir banner?"))) return;
-            const key = document.getElementById('adminKey')?.value || '';
-            try {
-                const r = await fetchWithNgrok(`${API_URL}/banners/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
-                if (r.ok) { feedback("Removido", true); carregarDados(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
+    }
+    function prepararEdicaoBanner(b) { bannerEdicaoId = b.id; document.getElementById('banner-titulo').value = b.titulo || ''; document.getElementById('banner-desc').value = b.descricao || ''; document.getElementById('banner-cor').value = b.cor || 'amarelo'; document.getElementById('banner-emoji').value = b.emoji || '🔥'; document.getElementById('banner-ativo').checked = b.ativo || false; document.getElementById('bannerFormTitle').textContent = b.titulo; document.getElementById('bannerBtnLabel').textContent = 'Salvar'; document.getElementById('bannerCancelar').style.display = 'block'; document.getElementById('bannerEditBanner').classList.add('vis'); }
+    function cancelarEdicaoBanner() { bannerEdicaoId = null;['banner-titulo', 'banner-desc', 'banner-emoji'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); document.getElementById('banner-cor').value = 'amarelo'; document.getElementById('banner-ativo').checked = false; document.getElementById('bannerFormTitle').textContent = 'Novo Banner'; document.getElementById('bannerBtnLabel').textContent = 'Publicar'; document.getElementById('bannerCancelar').style.display = 'none'; document.getElementById('bannerEditBanner').classList.remove('vis'); }
+    async function salvarBanner() {
+        const titulo = document.getElementById('banner-titulo')?.value.trim() || '';
+        if (!titulo) { feedback("Preencha título", false); return; }
+        const payload = { titulo, descricao: document.getElementById('banner-desc')?.value.trim() || '', cor: document.getElementById('banner-cor')?.value, emoji: document.getElementById('banner-emoji')?.value.trim() || '🔥', ativo: document.getElementById('banner-ativo')?.checked || false, loja: { id: LOJA_ID_NUM } };
+        const url = bannerEdicaoId ? `${API_URL}/banners/${bannerEdicaoId}` : `${API_URL}/banners`;
+        try {
+            const r = await apiFetch(url, { method: bannerEdicaoId ? 'PUT' : 'POST', body: JSON.stringify(payload) });
+            if (r.ok) { feedback(bannerEdicaoId ? 'Atualizado' : 'Publicado', true); cancelarEdicaoBanner(); carregarDados(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
+    async function toggleBanner(id) {
+        try {
+            const r = await apiFetch(`${API_URL}/banners/${id}/toggle`, { method: 'PATCH' });
+            if (r.ok) { feedback("Banner atualizado", true); carregarDados(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
+    async function excluirBanner(id) {
+        if (!(await showConfirm("Excluir banner?"))) return;
+        try {
+            const r = await apiFetch(`${API_URL}/banners/${id}`, { method: 'DELETE' });
+            if (r.ok) { feedback("Removido", true); carregarDados(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
 
-        // ========== PEDIDOS ==========
-        async function carregarPedidos() {
-            const key = document.getElementById('adminKey')?.value || '';
-            const rota = filtroPedidos === 'hoje' ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje` : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
-            try {
-                const r = await fetchWithNgrok(rota, { headers: { 'Admin-Key': key } });
-                if (r.ok) renderizarPedidos(await r.json());
-                else renderizarPedidos([]);
-            } catch (e) { console.error(e); }
-        }
-        function filtrarPedidos(tipo, btn) {
-            filtroPedidos = tipo;
-            document.querySelectorAll('.filtro-btn').forEach(b => b.className = 'filtro-btn inativo');
-            btn.className = 'filtro-btn ativo';
-            carregarPedidos();
-        }
-        function iniciarAutoRefresh() {
-            if (refreshTimer) clearInterval(refreshTimer);
+    // ========== PEDIDOS ==========
+    async function carregarPedidos() {
+        const rota = filtroPedidos === 'hoje' ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje` : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
+        try {
+            const r = await apiFetch(rota);
+            if (r.ok) renderizarPedidos(await r.json());
+            else renderizarPedidos([]);
+        } catch (e) { console.error(e); }
+    }
+    function filtrarPedidos(tipo, btn) {
+        filtroPedidos = tipo;
+        document.querySelectorAll('.filtro-btn').forEach(b => b.className = 'filtro-btn inativo');
+        btn.className = 'filtro-btn ativo';
+        carregarPedidos();
+    }
+    function iniciarAutoRefresh() {
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshCountdown = REFRESH_INTERVAL;
+        const countdown = setInterval(() => {
+            refreshCountdown--;
+            const label = document.getElementById('refreshLabel');
+            if (label) label.textContent = `Atualiza em ${refreshCountdown}s`;
+            if (refreshCountdown <= 0) refreshCountdown = REFRESH_INTERVAL;
+        }, 1000);
+        refreshTimer = setInterval(async () => {
             refreshCountdown = REFRESH_INTERVAL;
-            const countdown = setInterval(() => {
-                refreshCountdown--;
-                const label = document.getElementById('refreshLabel');
-                if (label) label.textContent = `Atualiza em ${refreshCountdown}s`;
-                if (refreshCountdown <= 0) refreshCountdown = REFRESH_INTERVAL;
-            }, 1000);
-            refreshTimer = setInterval(async () => {
-                refreshCountdown = REFRESH_INTERVAL;
-                await carregarPedidos();
-            }, REFRESH_INTERVAL * 1000);
-            window.addEventListener('beforeunload', () => { clearInterval(refreshTimer); clearInterval(countdown); });
-        }
-        async function avancarStatus(id, statusAtual) {
-            const prox = STATUS_PROX[statusAtual];
-            if (!prox || prox === statusAtual) return;
-            const key = document.getElementById('adminKey')?.value || '';
-            try {
-                const res = await fetchWithNgrok(`${API_URL}/pedidos/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Admin-Key': key }, body: JSON.stringify({ status: prox }) });
-                if (res.ok) { feedback(`Pedido #${id} → ${prox}`, true); carregarPedidos(); }
-                else feedback("Erro", false);
-            } catch (e) { feedback("Erro", false); }
-        }
-        async function excluirPedido(id) {
-            if (!(await showConfirm("Remover pedido?"))) return;
-            const key = document.getElementById('adminKey')?.value || '';
-            try {
-                await fetchWithNgrok(`${API_URL}/pedidos/${id}`, { method: 'DELETE', headers: { 'Admin-Key': key } });
-                carregarPedidos();
-            } catch (e) { feedback("Erro", false); }
-        }
-        function renderizarPedidos(pedidos) {
-            const total = pedidos.reduce((s, p) => s + parseFloat(p.total), 0);
-            document.getElementById('pedidos-qtd').textContent = pedidos.length;
-            document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
-            const novosIds = new Set(pedidos.map(p => p.id));
-            const novos = pedidos.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
-            ultimosPedidosIds = novosIds;
-            if (novos.length) feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
-            const lista = document.getElementById('lista-pedidos');
-            if (!lista) return;
-            if (!pedidos.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>'; return; }
-            lista.innerHTML = pedidos.map(p => {
-                let itens = [];
-                try { itens = JSON.parse(p.itensJson || '[]'); } catch (e) { itens = []; }
-                const isNovo = novos.some(n => n.id === p.id);
-                const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
-                const itensHtml = itens.map(item => {
-                    let html = `<div class="pedido-item-linha"><span style="font-weight:800">${item.quantidade}x</span> <span>${item.nomeProduto}</span> <span style="margin-left:auto;font-weight:700">R$ ${(item.precoUnitario * item.quantidade).toFixed(2)}</span></div>`;
-                    const mods = [];
-                    if (item.removidos?.length) mods.push(`🚫 Sem: ${item.removidos.join(', ')}`);
-                    if (item.adicionais?.length) item.adicionais.forEach(a => mods.push(`➕ ${a}`));
-                    if (item.observacao) mods.push(`💬 ${item.observacao}`);
-                    if (mods.length) html += `<div class="pedido-item-mods">${mods.join('<br>')}</div>`;
-                    return html;
-                }).join('');
-                return `
+            await carregarPedidos();
+        }, REFRESH_INTERVAL * 1000);
+        window.addEventListener('beforeunload', () => { clearInterval(refreshTimer); clearInterval(countdown); });
+    }
+    async function avancarStatus(id, statusAtual) {
+        const prox = STATUS_PROX[statusAtual];
+        if (!prox || prox === statusAtual) return;
+        try {
+            const res = await apiFetch(`${API_URL}/pedidos/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: prox }) });
+            if (res.ok) { feedback(`Pedido #${id} → ${prox}`, true); carregarPedidos(); }
+            else feedback("Erro", false);
+        } catch (e) { feedback("Erro", false); }
+    }
+    async function excluirPedido(id) {
+        if (!(await showConfirm("Remover pedido?"))) return;
+        try {
+            await apiFetch(`${API_URL}/pedidos/${id}`, { method: 'DELETE' });
+            carregarPedidos();
+        } catch (e) { feedback("Erro", false); }
+    }
+    function renderizarPedidos(pedidos) {
+        const total = pedidos.reduce((s, p) => s + parseFloat(p.total), 0);
+        document.getElementById('pedidos-qtd').textContent = pedidos.length;
+        document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
+        const novosIds = new Set(pedidos.map(p => p.id));
+        const novos = pedidos.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
+        ultimosPedidosIds = novosIds;
+        if (novos.length) feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
+        const lista = document.getElementById('lista-pedidos');
+        if (!lista) return;
+        if (!pedidos.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>'; return; }
+        lista.innerHTML = pedidos.map(p => {
+            let itens = [];
+            try { itens = JSON.parse(p.itensJson || '[]'); } catch (e) { itens = []; }
+            const isNovo = novos.some(n => n.id === p.id);
+            const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
+            const itensHtml = itens.map(item => {
+                let html = `<div class="pedido-item-linha"><span style="font-weight:800">${item.quantidade}x</span> <span>${item.nomeProduto}</span> <span style="margin-left:auto;font-weight:700">R$ ${(item.precoUnitario * item.quantidade).toFixed(2)}</span></div>`;
+                const mods = [];
+                if (item.removidos?.length) mods.push(`🚫 Sem: ${item.removidos.join(', ')}`);
+                if (item.adicionais?.length) item.adicionais.forEach(a => mods.push(`➕ ${a}`));
+                if (item.observacao) mods.push(`💬 ${item.observacao}`);
+                if (mods.length) html += `<div class="pedido-item-mods">${mods.join('<br>')}</div>`;
+                return html;
+            }).join('');
+            return `
                 <div class="pedido-card ${isNovo ? 'pedido-novo' : ''}">
                     <div class="pedido-top">
                         <div><span class="pedido-id">#${p.id}</span> <span class="pedido-hora">${data} às ${hora}</span> ${p.nomeCliente ? `<span style="font-weight:800">${p.nomeCliente}</span>` : ''}</div>
@@ -1878,23 +1859,23 @@
                     <div class="pedido-itens">${itensHtml}</div>
                     ${p.observacao ? `<div class="pedido-obs">💬 ${p.observacao}</div>` : ''}
                 </div>`;
-            }).join('');
-        }
+        }).join('');
+    }
 
-        function feedback(msg, ok = true) {
-            const el = document.getElementById('feedback');
-            if (!el) return;
-            const ico = el.querySelector('i');
-            const msgSpan = document.getElementById('feedbackMsg');
-            if (msgSpan) msgSpan.textContent = msg;
-            el.className = `feedback ${ok ? 'ok' : 'err'} show`;
-            if (ico) ico.className = ok ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation';
-            setTimeout(() => el.classList.remove('show'), 3000);
-        }
+    function feedback(msg, ok = true) {
+        const el = document.getElementById('feedback');
+        if (!el) return;
+        const ico = el.querySelector('i');
+        const msgSpan = document.getElementById('feedbackMsg');
+        if (msgSpan) msgSpan.textContent = msg;
+        el.className = `feedback ${ok ? 'ok' : 'err'} show`;
+        if (ico) ico.className = ok ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation';
+        setTimeout(() => el.classList.remove('show'), 3000);
+    }
 
-        // Inicialização
-        initLogin();
-    </script>
+    // Inicialização
+    initLogin();
+</script>
 </body>
 
 </html>
