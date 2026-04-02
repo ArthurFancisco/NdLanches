@@ -48,7 +48,124 @@
             color: var(--text);
         }
 
-        /* Topbar e demais estilos (idênticos ao seu, apenas adicionado campo horarioFuncionamento) */
+        /* ===== LOGIN OVERLAY ===== */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease;
+        }
+
+        .login-overlay.hidden {
+            display: none;
+        }
+
+        .login-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            animation: fadeInUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-icon {
+            font-size: 3rem;
+            background: var(--primary);
+            width: 70px;
+            height: 70px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: white;
+        }
+
+        .login-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .login-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            background: var(--surface2);
+            transition: var(--transition);
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(42, 107, 60, 0.1);
+            background: white;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 12px;
+        }
+
+        .login-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .login-error {
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-top: 8px;
+            min-height: 28px;
+        }
+
+        /* ===== MAIN CONTENT (inicialmente escondido) ===== */
+        .main-content {
+            display: none;
+        }
+
+        .main-content.visible {
+            display: block;
+        }
+
+        /* ===== ESTILOS DO DASHBOARD (idênticos ao original) ===== */
         .topbar {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
@@ -194,12 +311,9 @@
         }
 
         @keyframes ledPulse {
-
-            0%,
-            100% {
+            0%,100% {
                 box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
             }
-
             50% {
                 box-shadow: 0 0 18px rgba(76, 175, 80, 0.7);
             }
@@ -883,11 +997,9 @@
             0% {
                 background: rgba(42, 107, 60, 0.08);
             }
-
             50% {
                 background: rgba(42, 107, 60, 0.2);
             }
-
             100% {
                 background: transparent;
             }
@@ -937,12 +1049,9 @@
         }
 
         @keyframes skelPulse {
-
-            0%,
-            100% {
+            0%,100% {
                 opacity: 0.5;
             }
-
             50% {
                 opacity: 1;
             }
@@ -983,215 +1092,229 @@
 </head>
 
 <body>
-
-    <div class="topbar">
-        <div class="topbar-brand">
-            <div class="topbar-icon">🍔</div>
-            <div class="topbar-title">ND <span>ADMIN</span></div>
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-icon"><i class="fa-solid fa-lock"></i></div>
+            <h2>Acesso Restrito</h2>
+            <p>Digite a senha para acessar o painel administrativo</p>
+            <input type="password" id="accessPassword" class="login-input" placeholder="Senha de acesso" autofocus>
+            <button id="loginButton" class="login-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i> Acessar</button>
+            <div id="loginError" class="login-error"></div>
         </div>
-        <div class="key-wrap"><i class="fa-solid fa-key"></i><input type="password" id="adminKey"
-                placeholder="Chave admin" value="arthur123"></div>
     </div>
 
-    <div class="dashboard">
-        <!-- COLUNA 1 -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-circle-dot"></i> Status da Loja</h2>
+    <!-- CONTEÚDO PRINCIPAL (inicialmente oculto) -->
+    <div id="mainContent" class="main-content">
+        <div class="topbar">
+            <div class="topbar-brand">
+                <div class="topbar-icon">🍔</div>
+                <div class="topbar-title">ND <span>ADMIN</span></div>
             </div>
-            <div class="panel-body">
-                <div class="status-display">
-                    <div class="status-info">
-                        <div class="status-led" id="statusLed"></div>
-                        <div class="status-text"><strong id="statusLabel">Carregando...</strong><span
-                                id="statusSub">Aguardando</span></div>
-                    </div><button class="btn-toggle" id="btnStatus" onclick="alternarStatus()" disabled>Aguarde</button>
+            <div class="key-wrap"><i class="fa-solid fa-key"></i><input type="password" id="adminKey"
+                    placeholder="Chave admin" value="arthur123"></div>
+        </div>
+
+        <div class="dashboard">
+            <!-- COLUNA 1 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-circle-dot"></i> Status da Loja</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="status-display">
+                        <div class="status-info">
+                            <div class="status-led" id="statusLed"></div>
+                            <div class="status-text"><strong id="statusLabel">Carregando...</strong><span
+                                    id="statusSub">Aguardando</span></div>
+                        </div><button class="btn-toggle" id="btnStatus" onclick="alternarStatus()" disabled>Aguarde</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-shop"></i> Configurações</h2>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-shop"></i> Configurações</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group"><label>WhatsApp</label><input type="text" id="lojaWhatsapp"
+                            placeholder="5517999999999"></div>
+                    <div class="form-group"><label>Mensagem (fechado)</label><input type="text" id="lojaMensagemFechado"
+                            placeholder="Voltamos em breve!"></div>
+                    <div class="form-group"><label>Horário de funcionamento</label><input type="text"
+                            id="horarioFuncionamento" placeholder="Ex: Seg a Sáb 18h-23h, Dom fechado"></div><button
+                        class="btn-save" onclick="salvarConfigLoja()"><i class="fa-solid fa-floppy-disk"></i> Salvar
+                        Configurações</button>
+                </div>
             </div>
-            <div class="panel-body">
-                <div class="form-group"><label>WhatsApp</label><input type="text" id="lojaWhatsapp"
-                        placeholder="5517999999999"></div>
-                <div class="form-group"><label>Mensagem (fechado)</label><input type="text" id="lojaMensagemFechado"
-                        placeholder="Voltamos em breve!"></div>
-                <div class="form-group"><label>Horário de funcionamento</label><input type="text"
-                        id="horarioFuncionamento" placeholder="Ex: Seg a Sáb 18h-23h, Dom fechado"></div><button
-                    class="btn-save" onclick="salvarConfigLoja()"><i class="fa-solid fa-floppy-disk"></i> Salvar
-                    Configurações</button>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-burger"></i> <span id="formTitle">Novo Produto</span></h2>
+                </div>
+                <div class="panel-body">
+                    <div class="edit-banner-bar" id="editBanner"><i class="fa-solid fa-pencil"></i> Modo edição</div>
+                    <div class="form-group"><label>Nome</label><input type="text" id="nome"></div>
+                    <div class="form-group"><label>Descrição</label><input type="text" id="descricao"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Preço</label><input type="number" id="preco" step="0.01"></div>
+                        <div class="form-group"><label>Categoria</label><select id="categoria"
+                                onchange="autoEmojiPorCategoria()">
+                                <option value="LANCHE">🍔 Lanche</option>
+                                <option value="BEBIDA">🥤 Bebida</option>
+                                <option value="PASTEL">🥟 Pastel</option>
+                                <option value="BATATA">🍟 Batata</option>
+                                <option value="PIZZA">🍕 Pizzas</option>
+                            </select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Emoji</label><input type="text" id="emoji" maxlength="4"></div>
+                        <div class="form-group"><label>Ativo</label><select id="ativoProduto">
+                                <option value="true">✅ Ativo</option>
+                                <option value="false">❌ Inativo</option>
+                            </select></div>
+                    </div>
+                    <div class="form-group"><label>Imagem</label><label for="imagemFile" class="file-input-label"><i
+                                class="fa-solid fa-cloud-upload-alt"></i> Selecionar</label><input type="file"
+                            id="imagemFile" accept="image/*" onchange="previewImagem(this)">
+                        <div class="image-preview" id="previewImagemDiv"></div>
+                    </div>
+                    <div class="form-group"><label>OU URL da imagem</label><input type="text" id="imagemUrl"></div>
+                    <div class="preview-card">
+                        <div class="preview-emoji" id="previewEmoji">🍔</div>
+                        <div class="preview-name" id="previewName">Produto</div>
+                        <div class="preview-price" id="previewPrice">R$ 0,00</div>
+                    </div><button class="btn-save" id="btnSalvar" onclick="salvarProduto()"><i
+                            class="fa-solid fa-floppy-disk"></i> <span id="btnSalvarLabel">Salvar</span></button><button
+                        class="btn-cancel" id="btnCancelar" onclick="cancelarEdicao()"
+                        style="display:none">Cancelar</button>
+                </div>
             </div>
-        </div>
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-burger"></i> <span id="formTitle">Novo Produto</span></h2>
+
+            <!-- COLUNA 2 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-circle-plus"></i> <span id="adicFormTitle">Novo Adicional</span></h2>
+                </div>
+                <div class="panel-body">
+                    <div class="edit-banner-bar" id="adicEditBanner"><i class="fa-solid fa-pencil"></i> Editando</div>
+                    <div class="form-group"><label>Nome</label><input type="text" id="adic-nome"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Preço</label><input type="number" id="adic-preco" step="0.01"></div>
+                        <div class="form-group"><label>Emoji</label><input type="text" id="adic-emoji" maxlength="4"></div>
+                    </div><button class="btn-save" onclick="salvarAdic()"><i class="fa-solid fa-floppy-disk"></i> <span
+                            id="adicBtnLabel">Salvar</span></button><button class="btn-cancel" id="adicCancelar"
+                        onclick="cancelarEdicaoAdic()" style="display:none">Cancelar</button>
+                </div>
             </div>
-            <div class="panel-body">
-                <div class="edit-banner-bar" id="editBanner"><i class="fa-solid fa-pencil"></i> Modo edição</div>
-                <div class="form-group"><label>Nome</label><input type="text" id="nome"></div>
-                <div class="form-group"><label>Descrição</label><input type="text" id="descricao"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Preço</label><input type="number" id="preco" step="0.01"></div>
-                    <div class="form-group"><label>Categoria</label><select id="categoria"
-                            onchange="autoEmojiPorCategoria()">
-                            <option value="LANCHE">🍔 Lanche</option>
-                            <option value="BEBIDA">🥤 Bebida</option>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-list"></i> Adicionais</h2><span class="prod-count" id="adicCount">–</span>
+                </div>
+                <div class="panel-body">
+                    <div id="lista-adicionais">
+                        <div class="skel-row">
+                            <div class="skel" style="width:44px;height:44px;border-radius:12px;"></div>
+                            <div style="flex:1">
+                                <div class="skel" style="height:14px;width:60%;margin-bottom:8px"></div>
+                                <div class="skel" style="height:12px;width:30%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-bullhorn"></i> <span id="bannerFormTitle">Novo Banner</span></h2>
+                </div>
+                <div class="panel-body">
+                    <div class="edit-banner-bar" id="bannerEditBanner"><i class="fa-solid fa-pencil"></i> Editando</div>
+                    <div class="form-group"><label>Título</label><input type="text" id="banner-titulo"></div>
+                    <div class="form-group"><label>Descrição</label><input type="text" id="banner-desc"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Cor</label><select id="banner-cor">
+                                <option value="amarelo">🟡 Amarelo</option>
+                                <option value="verde">🟢 Verde</option>
+                                <option value="vermelho">🔴 Vermelho</option>
+                                <option value="azul">🔵 Azul</option>
+                            </select></div>
+                        <div class="form-group"><label>Emoji</label><input type="text" id="banner-emoji" maxlength="4">
+                        </div>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:14px">
+                        <div>
+                            <div style="font-weight:800">Ativar agora</div>
+                            <div style="font-size:0.75rem">Aparece no cardápio</div>
+                        </div><label><input type="checkbox" id="banner-ativo"
+                                style="width:20px;height:20px;accent-color:var(--primary)"></label>
+                    </div><button class="btn-save" onclick="salvarBanner()"><i class="fa-solid fa-floppy-disk"></i> <span
+                            id="bannerBtnLabel">Publicar</span></button><button class="btn-cancel" id="bannerCancelar"
+                        onclick="cancelarEdicaoBanner()" style="display:none">Cancelar</button>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-rectangle-ad"></i> Banners</h2><span class="prod-count"
+                        id="bannerCount">–</span>
+                </div>
+                <div class="panel-body">
+                    <div id="lista-banners">
+                        <div class="empty-adm"><i class="fa-solid fa-bullhorn"></i>
+                            <p>Nenhum banner.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUNA 3 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-list-ul"></i> Produtos</h2><span class="prod-count" id="prodCount">–</span>
+                </div>
+                <div class="panel-body">
+                    <div class="filter-bar"><select id="filtroCategoria" onchange="filtrarProdutosAdmin()">
+                            <option value="TODOS">📋 Todas categorias</option>
+                            <option value="LANCHE">🍔 Lanches</option>
+                            <option value="BEBIDA">🥤 Bebidas</option>
                             <option value="PASTEL">🥟 Pastel</option>
                             <option value="BATATA">🍟 Batata</option>
                             <option value="PIZZA">🍕 Pizzas</option>
-                        </select></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Emoji</label><input type="text" id="emoji" maxlength="4"></div>
-                    <div class="form-group"><label>Ativo</label><select id="ativoProduto">
-                            <option value="true">✅ Ativo</option>
-                            <option value="false">❌ Inativo</option>
-                        </select></div>
-                </div>
-                <div class="form-group"><label>Imagem</label><label for="imagemFile" class="file-input-label"><i
-                            class="fa-solid fa-cloud-upload-alt"></i> Selecionar</label><input type="file"
-                        id="imagemFile" accept="image/*" onchange="previewImagem(this)">
-                    <div class="image-preview" id="previewImagemDiv"></div>
-                </div>
-                <div class="form-group"><label>OU URL da imagem</label><input type="text" id="imagemUrl"></div>
-                <div class="preview-card">
-                    <div class="preview-emoji" id="previewEmoji">🍔</div>
-                    <div class="preview-name" id="previewName">Produto</div>
-                    <div class="preview-price" id="previewPrice">R$ 0,00</div>
-                </div><button class="btn-save" id="btnSalvar" onclick="salvarProduto()"><i
-                        class="fa-solid fa-floppy-disk"></i> <span id="btnSalvarLabel">Salvar</span></button><button
-                    class="btn-cancel" id="btnCancelar" onclick="cancelarEdicao()"
-                    style="display:none">Cancelar</button>
-            </div>
-        </div>
-
-        <!-- COLUNA 2 -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-circle-plus"></i> <span id="adicFormTitle">Novo Adicional</span></h2>
-            </div>
-            <div class="panel-body">
-                <div class="edit-banner-bar" id="adicEditBanner"><i class="fa-solid fa-pencil"></i> Editando</div>
-                <div class="form-group"><label>Nome</label><input type="text" id="adic-nome"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Preço</label><input type="number" id="adic-preco" step="0.01"></div>
-                    <div class="form-group"><label>Emoji</label><input type="text" id="adic-emoji" maxlength="4"></div>
-                </div><button class="btn-save" onclick="salvarAdic()"><i class="fa-solid fa-floppy-disk"></i> <span
-                        id="adicBtnLabel">Salvar</span></button><button class="btn-cancel" id="adicCancelar"
-                    onclick="cancelarEdicaoAdic()" style="display:none">Cancelar</button>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-list"></i> Adicionais</h2><span class="prod-count" id="adicCount">–</span>
-            </div>
-            <div class="panel-body">
-                <div id="lista-adicionais">
-                    <div class="skel-row">
-                        <div class="skel" style="width:44px;height:44px;border-radius:12px;"></div>
-                        <div style="flex:1">
-                            <div class="skel" style="height:14px;width:60%;margin-bottom:8px"></div>
-                            <div class="skel" style="height:12px;width:30%"></div>
+                        </select><input type="text" id="buscaProduto" placeholder="🔍 Buscar..."
+                            onkeyup="filtrarProdutosAdmin()"></div>
+                    <div id="lista-produtos-admin">
+                        <div class="skel-row">
+                            <div class="skel" style="width:44px;height:44px;border-radius:12px;"></div>
+                            <div style="flex:1">
+                                <div class="skel" style="height:14px;width:55%;margin-bottom:8px"></div>
+                                <div class="skel" style="height:12px;width:35%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-bullhorn"></i> <span id="bannerFormTitle">Novo Banner</span></h2>
-            </div>
-            <div class="panel-body">
-                <div class="edit-banner-bar" id="bannerEditBanner"><i class="fa-solid fa-pencil"></i> Editando</div>
-                <div class="form-group"><label>Título</label><input type="text" id="banner-titulo"></div>
-                <div class="form-group"><label>Descrição</label><input type="text" id="banner-desc"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Cor</label><select id="banner-cor">
-                            <option value="amarelo">🟡 Amarelo</option>
-                            <option value="verde">🟢 Verde</option>
-                            <option value="vermelho">🔴 Vermelho</option>
-                            <option value="azul">🔵 Azul</option>
-                        </select></div>
-                    <div class="form-group"><label>Emoji</label><input type="text" id="banner-emoji" maxlength="4">
-                    </div>
-                </div>
-                <div
-                    style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:14px">
-                    <div>
-                        <div style="font-weight:800">Ativar agora</div>
-                        <div style="font-size:0.75rem">Aparece no cardápio</div>
-                    </div><label><input type="checkbox" id="banner-ativo"
-                            style="width:20px;height:20px;accent-color:var(--primary)"></label>
-                </div><button class="btn-save" onclick="salvarBanner()"><i class="fa-solid fa-floppy-disk"></i> <span
-                        id="bannerBtnLabel">Publicar</span></button><button class="btn-cancel" id="bannerCancelar"
-                    onclick="cancelarEdicaoBanner()" style="display:none">Cancelar</button>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-rectangle-ad"></i> Banners</h2><span class="prod-count"
-                    id="bannerCount">–</span>
-            </div>
-            <div class="panel-body">
-                <div id="lista-banners">
-                    <div class="empty-adm"><i class="fa-solid fa-bullhorn"></i>
-                        <p>Nenhum banner.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- COLUNA 3 -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-list-ul"></i> Produtos</h2><span class="prod-count" id="prodCount">–</span>
-            </div>
-            <div class="panel-body">
-                <div class="filter-bar"><select id="filtroCategoria" onchange="filtrarProdutosAdmin()">
-                        <option value="TODOS">📋 Todas categorias</option>
-                        <option value="LANCHE">🍔 Lanches</option>
-                        <option value="BEBIDA">🥤 Bebidas</option>
-                        <option value="PORCAO">🥟 Pastel</option>
-                        <option value="BATATA">🍟 Batata</option>
-                        <option value="PIZZA">🍕 Pizzas</option>
-                    </select><input type="text" id="buscaProduto" placeholder="🔍 Buscar..."
-                        onkeyup="filtrarProdutosAdmin()"></div>
-                <div id="lista-produtos-admin">
-                    <div class="skel-row">
-                        <div class="skel" style="width:44px;height:44px;border-radius:12px;"></div>
-                        <div style="flex:1">
-                            <div class="skel" style="height:14px;width:55%;margin-bottom:8px"></div>
-                            <div class="skel" style="height:12px;width:35%"></div>
+        <!-- PEDIDOS -->
+        <div style="max-width:1440px;margin:0 auto 60px;padding:0 24px">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-receipt"></i> Pedidos</h2>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap">
+                        <div style="display:flex;gap:8px"><button class="filtro-btn ativo" id="filtro-hoje"
+                                onclick="filtrarPedidos('hoje',this)">Hoje</button><button class="filtro-btn inativo"
+                                id="filtro-todos" onclick="filtrarPedidos('todos',this)">Todos</button></div>
+                        <div class="resumo-dia"><span id="pedidos-qtd">0</span> pedidos · <span id="pedidos-receita">R$
+                                0,00</span></div>
+                        <div class="refresh-indicator">
+                            <div class="refresh-dot"></div><span id="refreshLabel">Atualiza em 30s</span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PEDIDOS -->
-    <div style="max-width:1440px;margin:0 auto 60px;padding:0 24px">
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-receipt"></i> Pedidos</h2>
-                <div style="display:flex;gap:12px;flex-wrap:wrap">
-                    <div style="display:flex;gap:8px"><button class="filtro-btn ativo" id="filtro-hoje"
-                            onclick="filtrarPedidos('hoje',this)">Hoje</button><button class="filtro-btn inativo"
-                            id="filtro-todos" onclick="filtrarPedidos('todos',this)">Todos</button></div>
-                    <div class="resumo-dia"><span id="pedidos-qtd">0</span> pedidos · <span id="pedidos-receita">R$
-                            0,00</span></div>
-                    <div class="refresh-indicator">
-                        <div class="refresh-dot"></div><span id="refreshLabel">Atualiza em 30s</span>
+                <div class="panel-body" style="padding:0">
+                    <div id="lista-pedidos">
+                        <div style="text-align:center;padding:48px;color:var(--text-muted)"><i
+                                class="fa-solid fa-spinner fa-spin"
+                                style="font-size:1.8rem;margin-bottom:12px;display:block"></i>Carregando pedidos...</div>
                     </div>
-                </div>
-            </div>
-            <div class="panel-body" style="padding:0">
-                <div id="lista-pedidos">
-                    <div style="text-align:center;padding:48px;color:var(--text-muted)"><i
-                            class="fa-solid fa-spinner fa-spin"
-                            style="font-size:1.8rem;margin-bottom:12px;display:block"></i>Carregando pedidos...</div>
                 </div>
             </div>
         </div>
@@ -1209,8 +1332,11 @@
 
     <script>
         // ================================================================
-        // ADMIN: CRUD completo + upload + pedidos (corrigido)
+        // ADMIN: Proteção por senha + CRUD completo + upload + pedidos
         // ================================================================
+        // Defina aqui a senha de acesso ao painel
+        const ACCESS_PASSWORD = "admin123";  // ALTERE PARA A SENHA DESEJADA
+
         const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
         const LOJA_SLUG = "nd-lanches";
         const LOJA_ID_NUM = 1;
@@ -1226,6 +1352,41 @@
 
         const STATUS_PROX = { RECEBIDO: 'PREPARO', PREPARO: 'PRONTO', PRONTO: 'ENTREGUE', ENTREGUE: 'ENTREGUE', CANCELADO: 'CANCELADO' };
         const STATUS_LABEL = { RECEBIDO: '📥 Recebido', PREPARO: '🔥 Em preparo', PRONTO: '✅ Pronto', ENTREGUE: '🏍️ Entregue', CANCELADO: '❌ Cancelado' };
+
+        // ========== LOGIN ==========
+        function initLogin() {
+            const loginOverlay = document.getElementById('loginOverlay');
+            const mainContent = document.getElementById('mainContent');
+            const passwordInput = document.getElementById('accessPassword');
+            const loginBtn = document.getElementById('loginButton');
+            const errorDiv = document.getElementById('loginError');
+
+            // Verificar se já está autenticado na sessão
+            if (sessionStorage.getItem('admin_authenticated') === 'true') {
+                loginOverlay.classList.add('hidden');
+                mainContent.classList.add('visible');
+                carregarDados(); // inicia o carregamento dos dados do admin
+                return;
+            }
+
+            loginBtn.addEventListener('click', () => {
+                const pass = passwordInput.value.trim();
+                if (pass === ACCESS_PASSWORD) {
+                    sessionStorage.setItem('admin_authenticated', 'true');
+                    loginOverlay.classList.add('hidden');
+                    mainContent.classList.add('visible');
+                    carregarDados();
+                } else {
+                    errorDiv.textContent = 'Senha incorreta. Tente novamente.';
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            });
+
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') loginBtn.click();
+            });
+        }
 
         // ========== FUNÇÃO PARA ADICIONAR HEADER NGROK ==========
         async function fetchWithNgrok(url, options = {}) {
@@ -1631,7 +1792,7 @@
             } catch (e) { feedback("Erro", false); }
         }
 
-        // ========== PEDIDOS – CORRIGIDO ==========
+        // ========== PEDIDOS ==========
         async function carregarPedidos() {
             const key = document.getElementById('adminKey')?.value || '';
             const rota = filtroPedidos === 'hoje' ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje` : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
@@ -1730,7 +1891,9 @@
             if (ico) ico.className = ok ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation';
             setTimeout(() => el.classList.remove('show'), 3000);
         }
-        window.onload = carregarDados;
+
+        // Inicialização
+        initLogin();
     </script>
 </body>
 
