@@ -1838,35 +1838,89 @@
         const total = pedidos.reduce((s, p) => s + parseFloat(p.total), 0);
         document.getElementById('pedidos-qtd').textContent = pedidos.length;
         document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
+        
         const novosIds = new Set(pedidos.map(p => p.id));
         const novos = pedidos.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
         ultimosPedidosIds = novosIds;
         if (novos.length) feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
+        
         const lista = document.getElementById('lista-pedidos');
         if (!lista) return;
-        if (!pedidos.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>'; return; }
+        if (!pedidos.length) {
+            lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>';
+            return;
+        }
+        
         lista.innerHTML = pedidos.map(p => {
+            // 🔥 Tenta parsear itensJson de forma segura
             let itens = [];
-            try { itens = JSON.parse(p.itensJson || '[]'); } catch (e) { itens = []; }
+            try {
+                if (typeof p.itensJson === 'string') {
+                    itens = JSON.parse(p.itensJson || '[]');
+                } else if (Array.isArray(p.itensJson)) {
+                    itens = p.itensJson;
+                } else if (p.itens) {
+                    itens = p.itens;
+                } else {
+                    console.warn(`Pedido #${p.id} sem itens válidos:`, p);
+                    itens = [];
+                }
+            } catch (e) {
+                console.error(`Erro ao parsear itens do pedido #${p.id}:`, e, p.itensJson);
+                itens = [];
+            }
+            
+            // Log para depuração (remova depois)
+            if (itens.length === 0) {
+                console.log(`Pedido #${p.id} - itens vazio ou inválido`, p);
+            } else {
+                console.log(`Pedido #${p.id} - itens:`, itens);
+            }
+            
             const isNovo = novos.some(n => n.id === p.id);
             const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
+            
             const itensHtml = itens.map(item => {
-                let html = `<div class="pedido-item-linha"><span style="font-weight:800">${item.quantidade}x</span> <span>${item.nomeProduto}</span> <span style="margin-left:auto;font-weight:700">R$ ${(item.precoUnitario * item.quantidade).toFixed(2)}</span></div>`;
+                // 🔥 Fallbacks para campos que podem estar com nomes diferentes
+                const nome = item.nomeProduto || item.nome || item.name || 'Produto sem nome';
+                const qtd = item.quantidade || item.qtd || item.quantity || 1;
+                const precoUnit = item.precoUnitario || item.preco || item.price || 0;
+                const subtotal = (parseFloat(precoUnit) * parseInt(qtd)).toFixed(2);
+                
+                let html = `<div class="pedido-item-linha">
+                    <span style="font-weight:800">${qtd}x</span>
+                    <span>${nome}</span>
+                    <span style="margin-left:auto;font-weight:700">R$ ${subtotal}</span>
+                </div>`;
+                
                 const mods = [];
-                if (item.removidos?.length) mods.push(`🚫 Sem: ${item.removidos.join(', ')}`);
-                if (item.adicionais?.length) item.adicionais.forEach(a => mods.push(`➕ ${a}`));
-                if (item.observacao) mods.push(`💬 ${item.observacao}`);
+                const removidos = item.removidos || item.ingredientesRemovidos || [];
+                if (removidos.length) mods.push(`🚫 Sem: ${removidos.join(', ')}`);
+                
+                const adicionais = item.adicionais || item.extras || [];
+                if (adicionais.length) adicionais.forEach(a => mods.push(`➕ ${a}`));
+                
+                const obs = item.observacao || item.obs || '';
+                if (obs) mods.push(`💬 ${obs}`);
+                
                 if (mods.length) html += `<div class="pedido-item-mods">${mods.join('<br>')}</div>`;
                 return html;
             }).join('');
+            
             return `
                 <div class="pedido-card ${isNovo ? 'pedido-novo' : ''}">
                     <div class="pedido-top">
-                        <div><span class="pedido-id">#${p.id}</span> <span class="pedido-hora">${data} às ${hora}</span> ${p.nomeCliente ? `<span style="font-weight:800">${p.nomeCliente}</span>` : ''}</div>
-                        <div><span class="pedido-valor">R$ ${parseFloat(p.total).toFixed(2)}</span>
-                        <button class="status-badge status-${p.status}" onclick="avancarStatus(${p.id},'${p.status}')">${STATUS_LABEL[p.status] || p.status}</button>
-                        <button class="btn-del-pedido" onclick="excluirPedido(${p.id})"><i class="fa fa-trash"></i></button></div>
+                        <div>
+                            <span class="pedido-id">#${p.id}</span>
+                            <span class="pedido-hora">${data} às ${hora}</span>
+                            ${p.nomeCliente ? `<span style="font-weight:800">${p.nomeCliente}</span>` : ''}
+                        </div>
+                        <div>
+                            <span class="pedido-valor">R$ ${parseFloat(p.total).toFixed(2)}</span>
+                            <button class="status-badge status-${p.status}" onclick="avancarStatus(${p.id},'${p.status}')">${STATUS_LABEL[p.status] || p.status}</button>
+                            <button class="btn-del-pedido" onclick="excluirPedido(${p.id})"><i class="fa fa-trash"></i></button>
+                        </div>
                     </div>
                     <div class="pedido-itens">${itensHtml}</div>
                     ${p.observacao ? `<div class="pedido-obs">💬 ${p.observacao}</div>` : ''}
