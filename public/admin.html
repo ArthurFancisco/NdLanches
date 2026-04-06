@@ -1410,37 +1410,38 @@
 
     // ========== FUNÇÃO FETCH PADRÃO (sem ngrok header) ==========
     async function apiFetch(url, options = {}) {
-    const key = getAdminKey();
-    const headers = {
-        ...(options.headers || {}),
-        'ngrok-skip-browser-warning': 'any-value'  // 🔥 ESSENCIAL para ngrok free
-    };
-    
-    // Só adiciona Admin-Key se não for uma rota pública (opcional, mas seguro)
-    const isPublicRoute = url.includes('/loja/') && (url.includes('/status') || !url.includes('/admin'));
-    if (!isPublicRoute && key) {
-        headers['Admin-Key'] = key;
+        const key = getAdminKey();
+        const headers = {
+            ...(options.headers || {}),
+            'ngrok-skip-browser-warning': 'any-value'  // Essencial para ngrok free
+        };
+        
+        // SEMPRE envia a chave se ela existir (a API ignora em rotas públicas)
+        if (key) {
+            headers['Admin-Key'] = key;
+        }
+        
+        // Define Content-Type apenas se não for FormData
+        if (!(options.body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+        }
+        
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+        
+        // Se retornar 403, a sessão expirou ou chave inválida
+        if (response.status === 403) {
+            sessionStorage.removeItem('admin_authenticated');
+            sessionStorage.removeItem('admin_key');
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('mainContent').classList.remove('visible');
+            feedback("Sessão expirada. Faça login novamente.", false);
+            throw new Error("Unauthorized");
+        }
+        return response;
     }
-    
-    if (!(options.body instanceof FormData)) {
-        headers['Content-Type'] = 'application/json';
-    }
-    
-    const response = await fetch(url, {
-        ...options,
-        headers
-    });
-    
-    if (response.status === 403) {
-        sessionStorage.removeItem('admin_authenticated');
-        sessionStorage.removeItem('admin_key');
-        document.getElementById('loginOverlay').classList.remove('hidden');
-        document.getElementById('mainContent').classList.remove('visible');
-        feedback("Sessão expirada. Faça login novamente.", false);
-        throw new Error("Unauthorized");
-    }
-    return response;
-}
 
     // ========== CONFIRMAÇÃO ==========
     let confirmResolve = null;
