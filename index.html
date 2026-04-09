@@ -130,7 +130,6 @@
                 display: block !important;
             }
 
-            /* Esconde botão flutuante no desktop */
             .fab-cart {
                 display: none;
             }
@@ -637,7 +636,7 @@
             font-size: 0.95rem;
         }
 
-        .add-btn:hover {
+        .add-btn:hover:not(:disabled) {
             background: var(--green-dark);
             transform: scale(1.08) rotate(3deg);
         }
@@ -649,6 +648,39 @@
         .add-btn.added {
             background: var(--gold);
             animation: addedBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .add-btn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Produto indisponível */
+        .product-card.indisponivel {
+            opacity: 0.8;
+            border-color: #ccc;
+            background: #f9f9f9;
+            cursor: default;
+        }
+
+        .product-card.indisponivel .product-img {
+            filter: grayscale(0.2);
+        }
+
+        .indisponivel-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 50px;
+            z-index: 2;
+            backdrop-filter: blur(4px);
         }
 
         @keyframes addedBounce {
@@ -880,9 +912,6 @@
             font-weight: 700;
             font-size: 0.9rem;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             transition: var(--transition);
             color: var(--text-mid);
         }
@@ -1079,13 +1108,12 @@
             margin: 0;
         }
 
-        /* ========== PRODUCT MODAL (responsivo) ========== */
+        /* ========== PRODUCT MODAL ========== */
         .modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(10, 30, 20, 0.55);
             backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
             z-index: 1000;
             display: flex;
             align-items: flex-end;
@@ -1256,7 +1284,6 @@
             cursor: pointer;
             transition: var(--transition);
             user-select: none;
-            position: relative;
         }
 
         .ingredient-chip .chip-x {
@@ -2200,18 +2227,16 @@
         const cartModalSummary = document.getElementById('cartModalSummary');
         const cartModalTotal = document.getElementById('cartModalTotalAmount');
         const cartModalSubtotal = document.getElementById('cartModalSubtotal');
-        const cartModalCount = document.getElementById('fabCartCount');
         const fabCartTotal = document.getElementById('fabCartTotal');
         const fabCart = document.getElementById('fabCart');
         const repeatBtnModal = document.getElementById('repeatLastOrderBtnModal');
         const checkoutBtnModal = document.getElementById('checkoutBtnModal');
-
         const productModal = document.getElementById('productModal');
         const checkoutModal = document.getElementById('checkoutModal');
         const toastEl = document.getElementById('toastMsg');
 
         // ==================== UTILITIES ====================
-        function fmt(n) { return `R$ ${n.toFixed(2).replace('.', ',')}` }
+        function fmt(n) { return `R$ ${n.toFixed(2).replace('.', ',')}`; }
 
         let toastTimer;
         function showToast(msg, isError = false) {
@@ -2278,7 +2303,7 @@
             if (cartItemCount) cartItemCount.classList.add('bounce');
             setTimeout(() => cartItemCount?.classList.remove('bounce'), 500);
             // fab badge and total
-            if (fabCartCount) fabCartCount.textContent = count;
+            if (document.getElementById('fabCartCount')) document.getElementById('fabCartCount').textContent = count;
             if (fabCartTotal) fabCartTotal.textContent = fmt(total);
             // FAB subtle animation
             fabCart?.classList.add('bounce');
@@ -2337,8 +2362,6 @@
         }
 
         function renderCartModal() {
-            const count = getCartCount();
-            const total = getCartTotal();
             if (cart.length === 0) {
                 if (cartModalItemsList) cartModalItemsList.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><p>Seu carrinho está vazio</p><small>Adicione itens para começar</small></div>`;
                 if (cartModalSummary) cartModalSummary.style.display = 'none';
@@ -2375,7 +2398,7 @@
             });
             if (cartModalItemsList) cartModalItemsList.innerHTML = html;
             if (cartModalSummary) cartModalSummary.style.display = 'block';
-            const sub = total;
+            const sub = getCartTotal();
             const fee = deliveryType === 'ENTREGA' ? DELIVERY_FEE : 0;
             if (cartModalSubtotal) cartModalSubtotal.textContent = fmt(sub);
             const feeRowModal = document.getElementById('deliveryFeeRowModal');
@@ -2471,15 +2494,18 @@
                     const price = p.preco.toFixed(2).replace('.', ',');
                     const imgHtml = p.imagemUrl ? `<img src="${p.imagemUrl}" alt="${p.nome}" loading="lazy">` : `<div class="emoji-placeholder">${p.emoji || meta.emoji}</div>`;
                     const tagHtml = p.tagTexto ? `<div class="product-tag">${p.tagTexto}</div>` : '';
-                    html += `
-                <div class="product-card" data-id="${p.id}">
-                    <div class="product-img">${imgHtml}${tagHtml}<button class="product-fav" data-pid="${p.id}" onclick="toggleFav(event,${p.id})"><i class="fa-heart fa-solid"></i></button></div>
+                    const isDisponivel = p.ativo === true;
+                    const disabledAttr = !isDisponivel ? 'disabled' : '';
+                    const disableClass = !isDisponivel ? 'indisponivel' : '';
+                    const badgeIndisponivel = !isDisponivel ? '<div class="indisponivel-label">⚠️ INDISPONÍVEL</div>' : '';
+                    html += `<div class="product-card ${disableClass}" data-id="${p.id}">
+                    <div class="product-img">${imgHtml}${tagHtml}${badgeIndisponivel}<button class="product-fav" data-pid="${p.id}" onclick="toggleFav(event,${p.id})"><i class="fa-heart fa-solid"></i></button></div>
                     <div class="product-info">
                         <div class="product-title">${p.nome}</div>
                         <div class="product-desc">${p.descricao || ''}</div>
                         <div class="product-footer">
                             <div class="product-price"><span class="currency">R$ </span>${price}</div>
-                            <button class="add-btn" data-id="${p.id}" aria-label="Adicionar ${p.nome}"><i class="fa-solid fa-plus"></i></button>
+                            <button class="add-btn" data-id="${p.id}" aria-label="Adicionar ${p.nome}" ${disabledAttr}><i class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
                 </div>`;
@@ -2489,8 +2515,17 @@
             productsContainer.innerHTML = html;
             document.querySelectorAll('.product-card').forEach(card => {
                 const id = +card.dataset.id;
-                card.addEventListener('click', e => { if (!e.target.closest('.add-btn') && !e.target.closest('.product-fav')) openProductModal(id); });
-                card.querySelector('.add-btn')?.addEventListener('click', e => { e.stopPropagation(); openProductModal(id); });
+                const product = products.find(p => p.id === id);
+                const disponivel = product?.ativo === true;
+                card.addEventListener('click', e => {
+                    if (!e.target.closest('.add-btn') && !e.target.closest('.product-fav') && disponivel) openProductModal(id);
+                    else if (!disponivel) showToast('Produto indisponível no momento', true);
+                });
+                card.querySelector('.add-btn')?.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (disponivel) openProductModal(id);
+                    else showToast('Produto indisponível', true);
+                });
             });
         }
         window.toggleFav = (e, id) => { e.stopPropagation(); const btn = e.currentTarget; btn.classList.toggle('active'); };
@@ -2500,6 +2535,7 @@
             if (!storeOpen) { showToast('⛔ Loja fechada no momento', true); return; }
             const p = products.find(x => x.id === id);
             if (!p) return;
+            if (p.ativo === false) { showToast('Produto indisponível no momento', true); return; }
             currentProduct = p; selectedExtras = {}; selectedRemovals = []; productQty = 1;
             const hero = document.getElementById('modalHero');
             const emojiEl = document.getElementById('modalHeroEmoji');
@@ -2546,6 +2582,7 @@
         function closeModal() { productModal.classList.remove('open'); }
         document.getElementById('modalAddToCartBtn').onclick = () => {
             if (!currentProduct) return;
+            if (currentProduct.ativo === false) { showToast('Produto indisponível', true); closeModal(); return; }
             const extraList = Object.values(selectedExtras);
             const obs = document.getElementById('productObservation').value.trim();
             cart.push({ id: currentProduct.id, name: currentProduct.nome, price: currentProduct.preco, quantity: productQty, extras: extraList, removals: selectedRemovals, observation: obs, imageUrl: currentProduct.imagemUrl || null, emoji: currentProduct.emoji || null });
@@ -2661,7 +2698,6 @@
         fabCart?.addEventListener('click', openCartModal);
         if (repeatBtnModal) repeatBtnModal.onclick = () => { repeatLastOrder(); closeCartModal(); };
         if (checkoutBtnModal) checkoutBtnModal.onclick = () => { closeCartModal(); openCheckout(); };
-        // Ensure desktop checkout also works
         if (checkoutBtn) checkoutBtn.onclick = openCheckout;
         if (repeatBtn) repeatBtn.onclick = repeatLastOrder;
 
