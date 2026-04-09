@@ -96,7 +96,6 @@
             gap: 24px;
             align-items: flex-start;
             flex-direction: column;
-            /* mobile-first: coluna única */
         }
 
         .menu-column {
@@ -108,6 +107,7 @@
             position: static;
         }
 
+        /* Desktop: duas colunas, carrinho sticky */
         @media (min-width: 1024px) {
             .app {
                 padding: 20px 20px 60px;
@@ -127,6 +127,23 @@
                 position: sticky;
                 top: 20px;
                 max-width: 390px;
+                display: block !important;
+            }
+
+            /* Esconde botão flutuante no desktop */
+            .fab-cart {
+                display: none;
+            }
+        }
+
+        /* Mobile: esconde coluna do carrinho e mostra FAB */
+        @media (max-width: 1023px) {
+            .cart-column {
+                display: none;
+            }
+
+            .fab-cart {
+                display: flex;
             }
         }
 
@@ -652,7 +669,7 @@
             }
         }
 
-        /* ========== CART PANEL ========== */
+        /* ========== CART PANEL (desktop) ========== */
         .cart-panel {
             background: var(--surface);
             border-radius: var(--r-xl);
@@ -993,6 +1010,73 @@
             background: var(--green);
             color: white;
             border-color: var(--green);
+        }
+
+        /* ========== FAB CART (mobile) ========== */
+        .fab-cart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: var(--whatsapp);
+            border-radius: 60px;
+            padding: 12px 20px;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .fab-cart:hover {
+            transform: scale(1.05);
+            background: var(--whatsapp-dark);
+        }
+
+        .fab-cart .fab-icon {
+            font-size: 1.4rem;
+        }
+
+        .fab-cart .fab-badge {
+            background: var(--gold);
+            color: var(--green-dark);
+            border-radius: 50px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            margin-left: 4px;
+        }
+
+        /* Modal do carrinho mobile */
+        .cart-modal .modal {
+            max-width: 560px;
+            background: var(--surface);
+            border-radius: var(--r-xl) var(--r-xl) 0 0;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 600px) {
+            .cart-modal .modal {
+                border-radius: var(--r-xl);
+                transform: scale(0.95) translateY(10px);
+            }
+
+            .cart-modal.open .modal {
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .cart-modal .cart-panel {
+            border: none;
+            box-shadow: none;
+            margin: 0;
         }
 
         /* ========== PRODUCT MODAL (responsivo) ========== */
@@ -1840,7 +1924,7 @@
                 <div id="productsContainer"></div>
             </div>
 
-            <!-- CART COLUMN -->
+            <!-- CART COLUMN (desktop) -->
             <div class="cart-column">
                 <div class="cart-panel">
                     <div class="cart-header">
@@ -1877,6 +1961,56 @@
                             <i class="fa-brands fa-whatsapp"></i> Fechar pedido
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB CART (mobile) -->
+    <div id="fabCart" class="fab-cart">
+        <i class="fa-solid fa-bag-shopping fab-icon"></i>
+        <span id="fabCartTotal">R$ 0,00</span>
+        <span id="fabCartCount" class="fab-badge">0</span>
+    </div>
+
+    <!-- MODAL CART MOBILE -->
+    <div id="cartModal" class="modal-overlay cart-modal">
+        <div class="modal">
+            <span class="modal-drag"></span>
+            <div class="cart-panel" style="border-radius: 0;">
+                <div class="cart-header">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="cart-header-title">Seu Pedido</span>
+                    <button class="modal-close" onclick="closeCartModal()" style="position:relative; top:0; right:0; background:transparent; box-shadow:none; color:white;"><i class="fa fa-times"></i></button>
+                </div>
+                <div id="cartModalItemsList" class="cart-items">
+                    <div class="cart-empty">
+                        <div class="cart-empty-icon">🛍️</div>
+                        <p>Seu carrinho está vazio</p>
+                        <small>Adicione itens para começar</small>
+                    </div>
+                </div>
+                <div class="cart-summary" id="cartModalSummary" style="display:none">
+                    <div class="cart-summary-row">
+                        <span>Subtotal</span>
+                        <span id="cartModalSubtotal">R$ 0,00</span>
+                    </div>
+                    <div class="cart-summary-row" id="deliveryFeeRowModal" style="display:none">
+                        <span>Taxa de entrega</span>
+                        <span id="deliveryFeeAmtModal">R$ 0,00</span>
+                    </div>
+                    <div class="cart-total-row">
+                        <span class="cart-total-label">Total</span>
+                        <span id="cartModalTotalAmount" class="cart-total-value">R$ 0,00</span>
+                    </div>
+                </div>
+                <div class="cart-actions">
+                    <button id="repeatLastOrderBtnModal" class="btn-repeat" style="display:none">
+                        <i class="fa-regular fa-clock"></i> Repetir último pedido
+                    </button>
+                    <button id="checkoutBtnModal" class="btn-checkout">
+                        <i class="fa-brands fa-whatsapp"></i> Fechar pedido
+                    </button>
                 </div>
             </div>
         </div>
@@ -2060,6 +2194,18 @@
         const cartItemCount = document.getElementById('cartItemCount');
         const repeatBtn = document.getElementById('repeatLastOrderBtn');
         const checkoutBtn = document.getElementById('checkoutBtn');
+        // Modal cart elements
+        const cartModal = document.getElementById('cartModal');
+        const cartModalItemsList = document.getElementById('cartModalItemsList');
+        const cartModalSummary = document.getElementById('cartModalSummary');
+        const cartModalTotal = document.getElementById('cartModalTotalAmount');
+        const cartModalSubtotal = document.getElementById('cartModalSubtotal');
+        const cartModalCount = document.getElementById('fabCartCount');
+        const fabCartTotal = document.getElementById('fabCartTotal');
+        const fabCart = document.getElementById('fabCart');
+        const repeatBtnModal = document.getElementById('repeatLastOrderBtnModal');
+        const checkoutBtnModal = document.getElementById('checkoutBtnModal');
+
         const productModal = document.getElementById('productModal');
         const checkoutModal = document.getElementById('checkoutModal');
         const toastEl = document.getElementById('toastMsg');
@@ -2127,17 +2273,78 @@
         function updateCartUI() {
             const count = getCartCount();
             const total = getCartTotal();
-            cartItemCount.textContent = count;
-            cartItemCount.classList.add('bounce');
-            setTimeout(() => cartItemCount.classList.remove('bounce'), 500);
+            // desktop badge
+            if (cartItemCount) cartItemCount.textContent = count;
+            if (cartItemCount) cartItemCount.classList.add('bounce');
+            setTimeout(() => cartItemCount?.classList.remove('bounce'), 500);
+            // fab badge and total
+            if (fabCartCount) fabCartCount.textContent = count;
+            if (fabCartTotal) fabCartTotal.textContent = fmt(total);
+            // FAB subtle animation
+            fabCart?.classList.add('bounce');
+            setTimeout(() => fabCart?.classList.remove('bounce'), 300);
 
+            // desktop cart content
             if (cart.length === 0) {
-                cartItemsList.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><p>Seu carrinho está vazio</p><small>Adicione itens para começar</small></div>`;
-                cartSummary.style.display = 'none';
-                repeatBtn.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
-                return;
+                if (cartItemsList) cartItemsList.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><p>Seu carrinho está vazio</p><small>Adicione itens para começar</small></div>`;
+                if (cartSummary) cartSummary.style.display = 'none';
+                if (repeatBtn) repeatBtn.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
+            } else {
+                let html = '';
+                cart.forEach((item, idx) => {
+                    const extrasSum = (item.extras || []).reduce((a, e) => a + e.preco, 0);
+                    const itemTotal = (item.price + extrasSum) * item.quantity;
+                    const imgHtml = item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}">` : (item.emoji || '🍔');
+                    let modsHtml = '';
+                    if (item.removals?.length) item.removals.forEach(r => modsHtml += `<span class="mod-chip removal">❌ Sem ${r}</span>`);
+                    if (item.extras?.length) item.extras.forEach(e => modsHtml += `<span class="mod-chip extra">➕ ${e.nome}</span>`);
+                    if (item.observation) modsHtml += `<span class="mod-chip">📝 ${item.observation}</span>`;
+
+                    html += `
+            <div class="cart-item">
+                <div class="cart-item-img">${typeof imgHtml === 'string' && imgHtml.startsWith('<img') ? imgHtml : `<span>${imgHtml}</span>`}</div>
+                <div class="cart-item-info">
+                    <div class="cart-item-title">${item.name}</div>
+                    ${modsHtml ? `<div class="cart-item-mods">${modsHtml}</div>` : ''}
+                    <div class="cart-item-price">${fmt(itemTotal)}</div>
+                </div>
+                <div class="cart-item-controls">
+                    <div class="cart-qty-group">
+                        <button class="cart-qty-btn" onclick="updateQty(${idx},-1)">−</button>
+                        <span class="cart-qty-val">${item.quantity}</span>
+                        <button class="cart-qty-btn" onclick="updateQty(${idx},+1)">+</button>
+                    </div>
+                    <button class="cart-remove" onclick="removeItem(${idx})" title="Remover"><i class="fa-solid fa-trash-can fa-xs"></i></button>
+                </div>
+            </div>`;
+                });
+                if (cartItemsList) cartItemsList.innerHTML = html;
+                if (cartSummary) cartSummary.style.display = 'block';
+                const sub = total;
+                const fee = deliveryType === 'ENTREGA' ? DELIVERY_FEE : 0;
+                if (cartSubtotal) cartSubtotal.textContent = fmt(sub);
+                const feeRow = document.getElementById('deliveryFeeRow');
+                if (feeRow) feeRow.style.display = fee ? 'flex' : 'none';
+                if (document.getElementById('deliveryFeeAmt')) document.getElementById('deliveryFeeAmt').textContent = fmt(fee);
+                if (cartTotalAmt) cartTotalAmt.textContent = fmt(sub + fee);
+                if (repeatBtn) repeatBtn.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
             }
 
+            // update modal cart if open (refresh content)
+            if (cartModal && cartModal.classList.contains('open')) {
+                renderCartModal();
+            }
+        }
+
+        function renderCartModal() {
+            const count = getCartCount();
+            const total = getCartTotal();
+            if (cart.length === 0) {
+                if (cartModalItemsList) cartModalItemsList.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><p>Seu carrinho está vazio</p><small>Adicione itens para começar</small></div>`;
+                if (cartModalSummary) cartModalSummary.style.display = 'none';
+                if (repeatBtnModal) repeatBtnModal.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
+                return;
+            }
             let html = '';
             cart.forEach((item, idx) => {
                 const extrasSum = (item.extras || []).reduce((a, e) => a + e.preco, 0);
@@ -2166,16 +2373,16 @@
             </div>
         </div>`;
             });
-            cartItemsList.innerHTML = html;
-            cartSummary.style.display = 'block';
-
+            if (cartModalItemsList) cartModalItemsList.innerHTML = html;
+            if (cartModalSummary) cartModalSummary.style.display = 'block';
             const sub = total;
             const fee = deliveryType === 'ENTREGA' ? DELIVERY_FEE : 0;
-            cartSubtotal.textContent = fmt(sub);
-            document.getElementById('deliveryFeeRow').style.display = fee ? 'flex' : 'none';
-            if (fee) document.getElementById('deliveryFeeAmt').textContent = fmt(fee);
-            cartTotalAmt.textContent = fmt(sub + fee);
-            repeatBtn.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
+            if (cartModalSubtotal) cartModalSubtotal.textContent = fmt(sub);
+            const feeRowModal = document.getElementById('deliveryFeeRowModal');
+            if (feeRowModal) feeRowModal.style.display = fee ? 'flex' : 'none';
+            if (document.getElementById('deliveryFeeAmtModal')) document.getElementById('deliveryFeeAmtModal').textContent = fmt(fee);
+            if (cartModalTotal) cartModalTotal.textContent = fmt(sub + fee);
+            if (repeatBtnModal) repeatBtnModal.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
         }
 
         window.updateQty = (idx, delta) => {
@@ -2440,15 +2647,31 @@
             cart = []; saveCart(); closeCheckoutModal(); showToast('🎉 Pedido enviado! Abrindo WhatsApp...'); btn.innerHTML = orig; btn.disabled = false;
         };
 
+        // Mobile cart modal functions
+        function openCartModal() {
+            renderCartModal();
+            cartModal.classList.add('open');
+        }
+        function closeCartModal() {
+            cartModal.classList.remove('open');
+        }
+        window.closeCartModal = closeCartModal;
+
+        // Event listeners for FAB and modal buttons
+        fabCart?.addEventListener('click', openCartModal);
+        if (repeatBtnModal) repeatBtnModal.onclick = () => { repeatLastOrder(); closeCartModal(); };
+        if (checkoutBtnModal) checkoutBtnModal.onclick = () => { closeCartModal(); openCheckout(); };
+        // Ensure desktop checkout also works
+        if (checkoutBtn) checkoutBtn.onclick = openCheckout;
+        if (repeatBtn) repeatBtn.onclick = repeatLastOrder;
+
         productModal.addEventListener('click', e => { if (e.target === productModal) closeModal(); });
         checkoutModal.addEventListener('click', e => { if (e.target === checkoutModal) closeCheckoutModal(); });
+        cartModal.addEventListener('click', e => { if (e.target === cartModal) closeCartModal(); });
         document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderProducts(products, btn.dataset.cat); }); });
-        checkoutBtn.onclick = openCheckout;
-        repeatBtn.onclick = repeatLastOrder;
 
         async function init() { loadCart(); await fetchStoreStatus(); await fetchProducts(); }
         init();
     </script>
 </body>
-
 </html>
