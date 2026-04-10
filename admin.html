@@ -1330,11 +1330,15 @@
                 if (document.getElementById('lojaMensagemFechado')) document.getElementById('lojaMensagemFechado').value = loja.mensagemFechado || '';
                 if (document.getElementById('horarioFuncionamento')) document.getElementById('horarioFuncionamento').value = loja.horarioFuncionamento || '';
             }
-            const rP = await apiFetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
+            // 🔥 ALTERAÇÃO AQUI: usa o endpoint admin que retorna TODOS os produtos (ativos e inativos)
+            const rP = await apiFetch(`${API_URL}/produtos/admin/loja/${LOJA_ID_NUM}`);
             if (rP.ok) { 
                 todosProdutos = await rP.json();
-                console.log("Produtos carregados:", todosProdutos); // debug
+                console.log("Produtos carregados (admin):", todosProdutos);
                 renderizarProdutos(todosProdutos);
+            } else {
+                console.error("Erro ao carregar produtos:", rP.status);
+                feedback("Erro ao carregar produtos. Verifique o backend.", false);
             }
             const rA = await apiFetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
             if (rA.ok) renderizarAdics(await rA.json());
