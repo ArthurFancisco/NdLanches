@@ -1330,15 +1330,22 @@
     }
 
     async function fetchProducts() {
-        showSkeletons();
-        try {
-            const r = await apiFetch(`/produtos/loja/${LOJA_ID}`);
-            if (r.ok) products = await r.json();
-            const er = await apiFetch(`/adicionais/loja/${LOJA_ID}`);
-            if (er.ok) extras = await er.json();
-        } catch(e) { console.warn(e); }
-        renderProducts(products);
-    }
+    showSkeletons();
+    try {
+        // 🔥 Endpoint que retorna TODOS os produtos (ativos e inativos)
+        const r = await apiFetch(`/produtos/loja/${LOJA_ID}/cardapio`);
+        if (r.ok) {
+            products = await r.json();
+            console.log("Produtos carregados (cardápio):", products);
+        } else {
+            console.error("Erro ao carregar produtos:", r.status);
+            products = [];
+        }
+        const er = await apiFetch(`/adicionais/loja/${LOJA_ID}`);
+        if (er.ok) extras = await er.json();
+    } catch(e) { console.warn(e); }
+    renderProducts(products);
+}
     function showSkeletons() {
         productsContainer.innerHTML = `<div class="products-grid">${Array(4).fill(0).map(() => `<div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="sk" style="height:18px;width:70%;"></div><div class="sk" style="height:30px;width:100%;"></div><div class="sk" style="height:18px;width:45%;"></div></div></div>`).join('')}</div>`;
     }
@@ -1346,8 +1353,7 @@
 
     function renderProducts(list, filter = 'TODOS') {
         // 🔥 Garantir que produtos com 'ativo' undefined sejam considerados disponíveis (backward compatibility)
-        const active = list.filter(p => p.ativo !== false);
-        const filtered = filter === 'TODOS' ? active : active.filter(p => p.categoria === filter);
+        const filtered = filter === 'TODOS' ? list : list.filter(p => p.categoria === filter);
         if (!filtered.length) {
             productsContainer.innerHTML = `<div class="empty-message"><div class="em-icon">🔍</div><p>Nenhum produto encontrado</p></div>`;
             return;
