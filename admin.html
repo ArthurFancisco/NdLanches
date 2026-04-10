@@ -381,6 +381,17 @@
             flex: 1;
             min-width: 140px;
         }
+        /* Checkbox para mostrar/ocultar indisponíveis */
+        .filter-bar label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            background: var(--surface2);
+            padding: 0 12px;
+            border-radius: 50px;
+            cursor: pointer;
+        }
         #lista-produtos-admin {
             max-height: 520px;
             overflow-y: auto;
@@ -1102,6 +1113,10 @@
                         <option value="PIZZA">🍕 Pizzas</option>
                     </select>
                     <input type="text" id="buscaProduto" placeholder="🔍 Buscar..." onkeyup="filtrarProdutosAdmin()">
+                    <label style="white-space: nowrap;">
+                        <input type="checkbox" id="mostrarIndisponiveis" checked onchange="filtrarProdutosAdmin()">
+                        Mostrar indisponíveis
+                    </label>
                 </div>
                 <div id="lista-produtos-admin">
                     <div class="skel-row"><div class="skel" style="width:44px;height:44px;border-radius:12px;"></div><div style="flex:1"><div class="skel" style="height:14px;width:55%;margin-bottom:8px"></div><div class="skel" style="height:12px;width:35%"></div></div></div>
@@ -1316,7 +1331,11 @@
                 if (document.getElementById('horarioFuncionamento')) document.getElementById('horarioFuncionamento').value = loja.horarioFuncionamento || '';
             }
             const rP = await apiFetch(`${API_URL}/produtos/loja/${LOJA_ID_NUM}`);
-            if (rP.ok) { todosProdutos = await rP.json(); renderizarProdutos(todosProdutos); }
+            if (rP.ok) { 
+                todosProdutos = await rP.json();
+                console.log("Produtos carregados:", todosProdutos); // debug
+                renderizarProdutos(todosProdutos);
+            }
             const rA = await apiFetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
             if (rA.ok) renderizarAdics(await rA.json());
             const rBan = await apiFetch(`${API_URL}/banners/loja/${LOJA_ID_NUM}`);
@@ -1367,13 +1386,21 @@
     function filtrarProdutosAdmin() {
         const categoria = document.getElementById('filtroCategoria')?.value || 'TODOS';
         const busca = document.getElementById('buscaProduto')?.value.toLowerCase() || '';
+        const mostrarIndisponiveis = document.getElementById('mostrarIndisponiveis')?.checked === true;
+        
         let filtrados = todosProdutos;
         if (categoria !== 'TODOS') filtrados = filtrados.filter(p => p.categoria === categoria);
         if (busca) filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(busca));
+        // Se o checkbox NÃO estiver marcado, esconder os indisponíveis (ativo = false)
+        if (!mostrarIndisponiveis) {
+            filtrados = filtrados.filter(p => p.ativo === true);
+        }
+        
         document.getElementById('prodCount').textContent = filtrados.length;
         const lista = document.getElementById('lista-produtos-admin');
         if (!lista) return;
         if (!filtrados.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto</p></div>'; return; }
+        
         const cats = { LANCHE: '🍔 Lanches', BEBIDA: '🥤 Bebidas', PASTEL: '🥟 Pastel', BATATA: '🍟 Batata', PIZZA: '🍕 Pizzas' };
         const grupos = {};
         filtrados.forEach(p => { (grupos[p.categoria || 'OUTROS'] ??= []).push(p); });
