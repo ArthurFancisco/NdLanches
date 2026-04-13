@@ -381,7 +381,6 @@
             flex: 1;
             min-width: 140px;
         }
-        /* Checkbox para mostrar/ocultar indisponíveis */
         .filter-bar label {
             display: flex;
             align-items: center;
@@ -1005,6 +1004,7 @@
                         <option value="PASTEL">🥟 Pastel</option>
                         <option value="BATATA">🍟 Batata</option>
                         <option value="PIZZA">🍕 Pizzas</option>
+                        <option value="CACHORRO QUENTE">🌭 Cachorro Quente</option>
                     </select></div>
                 </div>
                 <div class="form-row">
@@ -1111,6 +1111,7 @@
                         <option value="PASTEL">🥟 Pastel</option>
                         <option value="BATATA">🍟 Batata</option>
                         <option value="PIZZA">🍕 Pizzas</option>
+                        <option value="CACHORRO QUENTE">🌭 Cachorro Quente</option>
                     </select>
                     <input type="text" id="buscaProduto" placeholder="🔍 Buscar..." onkeyup="filtrarProdutosAdmin()">
                     <label style="white-space: nowrap;">
@@ -1280,7 +1281,7 @@
     document.getElementById('preco')?.addEventListener('input', updatePreview);
     document.getElementById('emoji')?.addEventListener('input', updatePreview);
 
-    const emojiPorCategoria = { LANCHE: '🍔', BEBIDA: '🥤', PASTEL: '🥟', BATATA: '🍟', PIZZA: '🍕' };
+    const emojiPorCategoria = { LANCHE: '🍔', BEBIDA: '🥤', PASTEL: '🥟', BATATA: '🍟', PIZZA: '🍕', "CACHORRO QUENTE": '🌭' };
     function autoEmojiPorCategoria() {
         const cat = document.getElementById('categoria')?.value;
         const emojiInput = document.getElementById('emoji');
@@ -1330,7 +1331,6 @@
                 if (document.getElementById('lojaMensagemFechado')) document.getElementById('lojaMensagemFechado').value = loja.mensagemFechado || '';
                 if (document.getElementById('horarioFuncionamento')) document.getElementById('horarioFuncionamento').value = loja.horarioFuncionamento || '';
             }
-            // 🔥 ALTERAÇÃO AQUI: usa o endpoint admin que retorna TODOS os produtos (ativos e inativos)
             const rP = await apiFetch(`${API_URL}/produtos/admin/loja/${LOJA_ID_NUM}`);
             if (rP.ok) { 
                 todosProdutos = await rP.json();
@@ -1395,7 +1395,6 @@
         let filtrados = todosProdutos;
         if (categoria !== 'TODOS') filtrados = filtrados.filter(p => p.categoria === categoria);
         if (busca) filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(busca));
-        // Se o checkbox NÃO estiver marcado, esconder os indisponíveis (ativo = false)
         if (!mostrarIndisponiveis) {
             filtrados = filtrados.filter(p => p.ativo === true);
         }
@@ -1405,7 +1404,7 @@
         if (!lista) return;
         if (!filtrados.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto</p></div>'; return; }
         
-        const cats = { LANCHE: '🍔 Lanches', BEBIDA: '🥤 Bebidas', PASTEL: '🥟 Pastel', BATATA: '🍟 Batata', PIZZA: '🍕 Pizzas' };
+        const cats = { LANCHE: '🍔 Lanches', BEBIDA: '🥤 Bebidas', PASTEL: '🥟 Pastel', BATATA: '🍟 Batata', PIZZA: '🍕 Pizzas', "CACHORRO QUENTE": '🌭 Cachorro Quente' };
         const grupos = {};
         filtrados.forEach(p => { (grupos[p.categoria || 'OUTROS'] ??= []).push(p); });
         lista.innerHTML = Object.entries(grupos).map(([cat, itens]) => `<div class="sec-div"><span>${cats[cat] || cat}</span></div>` + itens.map(p => {
@@ -1435,7 +1434,7 @@
     async function toggleAtivoProduto(id, tornarDisponivel) {
         const produto = todosProdutos.find(p => p.id === id);
         if (!produto) return;
-        const novoAtivo = tornarDisponivel; // true = disponível, false = indisponível
+        const novoAtivo = tornarDisponivel;
         const payload = { ...produto, ativo: novoAtivo };
         try {
             const r = await apiFetch(`${API_URL}/produtos/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
@@ -1796,7 +1795,6 @@
         }).join('');
     }
 
-    // ========== FEEDBACK ==========
     function feedback(msg, ok = true) {
         const el = document.getElementById('feedback');
         if (!el) return;
@@ -1808,7 +1806,6 @@
         setTimeout(() => el.classList.remove('show'), 3000);
     }
 
-    // INICIALIZAÇÃO
     initLogin();
 </script>
 </body>

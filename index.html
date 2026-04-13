@@ -359,10 +359,11 @@
         .product-img img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            background: var(--green-pale);
             transition: transform 0.4s ease;
         }
-        .product-card:hover .product-img img { transform: scale(1.08); }
+        .product-card:hover .product-img img { transform: scale(1.05); }
         .product-img .emoji-placeholder { font-size: 3rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.1)); }
         .product-tag {
             position: absolute;
@@ -544,7 +545,7 @@
             flex-shrink: 0;
             overflow: hidden;
         }
-        .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+        .cart-item-img img { width: 100%; height: 100%; object-fit: contain; }
         .cart-item-info { flex: 1; min-width: 0; }
         .cart-item-title { font-weight: 600; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cart-item-mods { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; display: flex; flex-wrap: wrap; gap: 4px; }
@@ -723,7 +724,12 @@
             overflow: hidden;
         }
         @media (min-width: 600px) { .modal-product-hero { height: 200px; } }
-        .modal-product-hero img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-product-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: var(--green-pale);
+        }
         .modal-product-hero .emoji-placeholder { font-size: 4rem; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.15)); }
         .modal-close {
             position: absolute;
@@ -1067,6 +1073,7 @@
                     <button class="tab-btn" data-cat="PASTEL"><span class="tab-emoji">🥟</span> Pastéis</button>
                     <button class="tab-btn" data-cat="BATATA"><span class="tab-emoji">🍟</span> Batatas fritas</button>
                     <button class="tab-btn" data-cat="PIZZA"><span class="tab-emoji">🍕</span> Pizzas</button>
+                    <button class="tab-btn" data-cat="CACHORRO QUENTE"><span class="tab-emoji">🌭</span> Cachorro Quente</button>
                 </div>
             </div>
             <div id="productsContainer"></div>
@@ -1330,29 +1337,34 @@
     }
 
     async function fetchProducts() {
-    showSkeletons();
-    try {
-        // 🔥 Endpoint que retorna TODOS os produtos (ativos e inativos)
-        const r = await apiFetch(`/produtos/loja/${LOJA_ID}/cardapio`);
-        if (r.ok) {
-            products = await r.json();
-            console.log("Produtos carregados (cardápio):", products);
-        } else {
-            console.error("Erro ao carregar produtos:", r.status);
-            products = [];
-        }
-        const er = await apiFetch(`/adicionais/loja/${LOJA_ID}`);
-        if (er.ok) extras = await er.json();
-    } catch(e) { console.warn(e); }
-    renderProducts(products);
-}
+        showSkeletons();
+        try {
+            const r = await apiFetch(`/produtos/loja/${LOJA_ID}/cardapio`);
+            if (r.ok) {
+                products = await r.json();
+                console.log("Produtos carregados (cardápio):", products);
+            } else {
+                console.error("Erro ao carregar produtos:", r.status);
+                products = [];
+            }
+            const er = await apiFetch(`/adicionais/loja/${LOJA_ID}`);
+            if (er.ok) extras = await er.json();
+        } catch(e) { console.warn(e); }
+        renderProducts(products);
+    }
     function showSkeletons() {
         productsContainer.innerHTML = `<div class="products-grid">${Array(4).fill(0).map(() => `<div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="sk" style="height:18px;width:70%;"></div><div class="sk" style="height:30px;width:100%;"></div><div class="sk" style="height:18px;width:45%;"></div></div></div>`).join('')}</div>`;
     }
-    const CAT_META = { LANCHE: { emoji: '🍔', label: 'Lanches' }, BEBIDA: { emoji: '🥤', label: 'Bebidas' }, PASTEL: { emoji: '🥟', label: 'Pastéis' }, BATATA: { emoji: '🍟', label: 'Batatas fritas' }, PIZZA: { emoji: '🍕', label: 'Pizzas' } };
+    const CAT_META = {
+        LANCHE: { emoji: '🍔', label: 'Lanches' },
+        BEBIDA: { emoji: '🥤', label: 'Bebidas' },
+        PASTEL: { emoji: '🥟', label: 'Pastéis' },
+        BATATA: { emoji: '🍟', label: 'Batatas fritas' },
+        PIZZA: { emoji: '🍕', label: 'Pizzas' },
+        "CACHORRO QUENTE": { emoji: '🌭', label: 'Cachorro Quente' }
+    };
 
     function renderProducts(list, filter = 'TODOS') {
-        // 🔥 Garantir que produtos com 'ativo' undefined sejam considerados disponíveis (backward compatibility)
         const filtered = filter === 'TODOS' ? list : list.filter(p => p.categoria === filter);
         if (!filtered.length) {
             productsContainer.innerHTML = `<div class="empty-message"><div class="em-icon">🔍</div><p>Nenhum produto encontrado</p></div>`;
@@ -1423,10 +1435,31 @@
         }
         document.getElementById('modalProductName').textContent = p.nome;
         document.getElementById('modalProductDesc').textContent = p.descricao || '';
-        const ingredients = p.descricao ? p.descricao.split(',').map(s => s.trim()).filter(Boolean) : [];
-        const chipsHtml = ingredients.length ? `<div class="modal-section-label">Ingredientes — toque para remover</div><div class="ingredients-chips">${ingredients.map(ing => `<div class="ingredient-chip" data-ing="${ing}"><span class="chip-x"><i class="fa-solid fa-xmark"></i></span>${ing}</div>`).join('')}</div>` : '';
-        const extrasHtml = extras.length ? `<div class="modal-section-label">Adicionais</div><div class="extras-grid">${extras.map(ext => `<div class="extra-card" data-id="${ext.id}"><span class="extra-emoji">${ext.emoji || '➕'}</span><div class="extra-info"><div class="extra-name">${ext.nome}</div><div class="extra-price">+ R$ ${ext.preco.toFixed(2).replace('.', ',')}</div></div><div class="extra-check"><i class="fa fa-check fa-xs"></i></div></div>`).join('')}</div>` : '';
-        document.getElementById('modalProductBody').innerHTML = `${chipsHtml}${extrasHtml}<div class="qty-row"><span class="qty-label">Quantidade</span><div class="qty-control"><button class="qty-btn" id="qtyDec">−</button><span class="qty-val" id="qtyVal">1</span><button class="qty-btn" id="qtyInc">+</button></div></div><div class="modal-section-label">Observações</div><textarea class="obs-textarea" id="productObservation" rows="2" placeholder="Ex: sem cebola, ponto da carne..."></textarea>`;
+        
+        // ========== INGREDIENTES REMOVÍVEIS ==========
+        // Usa a lista 'removiveis' do backend se existir e for array; senão, não exibe
+        let removiveis = [];
+        if (p.removiveis && Array.isArray(p.removiveis) && p.removiveis.length > 0) {
+            removiveis = p.removiveis;
+        }
+        const chipsHtml = removiveis.length ? 
+            `<div class="modal-section-label">Ingredientes — toque para remover</div>
+             <div class="ingredients-chips">
+                ${removiveis.map(ing => `<div class="ingredient-chip" data-ing="${ing}"><span class="chip-x"><i class="fa-solid fa-xmark"></i></span>${ing}</div>`).join('')}
+             </div>` : '';
+        
+        // Adicionais sempre são exibidos (caso existam)
+        const extrasHtml = extras.length ? 
+            `<div class="modal-section-label">Adicionais</div>
+             <div class="extras-grid">
+                ${extras.map(ext => `<div class="extra-card" data-id="${ext.id}"><span class="extra-emoji">${ext.emoji || '➕'}</span><div class="extra-info"><div class="extra-name">${ext.nome}</div><div class="extra-price">+ R$ ${ext.preco.toFixed(2).replace('.', ',')}</div></div><div class="extra-check"><i class="fa fa-check fa-xs"></i></div></div>`).join('')}
+             </div>` : '';
+        
+        document.getElementById('modalProductBody').innerHTML = `${chipsHtml}${extrasHtml}
+            <div class="qty-row"><span class="qty-label">Quantidade</span><div class="qty-control"><button class="qty-btn" id="qtyDec">−</button><span class="qty-val" id="qtyVal">1</span><button class="qty-btn" id="qtyInc">+</button></div></div>
+            <div class="modal-section-label">Observações</div>
+            <textarea class="obs-textarea" id="productObservation" rows="2" placeholder="Ex: sem cebola, ponto da carne..."></textarea>`;
+        
         document.querySelectorAll('.ingredient-chip').forEach(chip => { chip.addEventListener('click', () => handleIngredientToggle(chip)); });
         document.querySelectorAll('.extra-card').forEach(card => { card.addEventListener('click', () => handleExtraToggle(card)); });
         document.getElementById('qtyDec').onclick = () => { if (productQty > 1) { productQty--; document.getElementById('qtyVal').textContent = productQty; updateModalTotal(); } };
