@@ -313,6 +313,49 @@
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
+        /* Estilo para tags (ingredientes removíveis) */
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            min-height: 48px;
+            cursor: text;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 40px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+        .tag-remove {
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .tag-remove:hover {
+            color: var(--danger);
+        }
+        .tags-input {
+            border: none;
+            background: transparent;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
+        }
         .btn-save {
             width: 100%;
             padding: 14px;
@@ -461,6 +504,16 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+        }
+        .removiveis-preview {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            background: var(--surface2);
+            border-radius: 20px;
+            padding: 2px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         .prod-actions {
             display: flex;
@@ -1014,6 +1067,15 @@
                         <option value="false">⚠️ Indisponível (acabou)</option>
                     </select></div>
                 </div>
+                <!-- NOVO CAMPO: INGREDIENTES REMOVÍVEIS -->
+                <div class="form-group">
+                    <label>Ingredientes removíveis (opcional)</label>
+                    <div class="tags-input-container" id="tagsContainer">
+                        <div id="tagsList" class="tags-list" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                        <input type="text" id="removiveisInput" class="tags-input" placeholder="Digite e pressione Enter...">
+                    </div>
+                    <small style="color: var(--text-muted);">Ex: Queijo, Cheddar, Bacon, Ovo, etc. O cliente poderá remover cada item.</small>
+                </div>
                 <div class="form-group">
                     <label>Imagem</label>
                     <label for="imagemFile" class="file-input-label"><i class="fa-solid fa-cloud-upload-alt"></i> Selecionar</label>
@@ -1177,9 +1239,56 @@
     let refreshTimer = null, refreshCountdown = REFRESH_INTERVAL;
     let todosProdutos = [];
     let selectedImageFile = null;
+    let currentRemoviveis = []; // Array para armazenar os ingredientes removíveis
 
     const STATUS_PROX = { RECEBIDO: 'PREPARO', PREPARO: 'PRONTO', PRONTO: 'ENTREGUE', ENTREGUE: 'ENTREGUE', CANCELADO: 'CANCELADO' };
     const STATUS_LABEL = { RECEBIDO: '📥 Recebido', PREPARO: '🔥 Em preparo', PRONTO: '✅ Pronto', ENTREGUE: '🏍️ Entregue', CANCELADO: '❌ Cancelado' };
+
+    // ========== FUNÇÕES PARA TAGS (INGREDIENTES REMOVÍVEIS) ==========
+    function renderTags() {
+        const container = document.getElementById('tagsList');
+        if (!container) return;
+        container.innerHTML = '';
+        currentRemoviveis.forEach((tag, index) => {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'tag';
+            tagSpan.innerHTML = `${tag} <span class="tag-remove" data-index="${index}"><i class="fa-regular fa-circle-xmark"></i></span>`;
+            container.appendChild(tagSpan);
+        });
+        // Adiciona evento de remoção
+        document.querySelectorAll('.tag-remove').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const idx = parseInt(el.dataset.index);
+                if (!isNaN(idx)) {
+                    currentRemoviveis.splice(idx, 1);
+                    renderTags();
+                }
+            });
+        });
+    }
+
+    function initTagsInput() {
+        const input = document.getElementById('removiveisInput');
+        if (!input) return;
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = input.value.trim();
+                if (val && !currentRemoviveis.includes(val)) {
+                    currentRemoviveis.push(val);
+                    renderTags();
+                    input.value = '';
+                } else if (val && currentRemoviveis.includes(val)) {
+                    showToast('Ingrediente já adicionado', false);
+                }
+            }
+        });
+    }
+
+    function setRemoviveisFromArray(arr) {
+        currentRemoviveis = Array.isArray(arr) ? [...arr] : [];
+        renderTags();
+    }
 
     // ========== LOGIN ==========
     async function verificarSenha(senha) {
@@ -1410,6 +1519,7 @@
         lista.innerHTML = Object.entries(grupos).map(([cat, itens]) => `<div class="sec-div"><span>${cats[cat] || cat}</span></div>` + itens.map(p => {
             const disponivel = p.ativo === true;
             const badgeIndisponivel = !disponivel ? '<span class="indisponivel-badge"><i class="fa-solid fa-box-open"></i> Indisponível</span>' : '';
+            const removiveisHtml = (p.removiveis && p.removiveis.length) ? `<span class="removiveis-preview"><i class="fa-regular fa-trash-can"></i> ${p.removiveis.join(', ')}</span>` : '';
             return `<div class="prod-item" data-id="${p.id}">
                 <div class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
                 <div class="prod-emoji">${p.emoji || '🍽️'}</div>
@@ -1419,6 +1529,7 @@
                         <span class="prod-price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
                         <span class="prod-cat">${p.categoria}</span>
                         ${badgeIndisponivel}
+                        ${removiveisHtml}
                     </div>
                 </div>
                 <div class="prod-actions">
@@ -1473,6 +1584,8 @@
             img.src = p.imagemUrl;
             previewDiv.appendChild(img);
         }
+        // Carregar removíveis
+        setRemoviveisFromArray(p.removiveis || []);
         document.getElementById('formTitle').textContent = p.nome;
         document.getElementById('btnSalvarLabel').textContent = 'Salvar Alterações';
         document.getElementById('btnCancelar').style.display = 'block';
@@ -1492,6 +1605,7 @@
         document.getElementById('previewImagemDiv').innerHTML = '';
         selectedImageFile = null;
         document.getElementById('imagemFile').value = '';
+        setRemoviveisFromArray([]);
         updatePreview();
     }
 
@@ -1512,7 +1626,7 @@
             descricao: document.getElementById('descricao')?.value.trim() || "",
             emoji: document.getElementById('emoji')?.value.trim() || '🍽️',
             imagemUrl: imagemUrl || null,
-            removiveis: [],
+            removiveis: currentRemoviveis,
             loja: { id: LOJA_ID_NUM }
         };
         const url = idEdicao ? `${API_URL}/produtos/${idEdicao}` : `${API_URL}/produtos`;
@@ -1806,7 +1920,12 @@
         setTimeout(() => el.classList.remove('show'), 3000);
     }
 
+    // INICIALIZAÇÃO
     initLogin();
+    // Inicializa o input de tags após carregar o DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        initTagsInput();
+    });
 </script>
 </body>
 </html>
