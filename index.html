@@ -1089,13 +1089,43 @@
         .empty-message { text-align: center; padding: 48px 16px; color: var(--text-muted); }
         .empty-message .em-icon { font-size: 2.5rem; margin-bottom: 8px; opacity: 0.4; }
         .store-schedule {
-            font-size: 0.7rem;
-            margin-top: 8px;
-            color: rgba(255,255,255,0.8);
-            background: rgba(0,0,0,0.2);
-            display: inline-block;
-            padding: 4px 12px;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            color: rgba(255,255,255,0.9);
+            background: rgba(0,0,0,0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 6px 14px;
             border-radius: var(--r-pill);
+            backdrop-filter: blur(4px);
+        }
+
+        .store-schedule i {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .schedule-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 480px) {
+            .store-schedule {
+                font-size: 0.65rem;
+                padding: 4px 10px;
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .schedule-item {
+                white-space: normal;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -1103,9 +1133,9 @@
 <div class="app">
     <header>
         <div class="header-pattern"></div>
-        <div class="header-deco">🍔</div>
-        <div class="header-inner">
-            <div class="header-brand">
+                    <div class="header-deco">🍔</div>
+                    <div class="header-inner">
+                        <div class="header-brand">
                 <div class="header-logo-wrap">
                     <div class="header-logo-icon">🍔</div>
                     <div class="header-title-block">
@@ -1117,8 +1147,7 @@
                     <span class="status-dot"></span>
                     <span id="statusText">Verificando...</span>
                 </div>
-                <div id="storeSchedule" class="store-schedule" style="font-size: 0.7rem; margin-top: 8px; color: rgba(255,255,255,0.7);">
-                </div>
+                <div id="storeSchedule" class="store-schedule"></div>
             </div>
         </div>
     </header>
@@ -1467,30 +1496,48 @@
         if (r.ok) storeOpen = await r.json();
         const sr = await apiFetch(`/loja/${LOJA_SLUG}`);
         if (sr.ok) storeInfo = await sr.json();
-    } catch(e) {}
+    } catch(e) {
+        console.warn("Erro ao buscar status da loja:", e);
+    }
     
     const ind = document.getElementById('statusIndicator');
     const txt = document.getElementById('statusText');
     const scheduleDiv = document.getElementById('storeSchedule');
     
+    if (!scheduleDiv) return;
+    
+    // Monta o conteúdo de horário e mensagem (aparece sempre, aberto ou fechado)
+    let scheduleHtml = '';
+    
+    // Horário de funcionamento (sempre exibe se existir)
+    if (storeInfo.horarioFuncionamento) {
+        scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-calendar-alt"></i> ${storeInfo.horarioFuncionamento}</span>`;
+    }
+    
+    // Mensagem personalizada (se existir)
+    if (storeInfo.mensagemFechado) {
+        if (scheduleHtml) scheduleHtml += ' · ';
+        scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-bell"></i> ${storeInfo.mensagemFechado}</span>`;
+    }
+    
+    // Se não houver nenhuma informação, esconde o div
+    if (!scheduleHtml) {
+        scheduleDiv.style.display = 'none';
+    } else {
+        scheduleDiv.style.display = 'inline-flex';
+        scheduleDiv.innerHTML = scheduleHtml;
+    }
+    
+    // Define o status principal
     if (storeOpen) {
         ind.className = 'status-pill open';
-        txt.textContent = '✅ Aberto agora';
-        if (scheduleDiv) scheduleDiv.innerHTML = ''; // limpa quando aberto
+        txt.innerHTML = '<i class="fa-regular fa-circle-check"></i> Aberto agora';
+        // Opcional: se quiser que o horário apareça com menos destaque quando aberto, pode manter
     } else {
         ind.className = 'status-pill closed';
-        txt.textContent = '⛔ Fechado no momento';
-        
-        // Exibe horário de funcionamento e mensagem personalizada
-        let scheduleHtml = '';
-        if (storeInfo.horarioFuncionamento) {
-            scheduleHtml += `<i class="fa-regular fa-clock"></i> Funcionamento: ${storeInfo.horarioFuncionamento}`;
-        }
-        if (storeInfo.mensagemFechado) {
-            if (scheduleHtml) scheduleHtml += '<br>';
-            scheduleHtml += `<i class="fa-regular fa-message"></i> ${storeInfo.mensagemFechado}`;
-        }
-        if (scheduleDiv) scheduleDiv.innerHTML = scheduleHtml;
+        txt.innerHTML = '<i class="fa-regular fa-circle-xmark"></i> Fechado no momento';
+        // Dá um destaque extra no schedule quando fechado (opcional)
+        if (scheduleDiv) scheduleDiv.style.background = 'rgba(220, 38, 38, 0.3)';
     }
 }
 
