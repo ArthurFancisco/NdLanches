@@ -256,6 +256,12 @@
             border: 1px solid var(--border);
             white-space: normal;
             min-width: 240px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .banner-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
         .banner-emoji { font-size: 1.8rem; }
         .banner-info h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
@@ -660,6 +666,23 @@
             transition: var(--transition);
         }
         .btn-repeat:hover { background: var(--green); color: white; border-color: var(--green); }
+        .btn-clear-cart {
+            background: var(--surface-2);
+            color: var(--text-mid);
+            border: 1px solid var(--border);
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--r-pill);
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-clear-cart:hover {
+            background: var(--red-light);
+            color: var(--red);
+            border-color: var(--red);
+        }
 
         /* ========== FAB CART (mobile) ========== */
         .fab-cart {
@@ -1118,6 +1141,7 @@
                 </div>
                 <div class="cart-actions">
                     <button id="repeatLastOrderBtn" class="btn-repeat" style="display:none"><i class="fa-regular fa-clock"></i> Repetir último pedido</button>
+                    <button id="clearCartBtn" class="btn-clear-cart" style="display:none"><i class="fa-solid fa-trash-alt"></i> Limpar carrinho</button>
                     <button id="checkoutBtn" class="btn-checkout"><i class="fa-brands fa-whatsapp"></i> Fechar pedido</button>
                 </div>
             </div>
@@ -1138,7 +1162,11 @@
                 <div class="cart-summary-row" id="deliveryFeeRowModal" style="display:none"><span>Taxa de entrega</span><span id="deliveryFeeAmtModal">R$ 0,00</span></div>
                 <div class="cart-total-row"><span class="cart-total-label">Total</span><span id="cartModalTotalAmount" class="cart-total-value">R$ 0,00</span></div>
             </div>
-            <div class="cart-actions"><button id="repeatLastOrderBtnModal" class="btn-repeat" style="display:none"><i class="fa-regular fa-clock"></i> Repetir último pedido</button><button id="checkoutBtnModal" class="btn-checkout"><i class="fa-brands fa-whatsapp"></i> Fechar pedido</button></div>
+            <div class="cart-actions">
+                <button id="repeatLastOrderBtnModal" class="btn-repeat" style="display:none"><i class="fa-regular fa-clock"></i> Repetir último pedido</button>
+                <button id="clearCartBtnModal" class="btn-clear-cart" style="display:none"><i class="fa-solid fa-trash-alt"></i> Limpar carrinho</button>
+                <button id="checkoutBtnModal" class="btn-checkout"><i class="fa-brands fa-whatsapp"></i> Fechar pedido</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1169,7 +1197,7 @@
         <div class="checkout-body">
             <div class="checkout-step-content active" id="checkoutStep0">
                 <label class="form-label">Seu nome *</label><input type="text" id="customerName" class="form-input" placeholder="Ex: João Silva">
-                <label class="form-label">Telefone (opcional)</label><input type="tel" id="customerPhone" class="form-input" placeholder="(17) 99999-9999">
+                <label class="form-label">Telefone (opcional)</label><input type="tel" id="customerPhone" class="form-input" placeholder="(11) 99999-9999">
                 <div class="stepper-nav"><button class="btn-next" onclick="goStep(1)">Próximo <i class="fa-solid fa-arrow-right"></i></button></div>
             </div>
             <div class="checkout-step-content" id="checkoutStep1">
@@ -1222,6 +1250,7 @@
     const cartSubtotal = document.getElementById('cartSubtotal');
     const cartItemCount = document.getElementById('cartItemCount');
     const repeatBtn = document.getElementById('repeatLastOrderBtn');
+    const clearCartBtn = document.getElementById('clearCartBtn');
     const checkoutBtn = document.getElementById('checkoutBtn');
     const cartModal = document.getElementById('cartModal');
     const cartModalItemsList = document.getElementById('cartModalItemsList');
@@ -1231,6 +1260,7 @@
     const fabCartTotal = document.getElementById('fabCartTotal');
     const fabCart = document.getElementById('fabCart');
     const repeatBtnModal = document.getElementById('repeatLastOrderBtnModal');
+    const clearCartBtnModal = document.getElementById('clearCartBtnModal');
     const checkoutBtnModal = document.getElementById('checkoutBtnModal');
     const productModal = document.getElementById('productModal');
     const checkoutModal = document.getElementById('checkoutModal');
@@ -1256,7 +1286,13 @@
 
     // ========== USER DATA ==========
     function saveUserData() {
-        const data = { name: document.getElementById('customerName')?.value || '', phone: document.getElementById('customerPhone')?.value || '', street: document.getElementById('addressStreet')?.value || '', neighborhood: document.getElementById('addressNeighborhood')?.value || '', reference: document.getElementById('addressReference')?.value || '' };
+        const data = { 
+            name: document.getElementById('customerName')?.value || '', 
+            phone: document.getElementById('customerPhone')?.value || '', 
+            street: document.getElementById('addressStreet')?.value || '', 
+            neighborhood: document.getElementById('addressNeighborhood')?.value || '', 
+            reference: document.getElementById('addressReference')?.value || '' 
+        };
         localStorage.setItem(USER_DATA_KEY, JSON.stringify(data));
     }
     function loadUserData() {
@@ -1284,8 +1320,8 @@
                         <div class="banner-card" style="border-left: 4px solid ${b.cor === 'amarelo' ? '#FFB703' : b.cor === 'verde' ? '#2D6A4F' : b.cor === 'vermelho' ? '#E63946' : '#40916C'}">
                             <div class="banner-emoji">${b.emoji || '📢'}</div>
                             <div class="banner-info">
-                                <h4>${b.titulo}</h4>
-                                <p>${b.descricao || ''}</p>
+                                <h4>${escapeHtml(b.titulo)}</h4>
+                                <p>${escapeHtml(b.descricao || '')}</p>
                             </div>
                         </div>
                     `).join('');
@@ -1298,11 +1334,30 @@
         } catch(e) { console.warn("Erro banners:", e); bannersContainer.style.display = 'none'; }
     }
 
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
     // ========== CART ==========
     function saveCart() { localStorage.setItem(CART_KEY, JSON.stringify(cart)); updateCartUI(); }
     function loadCart() { try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { cart = []; } updateCartUI(); }
     function getCartTotal() { return cart.reduce((s, item) => { const extrasSum = (item.extras || []).reduce((a, e) => a + e.preco, 0); return s + (item.price + extrasSum) * item.quantity; }, 0); }
     function getCartCount() { return cart.reduce((s, i) => s + i.quantity, 0); }
+
+    function clearCart() {
+        if (cart.length === 0) return;
+        if (confirm("Tem certeza que deseja limpar todo o carrinho?")) {
+            cart = [];
+            saveCart();
+            showToast("Carrinho limpo");
+        }
+    }
 
     function updateCartUI() {
         const count = getCartCount();
@@ -1317,7 +1372,10 @@
         if (cart.length === 0) {
             if (cartItemsList) cartItemsList.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><p>Seu carrinho está vazio</p><small>Adicione itens para começar</small></div>`;
             if (cartSummary) cartSummary.style.display = 'none';
-            if (repeatBtn) repeatBtn.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
+            if (repeatBtn) repeatBtn.style.display = 'none';
+            if (clearCartBtn) clearCartBtn.style.display = 'none';
+            if (repeatBtnModal) repeatBtnModal.style.display = 'none';
+            if (clearCartBtnModal) clearCartBtnModal.style.display = 'none';
         } else {
             let html = '';
             cart.forEach((item, idx) => {
@@ -1340,6 +1398,9 @@
             if (document.getElementById('deliveryFeeAmt')) document.getElementById('deliveryFeeAmt').textContent = fmt(fee);
             if (cartTotalAmt) cartTotalAmt.textContent = fmt(sub + fee);
             if (repeatBtn) repeatBtn.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
+            if (clearCartBtn) clearCartBtn.style.display = 'flex';
+            if (repeatBtnModal) repeatBtnModal.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
+            if (clearCartBtnModal) clearCartBtnModal.style.display = 'flex';
         }
         if (cartModal && cartModal.classList.contains('open')) renderCartModal();
     }
@@ -1348,7 +1409,8 @@
         if (cart.length === 0) {
             if (cartModalItemsList) cartModalItemsList.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><p>Seu carrinho está vazio</p><small>Adicione itens para começar</small></div>`;
             if (cartModalSummary) cartModalSummary.style.display = 'none';
-            if (repeatBtnModal) repeatBtnModal.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
+            if (repeatBtnModal) repeatBtnModal.style.display = 'none';
+            if (clearCartBtnModal) clearCartBtnModal.style.display = 'none';
             return;
         }
         let html = '';
@@ -1372,11 +1434,13 @@
         if (document.getElementById('deliveryFeeAmtModal')) document.getElementById('deliveryFeeAmtModal').textContent = fmt(fee);
         if (cartModalTotal) cartModalTotal.textContent = fmt(sub + fee);
         if (repeatBtnModal) repeatBtnModal.style.display = localStorage.getItem(LAST_ORDER_KEY) ? 'flex' : 'none';
+        if (clearCartBtnModal) clearCartBtnModal.style.display = 'flex';
     }
 
     window.updateQty = (idx, delta) => {
         const newQ = cart[idx].quantity + delta;
         if (newQ < 1) return removeItem(idx);
+        if (newQ > 99) { showToast("Quantidade máxima permitida: 99", true); return; }
         cart[idx].quantity = newQ;
         saveCart();
     };
@@ -1513,14 +1577,14 @@
              </div>` : '';
         
         document.getElementById('modalProductBody').innerHTML = `${chipsHtml}${extrasHtml}
-            <div class="qty-row"><span class="qty-label">Quantidade</span><div class="qty-control"><button class="qty-btn" id="qtyDec">−</button><span class="qty-val" id="qtyVal">1</span><button class="qty-btn" id="qtyInc">+</button></div></div>
+            <div class="qty-row"><span class="qty-label">Quantidade (máx 99)</span><div class="qty-control"><button class="qty-btn" id="qtyDec">−</button><span class="qty-val" id="qtyVal">1</span><button class="qty-btn" id="qtyInc">+</button></div></div>
             <div class="modal-section-label">Observações</div>
             <textarea class="obs-textarea" id="productObservation" rows="2" placeholder="Ex: sem cebola, ponto da carne..."></textarea>`;
         
         document.querySelectorAll('.ingredient-chip').forEach(chip => { chip.addEventListener('click', () => handleIngredientToggle(chip)); });
         document.querySelectorAll('.extra-card').forEach(card => { card.addEventListener('click', () => handleExtraToggle(card)); });
         document.getElementById('qtyDec').onclick = () => { if (productQty > 1) { productQty--; document.getElementById('qtyVal').textContent = productQty; updateModalTotal(); } };
-        document.getElementById('qtyInc').onclick = () => { productQty++; document.getElementById('qtyVal').textContent = productQty; updateModalTotal(); };
+        document.getElementById('qtyInc').onclick = () => { if (productQty < 99) { productQty++; document.getElementById('qtyVal').textContent = productQty; updateModalTotal(); } else { showToast("Quantidade máxima é 99", true); } };
         updateModalTotal();
         productModal.classList.add('open');
     }
@@ -1621,9 +1685,21 @@
         checkoutModal.classList.add('open');
     }
     function closeCheckoutModal() { checkoutModal.classList.remove('open'); }
+
+    function isValidPhone(phone) {
+        if (!phone) return true; // opcional
+        const phoneRegex = /^\(?[1-9]{2}\)? ?[9]?[0-9]{4}-?[0-9]{4}$/;
+        return phoneRegex.test(phone);
+    }
+
     document.getElementById('confirmOrderBtn').onclick = async () => {
         const nome = document.getElementById('customerName').value.trim();
         const phone = document.getElementById('customerPhone').value.trim();
+        if (!nome) { showToast('⚠️ Digite seu nome', true); return; }
+        if (phone && !isValidPhone(phone)) {
+            showToast('⚠️ Telefone inválido. Use formato (11) 99999-9999', true);
+            return;
+        }
         const tipo = deliveryType;
         let endereco = '';
         if (tipo === 'ENTREGA') {
@@ -1653,6 +1729,8 @@
     window.closeCartModal = closeCartModal;
     fabCart?.addEventListener('click', openCartModal);
     if (repeatBtnModal) repeatBtnModal.onclick = () => { repeatLastOrder(); closeCartModal(); };
+    if (clearCartBtn) clearCartBtn.onclick = () => { clearCart(); if (cartModal.classList.contains('open')) closeCartModal(); };
+    if (clearCartBtnModal) clearCartBtnModal.onclick = () => { clearCart(); closeCartModal(); };
     if (checkoutBtnModal) checkoutBtnModal.onclick = () => { closeCartModal(); openCheckout(); };
     if (checkoutBtn) checkoutBtn.onclick = openCheckout;
     if (repeatBtn) repeatBtn.onclick = repeatLastOrder;

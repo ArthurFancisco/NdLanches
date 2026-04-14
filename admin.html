@@ -6,6 +6,7 @@
     <title>Admin Dashboard - ND Lanches</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
     <style>
         /* ===== RESET E PALETA VERDE ===== */
@@ -445,6 +446,11 @@
             padding: 14px 0;
             border-bottom: 1px solid var(--border);
             cursor: default;
+            transition: background 0.2s;
+        }
+        .prod-item.dragging {
+            opacity: 0.5;
+            background: var(--surface2);
         }
         .drag-handle {
             cursor: grab;
@@ -762,6 +768,27 @@
         }
 
         /* PEDIDOS */
+        .pedidos-filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .status-filter-btn {
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .status-filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
         .filtro-btn {
             padding: 8px 18px;
             border-radius: 40px;
@@ -908,6 +935,13 @@
         }
         .pedido-novo {
             animation: newPedido 2s ease;
+        }
+
+        /* RELATÓRIO */
+        .chart-container {
+            margin-top: 20px;
+            max-width: 100%;
+            height: 250px;
         }
 
         /* FEEDBACK TOAST */
@@ -1067,7 +1101,7 @@
                         <option value="false">⚠️ Indisponível (acabou)</option>
                     </select></div>
                 </div>
-                <!-- NOVO CAMPO: INGREDIENTES REMOVÍVEIS -->
+                <!-- INGREDIENTES REMOVÍVEIS -->
                 <div class="form-group">
                     <label>Ingredientes removíveis (opcional)</label>
                     <div class="tags-input-container" id="tagsContainer">
@@ -1188,6 +1222,20 @@
         </div>
     </div>
 
+    <!-- RELATÓRIO DE VENDAS (GRÁFICO) -->
+    <div style="max-width:1440px;margin:0 auto 40px;padding:0 24px">
+        <div class="panel">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-chart-line"></i> Relatório de Vendas</h2>
+            </div>
+            <div class="panel-body">
+                <div class="chart-container">
+                    <canvas id="salesChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- PEDIDOS -->
     <div style="max-width:1440px;margin:0 auto 60px;padding:0 24px">
         <div class="panel">
@@ -1200,6 +1248,15 @@
                     </div>
                     <div class="resumo-dia"><span id="pedidos-qtd">0</span> pedidos · <span id="pedidos-receita">R$ 0,00</span></div>
                     <div class="refresh-indicator"><div class="refresh-dot"></div><span id="refreshLabel">Atualiza em 30s</span></div>
+                </div>
+                <!-- Filtro por status -->
+                <div class="pedidos-filters" id="statusFilters" style="margin-top: 16px;">
+                    <button class="status-filter-btn active" data-status="TODOS">Todos</button>
+                    <button class="status-filter-btn" data-status="RECEBIDO">📥 Recebido</button>
+                    <button class="status-filter-btn" data-status="PREPARO">🔥 Preparo</button>
+                    <button class="status-filter-btn" data-status="PRONTO">✅ Pronto</button>
+                    <button class="status-filter-btn" data-status="ENTREGUE">🏍️ Entregue</button>
+                    <button class="status-filter-btn" data-status="CANCELADO">❌ Cancelado</button>
                 </div>
             </div>
             <div class="panel-body" style="padding:0">
@@ -1225,7 +1282,7 @@
 
 <script>
     // ================================================================
-    // ADMIN: Proteção por senha via API + CRUD completo
+    // ADMIN: Proteção por senha via API + CRUD completo + MELHORIAS
     // ================================================================
     const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
     const LOJA_SLUG = "nd-lanches";
@@ -1235,16 +1292,19 @@
     let lojaAberta = false;
     let idEdicao = null, adicEdicaoId = null, bannerEdicaoId = null;
     let filtroPedidos = 'hoje';
+    let filtroStatusPedidos = 'TODOS';
     let ultimosPedidosIds = new Set();
     let refreshTimer = null, refreshCountdown = REFRESH_INTERVAL;
     let todosProdutos = [];
+    let todosPedidos = [];
     let selectedImageFile = null;
-    let currentRemoviveis = []; // Array para armazenar os ingredientes removíveis
+    let currentRemoviveis = [];
+    let salesChart = null;
 
     const STATUS_PROX = { RECEBIDO: 'PREPARO', PREPARO: 'PRONTO', PRONTO: 'ENTREGUE', ENTREGUE: 'ENTREGUE', CANCELADO: 'CANCELADO' };
     const STATUS_LABEL = { RECEBIDO: '📥 Recebido', PREPARO: '🔥 Em preparo', PRONTO: '✅ Pronto', ENTREGUE: '🏍️ Entregue', CANCELADO: '❌ Cancelado' };
 
-    // ========== FUNÇÕES PARA TAGS (INGREDIENTES REMOVÍVEIS) ==========
+    // ========== FUNÇÕES PARA TAGS ==========
     function renderTags() {
         const container = document.getElementById('tagsList');
         if (!container) return;
@@ -1255,7 +1315,6 @@
             tagSpan.innerHTML = `${tag} <span class="tag-remove" data-index="${index}"><i class="fa-regular fa-circle-xmark"></i></span>`;
             container.appendChild(tagSpan);
         });
-        // Adiciona evento de remoção
         document.querySelectorAll('.tag-remove').forEach(el => {
             el.addEventListener('click', (e) => {
                 const idx = parseInt(el.dataset.index);
@@ -1443,8 +1502,8 @@
             const rP = await apiFetch(`${API_URL}/produtos/admin/loja/${LOJA_ID_NUM}`);
             if (rP.ok) { 
                 todosProdutos = await rP.json();
-                console.log("Produtos carregados (admin):", todosProdutos);
                 renderizarProdutos(todosProdutos);
+                initDragAndDrop();
             } else {
                 console.error("Erro ao carregar produtos:", rP.status);
                 feedback("Erro ao carregar produtos. Verifique o backend.", false);
@@ -1520,7 +1579,7 @@
             const disponivel = p.ativo === true;
             const badgeIndisponivel = !disponivel ? '<span class="indisponivel-badge"><i class="fa-solid fa-box-open"></i> Indisponível</span>' : '';
             const removiveisHtml = (p.removiveis && p.removiveis.length) ? `<span class="removiveis-preview"><i class="fa-regular fa-trash-can"></i> ${p.removiveis.join(', ')}</span>` : '';
-            return `<div class="prod-item" data-id="${p.id}">
+            return `<div class="prod-item" data-id="${p.id}" data-ordem="${p.ordem || 0}">
                 <div class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
                 <div class="prod-emoji">${p.emoji || '🍽️'}</div>
                 <div class="prod-info">
@@ -1540,6 +1599,63 @@
                 </div>
             </div>`;
         }).join('')).join('');
+    }
+
+    // ========== DRAG AND DROP (ORDENAÇÃO) ==========
+    let dragSrcIndex = null;
+    function initDragAndDrop() {
+        const items = document.querySelectorAll('.prod-item');
+        items.forEach((item, index) => {
+            item.setAttribute('draggable', 'true');
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragover', handleDragOver);
+            item.addEventListener('dragenter', handleDragEnter);
+            item.addEventListener('dragend', handleDragEnd);
+        });
+    }
+
+    function handleDragStart(e) {
+        dragSrcIndex = e.target.closest('.prod-item').dataset.id;
+        e.dataTransfer.effectAllowed = 'move';
+    }
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+    function handleDragEnter(e) {
+        e.preventDefault();
+        const targetItem = e.target.closest('.prod-item');
+        if (targetItem && targetItem.dataset.id !== dragSrcIndex) {
+            targetItem.style.borderTop = '2px solid var(--primary)';
+        }
+    }
+    function handleDragEnd(e) {
+        document.querySelectorAll('.prod-item').forEach(item => {
+            item.style.borderTop = '';
+        });
+        const targetItem = e.target.closest('.prod-item');
+        if (targetItem && targetItem.dataset.id !== dragSrcIndex) {
+            reorderProducts(dragSrcIndex, targetItem.dataset.id);
+        }
+        dragSrcIndex = null;
+    }
+
+    async function reorderProducts(sourceId, targetId) {
+        const sourceIndex = todosProdutos.findIndex(p => p.id == sourceId);
+        const targetIndex = todosProdutos.findIndex(p => p.id == targetId);
+        if (sourceIndex === -1 || targetIndex === -1) return;
+        const [moved] = todosProdutos.splice(sourceIndex, 1);
+        todosProdutos.splice(targetIndex, 0, moved);
+        // Atualizar ordem
+        todosProdutos.forEach((p, idx) => p.ordem = idx + 1);
+        // Persistir via API
+        for (const p of todosProdutos) {
+            try {
+                await apiFetch(`${API_URL}/produtos/${p.id}`, { method: 'PUT', body: JSON.stringify(p) });
+            } catch(e) { console.warn(`Erro ao salvar ordem do produto ${p.id}`); }
+        }
+        renderizarProdutos(todosProdutos);
+        feedback("Ordem dos produtos atualizada!", true);
     }
 
     async function toggleAtivoProduto(id, tornarDisponivel) {
@@ -1584,7 +1700,6 @@
             img.src = p.imagemUrl;
             previewDiv.appendChild(img);
         }
-        // Carregar removíveis
         setRemoviveisFromArray(p.removiveis || []);
         document.getElementById('formTitle').textContent = p.nome;
         document.getElementById('btnSalvarLabel').textContent = 'Salvar Alterações';
@@ -1806,8 +1921,13 @@
         const rota = filtroPedidos === 'hoje' ? `${API_URL}/pedidos/loja/${LOJA_ID_NUM}/hoje` : `${API_URL}/pedidos/loja/${LOJA_ID_NUM}`;
         try {
             const r = await apiFetch(rota);
-            if (r.ok) renderizarPedidos(await r.json());
-            else renderizarPedidos([]);
+            if (r.ok) {
+                todosPedidos = await r.json();
+                renderizarPedidos();
+                atualizarGraficoVendas();
+            } else {
+                renderizarPedidos([]);
+            }
         } catch(e) { console.error(e); }
     }
 
@@ -1818,52 +1938,42 @@
         carregarPedidos();
     }
 
-    function iniciarAutoRefresh() {
-        if (refreshTimer) clearInterval(refreshTimer);
-        refreshCountdown = REFRESH_INTERVAL;
-        const countdown = setInterval(() => {
-            refreshCountdown--;
-            const label = document.getElementById('refreshLabel');
-            if (label) label.textContent = `Atualiza em ${refreshCountdown}s`;
-            if (refreshCountdown <= 0) refreshCountdown = REFRESH_INTERVAL;
-        }, 1000);
-        refreshTimer = setInterval(async () => {
-            refreshCountdown = REFRESH_INTERVAL;
-            await carregarPedidos();
-        }, REFRESH_INTERVAL * 1000);
-        window.addEventListener('beforeunload', () => { clearInterval(refreshTimer); clearInterval(countdown); });
+    function filtrarPorStatus(status) {
+        filtroStatusPedidos = status;
+        document.querySelectorAll('.status-filter-btn').forEach(btn => {
+            if (btn.dataset.status === status) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        renderizarPedidos();
     }
 
-    async function avancarStatus(id, statusAtual) {
-        const prox = STATUS_PROX[statusAtual];
-        if (!prox || prox === statusAtual) return;
-        try {
-            const res = await apiFetch(`${API_URL}/pedidos/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: prox }) });
-            if (res.ok) { feedback(`Pedido #${id} → ${prox}`, true); carregarPedidos(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
-    }
-
-    async function excluirPedido(id) {
-        if (!(await showConfirm("Remover pedido?"))) return;
-        try {
-            await apiFetch(`${API_URL}/pedidos/${id}`, { method: 'DELETE' });
-            carregarPedidos();
-        } catch(e) { feedback("Erro", false); }
-    }
-
-    function renderizarPedidos(pedidos) {
-        const total = pedidos.reduce((s, p) => s + parseFloat(p.total), 0);
-        document.getElementById('pedidos-qtd').textContent = pedidos.length;
+    function renderizarPedidos() {
+        let pedidosFiltrados = [...todosPedidos];
+        if (filtroStatusPedidos !== 'TODOS') {
+            pedidosFiltrados = pedidosFiltrados.filter(p => p.status === filtroStatusPedidos);
+        }
+        const total = pedidosFiltrados.reduce((s, p) => s + parseFloat(p.total), 0);
+        document.getElementById('pedidos-qtd').textContent = pedidosFiltrados.length;
         document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
-        const novosIds = new Set(pedidos.map(p => p.id));
-        const novos = pedidos.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
+        const novosIds = new Set(pedidosFiltrados.map(p => p.id));
+        const novos = pedidosFiltrados.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
         ultimosPedidosIds = novosIds;
-        if (novos.length) feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
+        if (novos.length) {
+            feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
+            // Notificação sonora e push
+            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+            audio.play().catch(e=>console.log);
+            if (Notification.permission === 'granted') {
+                novos.forEach(p => new Notification(`Novo pedido #${p.id}`, { body: `Cliente: ${p.nomeCliente || 'Anônimo'} | Total: R$ ${p.total}` }));
+            }
+        }
         const lista = document.getElementById('lista-pedidos');
         if (!lista) return;
-        if (!pedidos.length) { lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>'; return; }
-        lista.innerHTML = pedidos.map(p => {
+        if (!pedidosFiltrados.length) {
+            lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>';
+            return;
+        }
+        lista.innerHTML = pedidosFiltrados.map(p => {
             let itens = [];
             try {
                 if (typeof p.itensJson === 'string') itens = JSON.parse(p.itensJson || '[]');
@@ -1909,6 +2019,80 @@
         }).join('');
     }
 
+    function iniciarAutoRefresh() {
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshCountdown = REFRESH_INTERVAL;
+        const countdown = setInterval(() => {
+            refreshCountdown--;
+            const label = document.getElementById('refreshLabel');
+            if (label) label.textContent = `Atualiza em ${refreshCountdown}s`;
+            if (refreshCountdown <= 0) refreshCountdown = REFRESH_INTERVAL;
+        }, 1000);
+        refreshTimer = setInterval(async () => {
+            refreshCountdown = REFRESH_INTERVAL;
+            await carregarPedidos();
+        }, REFRESH_INTERVAL * 1000);
+        window.addEventListener('beforeunload', () => { clearInterval(refreshTimer); clearInterval(countdown); });
+        // Solicitar permissão de notificação
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
+        }
+    }
+
+    async function avancarStatus(id, statusAtual) {
+        const prox = STATUS_PROX[statusAtual];
+        if (!prox || prox === statusAtual) return;
+        try {
+            const res = await apiFetch(`${API_URL}/pedidos/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: prox }) });
+            if (res.ok) { feedback(`Pedido #${id} → ${prox}`, true); carregarPedidos(); }
+            else feedback("Erro", false);
+        } catch(e) { feedback("Erro", false); }
+    }
+
+    async function excluirPedido(id) {
+        if (!(await showConfirm("Remover pedido?"))) return;
+        try {
+            await apiFetch(`${API_URL}/pedidos/${id}`, { method: 'DELETE' });
+            carregarPedidos();
+        } catch(e) { feedback("Erro", false); }
+    }
+
+    // ========== GRÁFICO DE VENDAS ==========
+    function atualizarGraficoVendas() {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        const faturamentoPorDia = Array(7).fill(0);
+        const hoje = new Date();
+        const inicioSemana = new Date(hoje);
+        inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+        todosPedidos.forEach(p => {
+            const data = new Date(p.criadoEm);
+            if (data >= inicioSemana && data <= hoje) {
+                const dia = data.getDay();
+                faturamentoPorDia[dia] += parseFloat(p.total);
+            }
+        });
+        if (salesChart) salesChart.destroy();
+        salesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: diasSemana,
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: faturamentoPorDia,
+                    backgroundColor: 'rgba(42, 107, 60, 0.6)',
+                    borderColor: '#2A6B3C',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'R$' } } }
+            }
+        });
+    }
+
     function feedback(msg, ok = true) {
         const el = document.getElementById('feedback');
         if (!el) return;
@@ -1921,11 +2105,14 @@
     }
 
     // INICIALIZAÇÃO
-    initLogin();
-    // Inicializa o input de tags após carregar o DOM
     document.addEventListener('DOMContentLoaded', () => {
         initTagsInput();
+        // Filtros de status
+        document.querySelectorAll('.status-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => filtrarPorStatus(btn.dataset.status));
+        });
     });
+    initLogin();
 </script>
 </body>
 </html>
