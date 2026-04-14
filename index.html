@@ -1506,38 +1506,32 @@
     
     if (!scheduleDiv) return;
     
-    // Monta o conteúdo de horário e mensagem (aparece sempre, aberto ou fechado)
-    let scheduleHtml = '';
-    
-    // Horário de funcionamento (sempre exibe se existir)
-    if (storeInfo.horarioFuncionamento) {
-        scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-calendar-alt"></i> ${storeInfo.horarioFuncionamento}</span>`;
-    }
-    
-    // Mensagem personalizada (se existir)
-    if (storeInfo.mensagemFechado) {
-        if (scheduleHtml) scheduleHtml += ' · ';
-        scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-bell"></i> ${storeInfo.mensagemFechado}</span>`;
-    }
-    
-    // Se não houver nenhuma informação, esconde o div
-    if (!scheduleHtml) {
-        scheduleDiv.style.display = 'none';
-    } else {
-        scheduleDiv.style.display = 'inline-flex';
-        scheduleDiv.innerHTML = scheduleHtml;
-    }
-    
-    // Define o status principal
     if (storeOpen) {
+        // Loja aberta: não mostra horário/mensagem
         ind.className = 'status-pill open';
         txt.innerHTML = '<i class="fa-regular fa-circle-check"></i> Aberto agora';
-        // Opcional: se quiser que o horário apareça com menos destaque quando aberto, pode manter
+        scheduleDiv.style.display = 'none';
+        scheduleDiv.innerHTML = '';
     } else {
+        // Loja fechada: mostra horário e mensagem (se existirem)
         ind.className = 'status-pill closed';
         txt.innerHTML = '<i class="fa-regular fa-circle-xmark"></i> Fechado no momento';
-        // Dá um destaque extra no schedule quando fechado (opcional)
-        if (scheduleDiv) scheduleDiv.style.background = 'rgba(220, 38, 38, 0.3)';
+        
+        let scheduleHtml = '';
+        if (storeInfo.horarioFuncionamento) {
+            scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-calendar-alt"></i> ${storeInfo.horarioFuncionamento}</span>`;
+        }
+        if (storeInfo.mensagemFechado) {
+            if (scheduleHtml) scheduleHtml += ' · ';
+            scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-bell"></i> ${storeInfo.mensagemFechado}</span>`;
+        }
+        
+        if (scheduleHtml) {
+            scheduleDiv.style.display = 'inline-flex';
+            scheduleDiv.innerHTML = scheduleHtml;
+        } else {
+            scheduleDiv.style.display = 'none';
+        }
     }
 }
 
