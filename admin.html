@@ -942,6 +942,7 @@
             margin-top: 20px;
             max-width: 100%;
             height: 250px;
+            position: relative;
         }
 
         /* FEEDBACK TOAST */
@@ -1007,6 +1008,12 @@
             }
             .filter-bar {
                 flex-direction: column;
+            }
+            .pedidos-filters {
+                justify-content: center;
+            }
+            .chart-container {
+                height: 200px;
             }
         }
     </style>
@@ -1282,7 +1289,7 @@
 
 <script>
     // ================================================================
-    // ADMIN: Proteção por senha via API + CRUD completo + MELHORIAS
+    // ADMIN: Proteção por senha via API + CRUD completo + CORREÇÕES
     // ================================================================
     const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
     const LOJA_SLUG = "nd-lanches";
@@ -1503,7 +1510,7 @@
             if (rP.ok) { 
                 todosProdutos = await rP.json();
                 renderizarProdutos(todosProdutos);
-                initDragAndDrop();
+                setTimeout(() => initDragAndDrop(), 100);
             } else {
                 console.error("Erro ao carregar produtos:", rP.status);
                 feedback("Erro ao carregar produtos. Verifique o backend.", false);
@@ -1605,7 +1612,7 @@
     let dragSrcIndex = null;
     function initDragAndDrop() {
         const items = document.querySelectorAll('.prod-item');
-        items.forEach((item, index) => {
+        items.forEach((item) => {
             item.setAttribute('draggable', 'true');
             item.addEventListener('dragstart', handleDragStart);
             item.addEventListener('dragover', handleDragOver);
@@ -1617,6 +1624,7 @@
     function handleDragStart(e) {
         dragSrcIndex = e.target.closest('.prod-item').dataset.id;
         e.dataTransfer.effectAllowed = 'move';
+        e.target.closest('.prod-item').classList.add('dragging');
     }
     function handleDragOver(e) {
         e.preventDefault();
@@ -1632,6 +1640,7 @@
     function handleDragEnd(e) {
         document.querySelectorAll('.prod-item').forEach(item => {
             item.style.borderTop = '';
+            item.classList.remove('dragging');
         });
         const targetItem = e.target.closest('.prod-item');
         if (targetItem && targetItem.dataset.id !== dragSrcIndex) {
@@ -1646,9 +1655,9 @@
         if (sourceIndex === -1 || targetIndex === -1) return;
         const [moved] = todosProdutos.splice(sourceIndex, 1);
         todosProdutos.splice(targetIndex, 0, moved);
-        // Atualizar ordem
         todosProdutos.forEach((p, idx) => p.ordem = idx + 1);
-        // Persistir via API
+        
+        // Atualizar ordem no backend
         for (const p of todosProdutos) {
             try {
                 await apiFetch(`${API_URL}/produtos/${p.id}`, { method: 'PUT', body: JSON.stringify(p) });
@@ -1960,9 +1969,11 @@
         ultimosPedidosIds = novosIds;
         if (novos.length) {
             feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
-            // Notificação sonora e push
-            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-            audio.play().catch(e=>console.log);
+            // Notificação sonora (precisa de interação do usuário para tocar)
+            try {
+                const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+                audio.play().catch(e => console.log('Som não pôde ser reproduzido automaticamente.'));
+            } catch(e) {}
             if (Notification.permission === 'granted') {
                 novos.forEach(p => new Notification(`Novo pedido #${p.id}`, { body: `Cliente: ${p.nomeCliente || 'Anônimo'} | Total: R$ ${p.total}` }));
             }
@@ -1975,12 +1986,17 @@
         }
         lista.innerHTML = pedidosFiltrados.map(p => {
             let itens = [];
-            try {
-                if (typeof p.itensJson === 'string') itens = JSON.parse(p.itensJson || '[]');
-                else if (Array.isArray(p.itensJson)) itens = p.itensJson;
-                else if (p.itens) itens = p.itens;
-                else itens = [];
-            } catch(e) { itens = []; }
+            // Tratamento robusto do campo itensJson
+            if (p.itensJson) {
+                try {
+                    itens = typeof p.itensJson === 'string' ? JSON.parse(p.itensJson) : p.itensJson;
+                } catch(e) {
+                    console.error(`Erro ao parsear itens do pedido ${p.id}:`, e);
+                    itens = [];
+                }
+            } else if (p.itens) {
+                itens = p.itens;
+            }
             const isNovo = novos.some(n => n.id === p.id);
             const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
             const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
@@ -2065,6 +2081,7 @@
         const hoje = new Date();
         const inicioSemana = new Date(hoje);
         inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+        
         todosPedidos.forEach(p => {
             const data = new Date(p.criadoEm);
             if (data >= inicioSemana && data <= hoje) {
@@ -2072,6 +2089,7 @@
                 faturamentoPorDia[dia] += parseFloat(p.total);
             }
         });
+        
         if (salesChart) salesChart.destroy();
         salesChart = new Chart(ctx, {
             type: 'bar',
