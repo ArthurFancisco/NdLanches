@@ -6,7 +6,6 @@
     <title>Admin Dashboard - ND Lanches</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
     <style>
         /* ===== RESET E PALETA VERDE ===== */
@@ -937,20 +936,6 @@
             animation: newPedido 2s ease;
         }
 
-        /* RELATÓRIO */
-        .chart-container {
-            margin-top: 20px;
-            max-width: 100%;
-            height: 250px;
-            position: relative;
-        }
-        .chart-no-data {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 40px;
-            font-size: 0.9rem;
-        }
-
         /* FEEDBACK TOAST */
         .feedback {
             position: fixed;
@@ -1017,9 +1002,6 @@
             }
             .pedidos-filters {
                 justify-content: center;
-            }
-            .chart-container {
-                height: 200px;
             }
         }
     </style>
@@ -1235,21 +1217,6 @@
         </div>
     </div>
 
-    <!-- RELATÓRIO DE VENDAS (GRÁFICO) -->
-    <div style="max-width:1440px;margin:0 auto 40px;padding:0 24px">
-        <div class="panel">
-            <div class="panel-header">
-                <h2><i class="fa-solid fa-chart-line"></i> Relatório de Vendas</h2>
-            </div>
-            <div class="panel-body">
-                <div class="chart-container">
-                    <canvas id="salesChart" width="400" height="200"></canvas>
-                    <div id="chartNoData" class="chart-no-data" style="display: none;">Nenhum pedido no período para exibir</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- PEDIDOS -->
     <div style="max-width:1440px;margin:0 auto 60px;padding:0 24px">
         <div class="panel">
@@ -1313,7 +1280,6 @@
     let todosPedidos = [];
     let selectedImageFile = null;
     let currentRemoviveis = [];
-    let salesChart = null;
 
     const STATUS_PROX = { RECEBIDO: 'PREPARO', PREPARO: 'PRONTO', PRONTO: 'ENTREGUE', ENTREGUE: 'ENTREGUE', CANCELADO: 'CANCELADO' };
     const STATUS_LABEL = { RECEBIDO: '📥 Recebido', PREPARO: '🔥 Em preparo', PRONTO: '✅ Pronto', ENTREGUE: '🏍️ Entregue', CANCELADO: '❌ Cancelado' };
@@ -1939,7 +1905,6 @@
             if (r.ok) {
                 todosPedidos = await r.json();
                 renderizarPedidos();
-                atualizarGraficoVendas();
             } else {
                 renderizarPedidos([]);
             }
@@ -2018,13 +1983,11 @@
                 let html = `<div class="pedido-item-linha"><span style="font-weight:800">${qtd}x</span><span>${nome}</span><span style="margin-left:auto;font-weight:700">R$ ${subtotal}</span></div>`;
                 const mods = [];
                 
-                // REMOVIDOS (ingredientes que o cliente tirou)
                 const removidos = item.removals || item.removidos || [];
                 if (removidos.length) {
                     mods.push(`<span class="mod-chip removal">🚫 Sem: ${removidos.join(', ')}</span>`);
                 }
                 
-                // ADICIONAIS (extras)
                 const adicionais = item.extras || item.adicionais || [];
                 if (adicionais.length) {
                     adicionais.forEach(extra => {
@@ -2034,7 +1997,6 @@
                     });
                 }
                 
-                // OBSERVAÇÕES
                 const obs = item.observation || item.obs || '';
                 if (obs) mods.push(`<span class="mod-chip">💬 ${obs}</span>`);
                 
@@ -2096,53 +2058,6 @@
             await apiFetch(`${API_URL}/pedidos/${id}`, { method: 'DELETE' });
             carregarPedidos();
         } catch(e) { feedback("Erro", false); }
-    }
-
-    // ========== GRÁFICO DE VENDAS ==========
-    function atualizarGraficoVendas() {
-        const ctx = document.getElementById('salesChart').getContext('2d');
-        const noDataDiv = document.getElementById('chartNoData');
-        const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-        const faturamentoPorDia = Array(7).fill(0);
-        const hoje = new Date();
-        const inicioSemana = new Date(hoje);
-        inicioSemana.setDate(hoje.getDate() - hoje.getDay());
-        
-        if (!todosPedidos.length) {
-            if (salesChart) salesChart.destroy();
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            if (noDataDiv) noDataDiv.style.display = 'block';
-            return;
-        }
-        
-        todosPedidos.forEach(p => {
-            const data = new Date(p.criadoEm);
-            if (data >= inicioSemana && data <= hoje) {
-                const dia = data.getDay();
-                faturamentoPorDia[dia] += parseFloat(p.total);
-            }
-        });
-        
-        if (noDataDiv) noDataDiv.style.display = 'none';
-        if (salesChart) salesChart.destroy();
-        salesChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: diasSemana,
-                datasets: [{
-                    label: 'Faturamento (R$)',
-                    data: faturamentoPorDia,
-                    backgroundColor: 'rgba(42, 107, 60, 0.6)',
-                    borderColor: '#2A6B3C',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: { y: { beginAtZero: true, title: { display: true, text: 'R$' } } }
-            }
-        });
     }
 
     function feedback(msg, ok = true) {
