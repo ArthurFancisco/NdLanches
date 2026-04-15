@@ -944,6 +944,12 @@
             height: 250px;
             position: relative;
         }
+        .chart-no-data {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+            font-size: 0.9rem;
+        }
 
         /* FEEDBACK TOAST */
         .feedback {
@@ -1238,6 +1244,7 @@
             <div class="panel-body">
                 <div class="chart-container">
                     <canvas id="salesChart" width="400" height="200"></canvas>
+                    <div id="chartNoData" class="chart-no-data" style="display: none;">Nenhum pedido no período para exibir</div>
                 </div>
             </div>
         </div>
@@ -1289,7 +1296,7 @@
 
 <script>
     // ================================================================
-    // ADMIN: Proteção por senha via API + CRUD completo + CORREÇÕES
+    // ADMIN: Proteção por senha via API + CRUD completo + CORREÇÕES TOTAIS
     // ================================================================
     const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
     const LOJA_SLUG = "nd-lanches";
@@ -1657,7 +1664,6 @@
         todosProdutos.splice(targetIndex, 0, moved);
         todosProdutos.forEach((p, idx) => p.ordem = idx + 1);
         
-        // Atualizar ordem no backend
         for (const p of todosProdutos) {
             try {
                 await apiFetch(`${API_URL}/produtos/${p.id}`, { method: 'PUT', body: JSON.stringify(p) });
@@ -1964,29 +1970,31 @@
         const total = pedidosFiltrados.reduce((s, p) => s + parseFloat(p.total), 0);
         document.getElementById('pedidos-qtd').textContent = pedidosFiltrados.length;
         document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
+        
         const novosIds = new Set(pedidosFiltrados.map(p => p.id));
         const novos = pedidosFiltrados.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
         ultimosPedidosIds = novosIds;
+        
         if (novos.length) {
             feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
-            // Notificação sonora (precisa de interação do usuário para tocar)
             try {
                 const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-                audio.play().catch(e => console.log('Som não pôde ser reproduzido automaticamente.'));
+                audio.play().catch(e => console.log('Som automático bloqueado pelo navegador.'));
             } catch(e) {}
             if (Notification.permission === 'granted') {
                 novos.forEach(p => new Notification(`Novo pedido #${p.id}`, { body: `Cliente: ${p.nomeCliente || 'Anônimo'} | Total: R$ ${p.total}` }));
             }
         }
+        
         const lista = document.getElementById('lista-pedidos');
         if (!lista) return;
         if (!pedidosFiltrados.length) {
             lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>';
             return;
         }
+        
         lista.innerHTML = pedidosFiltrados.map(p => {
             let itens = [];
-            // Tratamento robusto do campo itensJson
             if (p.itensJson) {
                 try {
                     itens = typeof p.itensJson === 'string' ? JSON.parse(p.itensJson) : p.itensJson;
@@ -1997,9 +2005,11 @@
             } else if (p.itens) {
                 itens = p.itens;
             }
+            
             const isNovo = novos.some(n => n.id === p.id);
             const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
             const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
+            
             const itensHtml = itens.map(item => {
                 const nome = item.nomeProduto || item.nome || item.name || 'Produto';
                 const qtd = item.quantidade || item.qtd || item.quantity || 1;
@@ -2007,15 +2017,31 @@
                 const subtotal = (parseFloat(precoUnit) * parseInt(qtd)).toFixed(2);
                 let html = `<div class="pedido-item-linha"><span style="font-weight:800">${qtd}x</span><span>${nome}</span><span style="margin-left:auto;font-weight:700">R$ ${subtotal}</span></div>`;
                 const mods = [];
-                const removidos = item.removidos || item.ingredientesRemovidos || [];
-                if (removidos.length) mods.push(`🚫 Sem: ${removidos.join(', ')}`);
-                const adicionais = item.adicionais || item.extras || [];
-                if (adicionais.length) adicionais.forEach(a => mods.push(`➕ ${a}`));
-                const obs = item.observacao || item.obs || '';
-                if (obs) mods.push(`💬 ${obs}`);
-                if (mods.length) html += `<div class="pedido-item-mods">${mods.join('<br>')}</div>`;
+                
+                // REMOVIDOS (ingredientes que o cliente tirou)
+                const removidos = item.removals || item.removidos || [];
+                if (removidos.length) {
+                    mods.push(`<span class="mod-chip removal">🚫 Sem: ${removidos.join(', ')}</span>`);
+                }
+                
+                // ADICIONAIS (extras)
+                const adicionais = item.extras || item.adicionais || [];
+                if (adicionais.length) {
+                    adicionais.forEach(extra => {
+                        const nomeExtra = extra.nome || extra;
+                        const precoExtra = extra.preco ? ` (+ R$ ${extra.preco.toFixed(2)})` : '';
+                        mods.push(`<span class="mod-chip extra">➕ ${nomeExtra}${precoExtra}</span>`);
+                    });
+                }
+                
+                // OBSERVAÇÕES
+                const obs = item.observation || item.obs || '';
+                if (obs) mods.push(`<span class="mod-chip">💬 ${obs}</span>`);
+                
+                if (mods.length) html += `<div class="pedido-item-mods">${mods.join(' ')}</div>`;
                 return html;
             }).join('');
+            
             return `<div class="pedido-card ${isNovo ? 'pedido-novo' : ''}">
                 <div class="pedido-top">
                     <div>
@@ -2049,7 +2075,6 @@
             await carregarPedidos();
         }, REFRESH_INTERVAL * 1000);
         window.addEventListener('beforeunload', () => { clearInterval(refreshTimer); clearInterval(countdown); });
-        // Solicitar permissão de notificação
         if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
             Notification.requestPermission();
         }
@@ -2076,11 +2101,19 @@
     // ========== GRÁFICO DE VENDAS ==========
     function atualizarGraficoVendas() {
         const ctx = document.getElementById('salesChart').getContext('2d');
+        const noDataDiv = document.getElementById('chartNoData');
         const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const faturamentoPorDia = Array(7).fill(0);
         const hoje = new Date();
         const inicioSemana = new Date(hoje);
         inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+        
+        if (!todosPedidos.length) {
+            if (salesChart) salesChart.destroy();
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            if (noDataDiv) noDataDiv.style.display = 'block';
+            return;
+        }
         
         todosPedidos.forEach(p => {
             const data = new Date(p.criadoEm);
@@ -2090,6 +2123,7 @@
             }
         });
         
+        if (noDataDiv) noDataDiv.style.display = 'none';
         if (salesChart) salesChart.destroy();
         salesChart = new Chart(ctx, {
             type: 'bar',
@@ -2125,7 +2159,6 @@
     // INICIALIZAÇÃO
     document.addEventListener('DOMContentLoaded', () => {
         initTagsInput();
-        // Filtros de status
         document.querySelectorAll('.status-filter-btn').forEach(btn => {
             btn.addEventListener('click', () => filtrarPorStatus(btn.dataset.status));
         });
