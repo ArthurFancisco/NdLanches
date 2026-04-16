@@ -394,6 +394,8 @@
             object-fit: contain;
             background: var(--green-pale);
             transition: transform 0.4s ease;
+            loading: lazy;
+            decoding: async;
         }
         .product-card:hover .product-img img { transform: scale(1.05); }
         .product-img .emoji-placeholder { font-size: 3rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.1)); }
@@ -1227,6 +1229,9 @@
             .payment-card {
                 flex-wrap: wrap;
             }
+            .modal {
+                max-height: 95vh;
+            }
         }
     </style>
 </head>
@@ -1416,13 +1421,24 @@
         toastEl.textContent = msg;
         toastEl.className = 'toast' + (isError ? ' error' : '');
         toastEl.classList.add('show');
-        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
     }
+
     async function apiFetch(path, opts = {}) {
-        return fetch(API_URL + path, {
-            ...opts,
-            headers: { 'ngrok-skip-browser-warning': 'any', 'Content-Type': 'application/json', ...(opts.headers || {}) }
-        });
+        try {
+            const response = await fetch(API_URL + path, {
+                ...opts,
+                headers: { 'ngrok-skip-browser-warning': 'any', 'Content-Type': 'application/json', ...(opts.headers || {}) }
+            });
+            if (!response.ok && response.status !== 404) {
+                showToast(`Erro ao conectar com o servidor (${response.status})`, true);
+            }
+            return response;
+        } catch (error) {
+            console.error("Erro de rede:", error);
+            showToast("Falha de conexão com o servidor. Verifique sua internet.", true);
+            throw error;
+        }
     }
 
     // ========== USER DATA ==========
@@ -1472,7 +1488,11 @@
             } else {
                 bannersContainer.style.display = 'none';
             }
-        } catch(e) { console.warn("Erro banners:", e); bannersContainer.style.display = 'none'; }
+        } catch(e) { 
+            console.warn("Erro banners:", e); 
+            bannersContainer.style.display = 'none';
+            // Não exibe toast para evitar spam
+        }
     }
 
     function escapeHtml(str) {
@@ -1522,7 +1542,7 @@
             cart.forEach((item, idx) => {
                 const extrasSum = (item.extras || []).reduce((a, e) => a + e.preco, 0);
                 const itemTotal = (item.price + extrasSum) * item.quantity;
-                const imgHtml = item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}">` : (item.emoji || '🍔');
+                const imgHtml = item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" loading="lazy" decoding="async">` : (item.emoji || '🍔');
                 let modsHtml = '';
                 if (item.removals?.length) item.removals.forEach(r => modsHtml += `<span class="mod-chip removal">❌ Sem ${r}</span>`);
                 if (item.extras?.length) item.extras.forEach(e => modsHtml += `<span class="mod-chip extra">➕ ${e.nome}</span>`);
@@ -1558,7 +1578,7 @@
         cart.forEach((item, idx) => {
             const extrasSum = (item.extras || []).reduce((a, e) => a + e.preco, 0);
             const itemTotal = (item.price + extrasSum) * item.quantity;
-            const imgHtml = item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}">` : (item.emoji || '🍔');
+            const imgHtml = item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" loading="lazy" decoding="async">` : (item.emoji || '🍔');
             let modsHtml = '';
             if (item.removals?.length) item.removals.forEach(r => modsHtml += `<span class="mod-chip removal">❌ Sem ${r}</span>`);
             if (item.extras?.length) item.extras.forEach(e => modsHtml += `<span class="mod-chip extra">➕ ${e.nome}</span>`);
@@ -1639,10 +1659,22 @@
         showSkeletons();
         try {
             const r = await apiFetch(`/produtos/loja/${LOJA_ID}/cardapio`);
-            if (r.ok) products = await r.json();
+            if (r.ok) {
+                products = await r.json();
+            } else {
+                showToast("Não foi possível carregar o cardápio. Tente novamente.", true);
+                products = [];
+            }
             const er = await apiFetch(`/adicionais/loja/${LOJA_ID}`);
-            if (er.ok) extras = await er.json();
-        } catch(e) { console.warn(e); }
+            if (er.ok) {
+                extras = await er.json();
+            } else {
+                extras = [];
+            }
+        } catch(e) { 
+            console.warn(e); 
+            showToast("Erro de conexão. Verifique sua internet.", true);
+        }
         renderProducts(products);
     }
     function showSkeletons() {
@@ -1671,7 +1703,7 @@
             html += `<div class="section-header"><div class="section-icon">${meta.emoji}</div><div class="section-title">${meta.label}</div><span class="section-count">${items.length} itens</span></div><div class="products-grid">`;
             items.forEach(p => {
                 const price = p.preco.toFixed(2).replace('.', ',');
-                const imgHtml = p.imagemUrl ? `<img src="${p.imagemUrl}" alt="${p.nome}" loading="lazy">` : `<div class="emoji-placeholder">${p.emoji || meta.emoji}</div>`;
+                const imgHtml = p.imagemUrl ? `<img src="${p.imagemUrl}" alt="${p.nome}" loading="lazy" decoding="async">` : `<div class="emoji-placeholder">${p.emoji || meta.emoji}</div>`;
                 const tagHtml = p.tagTexto ? `<div class="product-tag">${p.tagTexto}</div>` : '';
                 const isDisponivel = p.ativo === true;
                 const disabledAttr = !isDisponivel ? 'disabled' : '';
@@ -1889,7 +1921,9 @@
         const msg = [`*NOVO PEDIDO — ND LANCHES*`, '', `*Cliente:* ${nome}${phone ? ` | ${phone}` : ''}`, `*Entrega:* ${tipo === 'ENTREGA' ? 'Delivery' : 'Retirada no local'}`, endereco, '', '━━━━━━━━━━━━━━━━━━', '*ITENS:*', itensMsg.trim(), '━━━━━━━━━━━━━━━━━━', fee ? `Subtotal: ${fmt(sub)}\nTaxa de entrega: ${fmt(fee)}` : '', `*TOTAL: ${fmt(total)}*`, '', `*Pagamento:* ${paymentMethod}${trocoInfo}`].filter(l => l).join('\n');
         saveUserData(); localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(cart));
         const btn = document.getElementById('confirmOrderBtn'); const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Enviando...'; btn.disabled = true;
-        try { await apiFetch('/pedidos', { method: 'POST', body: JSON.stringify({ nomeCliente: nome, total, status: 'RECEBIDO', itensJson: JSON.stringify(cart), observacao: `${tipo} | ${paymentMethod}`, loja: { id: LOJA_ID } }) }); } catch(e) { /* silent */ }
+        try {
+            await apiFetch('/pedidos', { method: 'POST', body: JSON.stringify({ nomeCliente: nome, total, status: 'RECEBIDO', itensJson: JSON.stringify(cart), observacao: `${tipo} | ${paymentMethod}`, loja: { id: LOJA_ID } }) });
+        } catch(e) { /* silent */ }
         const wpp = storeInfo.whatsapp || '5517999999999'; window.open(`https://wa.me/${wpp}?text=${encodeURIComponent(msg)}`, '_blank');
         cart = []; saveCart(); closeCheckoutModal(); showToast('🎉 Pedido enviado! Abrindo WhatsApp...'); btn.innerHTML = orig; btn.disabled = false;
     };

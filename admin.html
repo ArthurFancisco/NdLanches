@@ -1065,6 +1065,19 @@
                 margin-top: 4px;
             }
         }
+        @media (max-width: 480px) {
+            .status-filter-btn {
+                padding: 4px 10px;
+                font-size: 0.6rem;
+            }
+            .pedidos-filters {
+                gap: 6px;
+            }
+            .btn-ic {
+                width: 36px;
+                height: 36px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1327,7 +1340,7 @@
 
 <script>
     // ================================================================
-    // ADMIN: Proteção por senha via API + CRUD completo + CORREÇÕES TOTAIS
+    // ADMIN: Proteção por senha via API + CRUD completo + MELHORIAS
     // ================================================================
     const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
     const LOJA_SLUG = "nd-lanches";
@@ -1387,9 +1400,7 @@
         const input = document.getElementById('removiveisInput');
         const addBtn = document.getElementById('addTagBtn');
         if (!input || !addBtn) return;
-        // Botão Adicionar
         addBtn.addEventListener('click', () => addTagFromInput());
-        // Tecla Enter no campo
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -1463,10 +1474,21 @@
             sessionStorage.removeItem('admin_key');
             document.getElementById('loginOverlay').classList.remove('hidden');
             document.getElementById('mainContent').classList.remove('visible');
-            feedback("Sessão expirada. Faça login novamente.", false);
+            showToast("Sessão expirada. Faça login novamente.", false);
             throw new Error("Unauthorized");
         }
         return response;
+    }
+
+    function showToast(msg, isError = false) {
+        const el = document.getElementById('feedback');
+        if (!el) return;
+        const ico = el.querySelector('i');
+        const msgSpan = document.getElementById('feedbackMsg');
+        if (msgSpan) msgSpan.textContent = msg;
+        el.className = `feedback ${isError ? 'err' : 'ok'} show`;
+        if (ico) ico.className = isError ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check';
+        setTimeout(() => el.classList.remove('show'), 3000);
     }
 
     // ========== CONFIRMAÇÃO ==========
@@ -1526,6 +1548,8 @@
                 img.src = e.target.result;
                 img.style.maxWidth = '100%';
                 img.style.maxHeight = '150px';
+                img.loading = 'lazy';
+                img.decoding = 'async';
                 previewDiv.appendChild(img);
             };
             reader.readAsDataURL(input.files[0]);
@@ -1560,7 +1584,7 @@
                 setTimeout(() => initDragAndDrop(), 100);
             } else {
                 console.error("Erro ao carregar produtos:", rP.status);
-                feedback("Erro ao carregar produtos. Verifique o backend.", false);
+                showToast("Erro ao carregar produtos. Verifique o backend.", true);
             }
             const rA = await apiFetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`);
             if (rA.ok) renderizarAdics(await rA.json());
@@ -1568,7 +1592,7 @@
             if (rBan.ok) renderizarBanners(await rBan.json());
             await carregarPedidos();
             iniciarAutoRefresh();
-        } catch(e) { console.error(e); feedback("Erro de conexão", false); }
+        } catch(e) { console.error(e); showToast("Erro de conexão com o servidor.", true); }
     }
 
     async function salvarConfigLoja() {
@@ -1578,9 +1602,9 @@
         const payload = { whatsapp, mensagemFechado, horarioFuncionamento };
         try {
             const res = await apiFetch(`${API_URL}/loja/${LOJA_SLUG}`, { method: 'PUT', body: JSON.stringify(payload) });
-            if (res.ok) feedback("Configurações salvas!", true);
-            else feedback("Erro ao salvar", false);
-        } catch(e) { feedback("Erro de conexão", false); }
+            if (res.ok) showToast("Configurações salvas!", true);
+            else showToast("Erro ao salvar", false);
+        } catch(e) { showToast("Erro de conexão", false); }
     }
 
     function atualizarBotaoStatus() {
@@ -1601,9 +1625,9 @@
         const nova = !lojaAberta;
         try {
             const r = await apiFetch(`${API_URL}/loja/status`, { method: 'PUT', body: JSON.stringify(nova) });
-            if (r.ok) { lojaAberta = nova; atualizarBotaoStatus(); feedback(`Loja ${nova ? 'aberta' : 'fechada'}!`, true); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { lojaAberta = nova; atualizarBotaoStatus(); showToast(`Loja ${nova ? 'aberta' : 'fechada'}!`, true); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     // ========== PRODUTOS ==========
@@ -1710,7 +1734,7 @@
             } catch(e) { console.warn(`Erro ao salvar ordem do produto ${p.id}`); }
         }
         renderizarProdutos(todosProdutos);
-        feedback("Ordem dos produtos atualizada!", true);
+        showToast("Ordem dos produtos atualizada!", true);
     }
 
     async function toggleAtivoProduto(id, tornarDisponivel) {
@@ -1720,9 +1744,9 @@
         const payload = { ...produto, ativo: novoAtivo };
         try {
             const r = await apiFetch(`${API_URL}/produtos/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
-            if (r.ok) { feedback(novoAtivo ? 'Produto disponível' : 'Produto indisponível (estoque)', true); carregarDados(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { showToast(novoAtivo ? 'Produto disponível' : 'Produto indisponível (estoque)', true); carregarDados(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     async function duplicarProduto(id) {
@@ -1732,9 +1756,9 @@
         delete copia.id;
         try {
             const r = await apiFetch(`${API_URL}/produtos`, { method: 'POST', body: JSON.stringify(copia) });
-            if (r.ok) { feedback("Duplicado!", true); carregarDados(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { showToast("Duplicado!", true); carregarDados(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     function prepararEdicao(p) {
@@ -1753,6 +1777,8 @@
         if (p.imagemUrl && previewDiv) {
             const img = document.createElement('img');
             img.src = p.imagemUrl;
+            img.loading = 'lazy';
+            img.decoding = 'async';
             previewDiv.appendChild(img);
         }
         setRemoviveisFromArray(p.removiveis || []);
@@ -1783,11 +1809,11 @@
         const nome = document.getElementById('nome')?.value.trim() || '';
         const prec = parseFloat(document.getElementById('preco')?.value);
         const cat = document.getElementById('categoria')?.value;
-        if (!nome || isNaN(prec)) { feedback("Preencha nome e preço", false); return; }
+        if (!nome || isNaN(prec)) { showToast("Preencha nome e preço", false); return; }
         let imagemUrl = document.getElementById('imagemUrl')?.value.trim() || '';
         if (selectedImageFile) {
             try { imagemUrl = await fazerUpload(selectedImageFile); }
-            catch(e) { feedback("Erro no upload: " + e.message, false); return; }
+            catch(e) { showToast("Erro no upload: " + e.message, false); return; }
         }
         const produto = {
             nome, preco: prec, categoria: cat,
@@ -1804,9 +1830,9 @@
         if (btn) btn.disabled = true;
         try {
             const r = await apiFetch(url, { method: idEdicao ? 'PUT' : 'POST', body: JSON.stringify(produto) });
-            if (r.ok) { feedback(idEdicao ? 'Atualizado!' : 'Cadastrado!', true); cancelarEdicao(); carregarDados(); }
-            else feedback("Erro ao salvar", false);
-        } catch(e) { feedback("Erro: " + e.message, false); }
+            if (r.ok) { showToast(idEdicao ? 'Atualizado!' : 'Cadastrado!', true); cancelarEdicao(); carregarDados(); }
+            else showToast("Erro ao salvar", false);
+        } catch(e) { showToast("Erro: " + e.message, false); }
         finally { if (btn) btn.disabled = false; }
     }
 
@@ -1814,9 +1840,9 @@
         if (!(await showConfirm("Excluir este produto?"))) return;
         try {
             const r = await apiFetch(`${API_URL}/produtos/${id}`, { method: 'DELETE' });
-            if (r.ok) { feedback("Removido", true); carregarDados(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { showToast("Removido", true); carregarDados(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     // ========== ADICIONAIS ==========
@@ -1863,7 +1889,7 @@
     async function salvarAdic() {
         const nome = document.getElementById('adic-nome')?.value.trim() || '';
         const prec = parseFloat(document.getElementById('adic-preco')?.value);
-        if (!nome || isNaN(prec)) { feedback("Preencha nome e preço", false); return; }
+        if (!nome || isNaN(prec)) { showToast("Preencha nome e preço", false); return; }
         const payload = {
             nome,
             preco: prec,
@@ -1874,18 +1900,18 @@
         const url = adicEdicaoId ? `${API_URL}/adicionais/${adicEdicaoId}` : `${API_URL}/adicionais`;
         try {
             const r = await apiFetch(url, { method: adicEdicaoId ? 'PUT' : 'POST', body: JSON.stringify(payload) });
-            if (r.ok) { feedback(adicEdicaoId ? 'Atualizado' : 'Cadastrado', true); cancelarEdicaoAdic(); carregarDados(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { showToast(adicEdicaoId ? 'Atualizado' : 'Cadastrado', true); cancelarEdicaoAdic(); carregarDados(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     async function excluirAdic(id) {
         if (!(await showConfirm("Excluir adicional?"))) return;
         try {
             const r = await apiFetch(`${API_URL}/adicionais/${id}`, { method: 'DELETE' });
-            if (r.ok) { feedback("Removido", true); carregarDados(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { showToast("Removido", true); carregarDados(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     // ========== BANNERS ==========
@@ -1937,7 +1963,7 @@
 
     async function salvarBanner() {
         const titulo = document.getElementById('banner-titulo')?.value.trim() || '';
-        if (!titulo) { feedback("Preencha título", false); return; }
+        if (!titulo) { showToast("Preencha título", false); return; }
         const payload = {
             titulo,
             descricao: document.getElementById('banner-desc')?.value.trim() || '',
@@ -1949,26 +1975,26 @@
         const url = bannerEdicaoId ? `${API_URL}/banners/${bannerEdicaoId}` : `${API_URL}/banners`;
         try {
             const r = await apiFetch(url, { method: bannerEdicaoId ? 'PUT' : 'POST', body: JSON.stringify(payload) });
-            if (r.ok) { feedback(bannerEdicaoId ? 'Atualizado' : 'Publicado', true); cancelarEdicaoBanner(); carregarDados(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { showToast(bannerEdicaoId ? 'Atualizado' : 'Publicado', true); cancelarEdicaoBanner(); carregarDados(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     async function toggleBanner(id) {
         try {
             const r = await apiFetch(`${API_URL}/banners/${id}/toggle`, { method: 'PATCH' });
-            if (r.ok) { feedback("Banner atualizado", true); carregarDados(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { showToast("Banner atualizado", true); carregarDados(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     async function excluirBanner(id) {
         if (!(await showConfirm("Excluir banner?"))) return;
         try {
             const r = await apiFetch(`${API_URL}/banners/${id}`, { method: 'DELETE' });
-            if (r.ok) { feedback("Removido", true); carregarDados(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (r.ok) { showToast("Removido", true); carregarDados(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     // ========== PEDIDOS ==========
@@ -1982,7 +2008,7 @@
             } else {
                 renderizarPedidos([]);
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error(e); showToast("Erro ao carregar pedidos", true); }
     }
 
     function filtrarPedidos(tipo, btn) {
@@ -2002,104 +2028,104 @@
     }
 
     function renderizarPedidos() {
-    let pedidosFiltrados = [...todosPedidos];
-    if (filtroStatusPedidos !== 'TODOS') {
-        pedidosFiltrados = pedidosFiltrados.filter(p => p.status === filtroStatusPedidos);
-    }
-    const total = pedidosFiltrados.reduce((s, p) => s + parseFloat(p.total), 0);
-    document.getElementById('pedidos-qtd').textContent = pedidosFiltrados.length;
-    document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
-    
-    const novosIds = new Set(pedidosFiltrados.map(p => p.id));
-    const novos = pedidosFiltrados.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
-    ultimosPedidosIds = novosIds;
-    
-    if (novos.length) {
-        feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
-        try {
-            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-            audio.play().catch(e => console.log('Som automático bloqueado pelo navegador.'));
-        } catch(e) {}
-        if (Notification.permission === 'granted') {
-            novos.forEach(p => new Notification(`Novo pedido #${p.id}`, { body: `Cliente: ${p.nomeCliente || 'Anônimo'} | Total: R$ ${p.total}` }));
+        let pedidosFiltrados = [...todosPedidos];
+        if (filtroStatusPedidos !== 'TODOS') {
+            pedidosFiltrados = pedidosFiltrados.filter(p => p.status === filtroStatusPedidos);
         }
-    }
-    
-    const lista = document.getElementById('lista-pedidos');
-    if (!lista) return;
-    if (!pedidosFiltrados.length) {
-        lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>';
-        return;
-    }
-    
-    lista.innerHTML = pedidosFiltrados.map(p => {
-        let itens = [];
-        if (p.itensJson) {
+        const total = pedidosFiltrados.reduce((s, p) => s + parseFloat(p.total), 0);
+        document.getElementById('pedidos-qtd').textContent = pedidosFiltrados.length;
+        document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
+        
+        const novosIds = new Set(pedidosFiltrados.map(p => p.id));
+        const novos = pedidosFiltrados.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
+        ultimosPedidosIds = novosIds;
+        
+        if (novos.length) {
+            showToast(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
             try {
-                itens = typeof p.itensJson === 'string' ? JSON.parse(p.itensJson) : p.itensJson;
-            } catch(e) {
-                console.error(`Erro ao parsear itens do pedido ${p.id}:`, e);
-                itens = [];
+                const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+                audio.play().catch(e => console.log('Som automático bloqueado pelo navegador.'));
+            } catch(e) {}
+            if (Notification.permission === 'granted') {
+                novos.forEach(p => new Notification(`Novo pedido #${p.id}`, { body: `Cliente: ${p.nomeCliente || 'Anônimo'} | Total: R$ ${p.total}` }));
             }
-        } else if (p.itens) {
-            itens = p.itens;
         }
         
-        const isNovo = novos.some(n => n.id === p.id);
+        const lista = document.getElementById('lista-pedidos');
+        if (!lista) return;
+        if (!pedidosFiltrados.length) {
+            lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>';
+            return;
+        }
         
-        // 🔥 CORREÇÃO DO HORÁRIO (UTC para Brasília UTC-3)
-        const dataUTC = new Date(p.criadoEm);
-        const dataLocal = new Date(dataUTC.getTime() - (3 * 60 * 60 * 1000));
-        const hora = dataLocal.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        const data = dataLocal.toLocaleDateString('pt-BR');
-        
-        const itensHtml = itens.map(item => {
-            const nome = item.nomeProduto || item.nome || item.name || 'Produto';
-            const qtd = item.quantidade || item.qtd || item.quantity || 1;
-            const precoUnit = item.precoUnitario || item.preco || item.price || 0;
-            const subtotal = (parseFloat(precoUnit) * parseInt(qtd)).toFixed(2);
-            let html = `<div class="pedido-item-linha"><span style="font-weight:800">${qtd}x</span><span>${nome}</span><span style="margin-left:auto;font-weight:700">R$ ${subtotal}</span></div>`;
-            const mods = [];
-            
-            const removidos = item.removals || item.removidos || [];
-            if (removidos.length) {
-                mods.push(`<span class="mod-chip removal">🚫 Sem: ${removidos.join(', ')}</span>`);
+        lista.innerHTML = pedidosFiltrados.map(p => {
+            let itens = [];
+            if (p.itensJson) {
+                try {
+                    itens = typeof p.itensJson === 'string' ? JSON.parse(p.itensJson) : p.itensJson;
+                } catch(e) {
+                    console.error(`Erro ao parsear itens do pedido ${p.id}:`, e);
+                    itens = [];
+                }
+            } else if (p.itens) {
+                itens = p.itens;
             }
             
-            const adicionais = item.extras || item.adicionais || [];
-            if (adicionais.length) {
-                adicionais.forEach(extra => {
-                    const nomeExtra = extra.nome || extra;
-                    const precoExtra = extra.preco ? ` (+ R$ ${extra.preco.toFixed(2)})` : '';
-                    mods.push(`<span class="mod-chip extra">➕ ${nomeExtra}${precoExtra}</span>`);
-                });
-            }
+            const isNovo = novos.some(n => n.id === p.id);
+            // CORREÇÃO DO HORÁRIO (UTC para Brasília UTC-3)
+            const dataUTC = new Date(p.criadoEm);
+            const dataLocal = new Date(dataUTC.getTime() - (3 * 60 * 60 * 1000));
+            const hora = dataLocal.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const data = dataLocal.toLocaleDateString('pt-BR');
             
-            const obs = item.observation || item.obs || '';
-            if (obs) mods.push(`<span class="mod-chip">💬 ${obs}</span>`);
+            const itensHtml = itens.map(item => {
+                const nome = item.nomeProduto || item.nome || item.name || 'Produto';
+                const qtd = item.quantidade || item.qtd || item.quantity || 1;
+                const precoUnit = item.precoUnitario || item.preco || item.price || 0;
+                const subtotal = (parseFloat(precoUnit) * parseInt(qtd)).toFixed(2);
+                let html = `<div class="pedido-item-linha"><span style="font-weight:800">${qtd}x</span><span>${nome}</span><span style="margin-left:auto;font-weight:700">R$ ${subtotal}</span></div>`;
+                const mods = [];
+                
+                const removidos = item.removals || item.removidos || [];
+                if (removidos.length) {
+                    mods.push(`<span class="mod-chip removal">🚫 Sem: ${removidos.join(', ')}</span>`);
+                }
+                
+                const adicionais = item.extras || item.adicionais || [];
+                if (adicionais.length) {
+                    adicionais.forEach(extra => {
+                        const nomeExtra = extra.nome || extra;
+                        const precoExtra = extra.preco ? ` (+ R$ ${extra.preco.toFixed(2)})` : '';
+                        mods.push(`<span class="mod-chip extra">➕ ${nomeExtra}${precoExtra}</span>`);
+                    });
+                }
+                
+                const obs = item.observation || item.obs || '';
+                if (obs) mods.push(`<span class="mod-chip">💬 ${obs}</span>`);
+                
+                if (mods.length) html += `<div class="pedido-item-mods">${mods.join(' ')}</div>`;
+                return html;
+            }).join('');
             
-            if (mods.length) html += `<div class="pedido-item-mods">${mods.join(' ')}</div>`;
-            return html;
+            return `<div class="pedido-card ${isNovo ? 'pedido-novo' : ''}">
+                <div class="pedido-top">
+                    <div>
+                        <span class="pedido-id">#${p.id}</span>
+                        <span class="pedido-hora">${data} às ${hora}</span>
+                        ${p.nomeCliente ? `<span style="font-weight:800">${p.nomeCliente}</span>` : ''}
+                    </div>
+                    <div>
+                        <span class="pedido-valor">R$ ${parseFloat(p.total).toFixed(2)}</span>
+                        <button class="status-badge status-${p.status}" onclick="avancarStatus(${p.id},'${p.status}')">${STATUS_LABEL[p.status] || p.status}</button>
+                        <button class="btn-del-pedido" onclick="excluirPedido(${p.id})"><i class="fa fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="pedido-itens">${itensHtml}</div>
+                ${p.observacao ? `<div class="pedido-obs">💬 ${p.observacao}</div>` : ''}
+            </div>`;
         }).join('');
-        
-        return `<div class="pedido-card ${isNovo ? 'pedido-novo' : ''}">
-            <div class="pedido-top">
-                <div>
-                    <span class="pedido-id">#${p.id}</span>
-                    <span class="pedido-hora">${data} às ${hora}</span>
-                    ${p.nomeCliente ? `<span style="font-weight:800">${p.nomeCliente}</span>` : ''}
-                </div>
-                <div>
-                    <span class="pedido-valor">R$ ${parseFloat(p.total).toFixed(2)}</span>
-                    <button class="status-badge status-${p.status}" onclick="avancarStatus(${p.id},'${p.status}')">${STATUS_LABEL[p.status] || p.status}</button>
-                    <button class="btn-del-pedido" onclick="excluirPedido(${p.id})"><i class="fa fa-trash"></i></button>
-                </div>
-            </div>
-            <div class="pedido-itens">${itensHtml}</div>
-            ${p.observacao ? `<div class="pedido-obs">💬 ${p.observacao}</div>` : ''}
-        </div>`;
-    }).join('');
-}
+    }
+
     function iniciarAutoRefresh() {
         if (refreshTimer) clearInterval(refreshTimer);
         refreshCountdown = REFRESH_INTERVAL;
@@ -2124,9 +2150,9 @@
         if (!prox || prox === statusAtual) return;
         try {
             const res = await apiFetch(`${API_URL}/pedidos/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: prox }) });
-            if (res.ok) { feedback(`Pedido #${id} → ${prox}`, true); carregarPedidos(); }
-            else feedback("Erro", false);
-        } catch(e) { feedback("Erro", false); }
+            if (res.ok) { showToast(`Pedido #${id} → ${prox}`, true); carregarPedidos(); }
+            else showToast("Erro", false);
+        } catch(e) { showToast("Erro", false); }
     }
 
     async function excluirPedido(id) {
@@ -2134,18 +2160,7 @@
         try {
             await apiFetch(`${API_URL}/pedidos/${id}`, { method: 'DELETE' });
             carregarPedidos();
-        } catch(e) { feedback("Erro", false); }
-    }
-
-    function feedback(msg, ok = true) {
-        const el = document.getElementById('feedback');
-        if (!el) return;
-        const ico = el.querySelector('i');
-        const msgSpan = document.getElementById('feedbackMsg');
-        if (msgSpan) msgSpan.textContent = msg;
-        el.className = `feedback ${ok ? 'ok' : 'err'} show`;
-        if (ico) ico.className = ok ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation';
-        setTimeout(() => el.classList.remove('show'), 3000);
+        } catch(e) { showToast("Erro", false); }
     }
 
     // INICIALIZAÇÃO
