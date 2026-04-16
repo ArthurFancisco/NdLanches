@@ -324,7 +324,6 @@
             border-radius: var(--radius-sm);
             padding: 8px 12px;
             min-height: 48px;
-            cursor: text;
         }
         .tag {
             display: inline-flex;
@@ -348,13 +347,28 @@
             color: var(--danger);
         }
         .tags-input {
+            flex: 1;
+            min-width: 120px;
             border: none;
             background: transparent;
             padding: 6px 0;
             font-size: 0.85rem;
             outline: none;
-            flex: 1;
-            min-width: 120px;
+        }
+        .btn-add-tag {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .btn-add-tag:hover {
+            background: var(--primary-dark);
         }
         .btn-save {
             width: 100%;
@@ -918,10 +932,11 @@
             background: rgba(220,38,38,0.1);
             color: var(--danger);
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border-radius: 10px;
             cursor: pointer;
+            font-size: 1rem;
         }
         .btn-del-pedido:hover {
             background: var(--danger);
@@ -985,6 +1000,7 @@
             border-bottom: 1px solid var(--border);
         }
 
+        /* ===== RESPONSIVIDADE EXTRA ===== */
         @media (max-width: 768px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -1002,6 +1018,51 @@
             }
             .pedidos-filters {
                 justify-content: center;
+            }
+            .prod-actions {
+                gap: 6px;
+            }
+            .btn-ic {
+                width: 40px;
+                height: 40px;
+            }
+            .pedido-card {
+                padding: 16px;
+            }
+            .pedido-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .pedido-top > div:last-child {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            .status-badge, .btn-del-pedido {
+                font-size: 0.75rem;
+                padding: 8px 16px;
+            }
+            .btn-del-pedido {
+                width: 40px;
+                height: 40px;
+            }
+            .pedido-item-linha {
+                flex-direction: column;
+                gap: 4px;
+                align-items: flex-start;
+            }
+            .pedido-item-linha span:last-child {
+                margin-left: 0 !important;
+            }
+            .tags-input-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn-add-tag {
+                text-align: center;
+                margin-top: 4px;
             }
         }
     </style>
@@ -1096,12 +1157,15 @@
                         <option value="false">⚠️ Indisponível (acabou)</option>
                     </select></div>
                 </div>
-                <!-- INGREDIENTES REMOVÍVEIS -->
+                <!-- INGREDIENTES REMOVÍVEIS COM BOTÃO ADICIONAR -->
                 <div class="form-group">
                     <label>Ingredientes removíveis (opcional)</label>
                     <div class="tags-input-container" id="tagsContainer">
                         <div id="tagsList" class="tags-list" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
-                        <input type="text" id="removiveisInput" class="tags-input" placeholder="Digite e pressione Enter...">
+                        <div style="display: flex; gap: 8px; flex: 1;">
+                            <input type="text" id="removiveisInput" class="tags-input" placeholder="Digite um ingrediente">
+                            <button type="button" id="addTagBtn" class="btn-add-tag"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                        </div>
                     </div>
                     <small style="color: var(--text-muted);">Ex: Queijo, Cheddar, Bacon, Ovo, etc. O cliente poderá remover cada item.</small>
                 </div>
@@ -1306,20 +1370,30 @@
         });
     }
 
-    function initTagsInput() {
+    function addTagFromInput() {
         const input = document.getElementById('removiveisInput');
         if (!input) return;
+        const val = input.value.trim();
+        if (val && !currentRemoviveis.includes(val)) {
+            currentRemoviveis.push(val);
+            renderTags();
+            input.value = '';
+        } else if (val && currentRemoviveis.includes(val)) {
+            showToast('Ingrediente já adicionado', false);
+        }
+    }
+
+    function initTagsInput() {
+        const input = document.getElementById('removiveisInput');
+        const addBtn = document.getElementById('addTagBtn');
+        if (!input || !addBtn) return;
+        // Botão Adicionar
+        addBtn.addEventListener('click', () => addTagFromInput());
+        // Tecla Enter no campo
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const val = input.value.trim();
-                if (val && !currentRemoviveis.includes(val)) {
-                    currentRemoviveis.push(val);
-                    renderTags();
-                    input.value = '';
-                } else if (val && currentRemoviveis.includes(val)) {
-                    showToast('Ingrediente já adicionado', false);
-                }
+                addTagFromInput();
             }
         });
     }
