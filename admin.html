@@ -2002,101 +2002,104 @@
     }
 
     function renderizarPedidos() {
-        let pedidosFiltrados = [...todosPedidos];
-        if (filtroStatusPedidos !== 'TODOS') {
-            pedidosFiltrados = pedidosFiltrados.filter(p => p.status === filtroStatusPedidos);
-        }
-        const total = pedidosFiltrados.reduce((s, p) => s + parseFloat(p.total), 0);
-        document.getElementById('pedidos-qtd').textContent = pedidosFiltrados.length;
-        document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
-        
-        const novosIds = new Set(pedidosFiltrados.map(p => p.id));
-        const novos = pedidosFiltrados.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
-        ultimosPedidosIds = novosIds;
-        
-        if (novos.length) {
-            feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
-            try {
-                const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-                audio.play().catch(e => console.log('Som automático bloqueado pelo navegador.'));
-            } catch(e) {}
-            if (Notification.permission === 'granted') {
-                novos.forEach(p => new Notification(`Novo pedido #${p.id}`, { body: `Cliente: ${p.nomeCliente || 'Anônimo'} | Total: R$ ${p.total}` }));
-            }
-        }
-        
-        const lista = document.getElementById('lista-pedidos');
-        if (!lista) return;
-        if (!pedidosFiltrados.length) {
-            lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>';
-            return;
-        }
-        
-        lista.innerHTML = pedidosFiltrados.map(p => {
-            let itens = [];
-            if (p.itensJson) {
-                try {
-                    itens = typeof p.itensJson === 'string' ? JSON.parse(p.itensJson) : p.itensJson;
-                } catch(e) {
-                    console.error(`Erro ao parsear itens do pedido ${p.id}:`, e);
-                    itens = [];
-                }
-            } else if (p.itens) {
-                itens = p.itens;
-            }
-            
-            const isNovo = novos.some(n => n.id === p.id);
-            const hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-            const data = new Date(p.criadoEm).toLocaleDateString('pt-BR');
-            
-            const itensHtml = itens.map(item => {
-                const nome = item.nomeProduto || item.nome || item.name || 'Produto';
-                const qtd = item.quantidade || item.qtd || item.quantity || 1;
-                const precoUnit = item.precoUnitario || item.preco || item.price || 0;
-                const subtotal = (parseFloat(precoUnit) * parseInt(qtd)).toFixed(2);
-                let html = `<div class="pedido-item-linha"><span style="font-weight:800">${qtd}x</span><span>${nome}</span><span style="margin-left:auto;font-weight:700">R$ ${subtotal}</span></div>`;
-                const mods = [];
-                
-                const removidos = item.removals || item.removidos || [];
-                if (removidos.length) {
-                    mods.push(`<span class="mod-chip removal">🚫 Sem: ${removidos.join(', ')}</span>`);
-                }
-                
-                const adicionais = item.extras || item.adicionais || [];
-                if (adicionais.length) {
-                    adicionais.forEach(extra => {
-                        const nomeExtra = extra.nome || extra;
-                        const precoExtra = extra.preco ? ` (+ R$ ${extra.preco.toFixed(2)})` : '';
-                        mods.push(`<span class="mod-chip extra">➕ ${nomeExtra}${precoExtra}</span>`);
-                    });
-                }
-                
-                const obs = item.observation || item.obs || '';
-                if (obs) mods.push(`<span class="mod-chip">💬 ${obs}</span>`);
-                
-                if (mods.length) html += `<div class="pedido-item-mods">${mods.join(' ')}</div>`;
-                return html;
-            }).join('');
-            
-            return `<div class="pedido-card ${isNovo ? 'pedido-novo' : ''}">
-                <div class="pedido-top">
-                    <div>
-                        <span class="pedido-id">#${p.id}</span>
-                        <span class="pedido-hora">${data} às ${hora}</span>
-                        ${p.nomeCliente ? `<span style="font-weight:800">${p.nomeCliente}</span>` : ''}
-                    </div>
-                    <div>
-                        <span class="pedido-valor">R$ ${parseFloat(p.total).toFixed(2)}</span>
-                        <button class="status-badge status-${p.status}" onclick="avancarStatus(${p.id},'${p.status}')">${STATUS_LABEL[p.status] || p.status}</button>
-                        <button class="btn-del-pedido" onclick="excluirPedido(${p.id})"><i class="fa fa-trash"></i></button>
-                    </div>
-                </div>
-                <div class="pedido-itens">${itensHtml}</div>
-                ${p.observacao ? `<div class="pedido-obs">💬 ${p.observacao}</div>` : ''}
-            </div>`;
-        }).join('');
+    let pedidosFiltrados = [...todosPedidos];
+    if (filtroStatusPedidos !== 'TODOS') {
+        pedidosFiltrados = pedidosFiltrados.filter(p => p.status === filtroStatusPedidos);
     }
-
+    const total = pedidosFiltrados.reduce((s, p) => s + parseFloat(p.total), 0);
+    document.getElementById('pedidos-qtd').textContent = pedidosFiltrados.length;
+    document.getElementById('pedidos-receita').textContent = `R$ ${total.toFixed(2)}`;
+    
+    const novosIds = new Set(pedidosFiltrados.map(p => p.id));
+    const novos = pedidosFiltrados.filter(p => !ultimosPedidosIds.has(p.id) && ultimosPedidosIds.size > 0);
+    ultimosPedidosIds = novosIds;
+    
+    if (novos.length) {
+        feedback(`🔔 ${novos.length} novo(s) pedido(s)!`, true);
+        try {
+            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+            audio.play().catch(e => console.log('Som automático bloqueado pelo navegador.'));
+        } catch(e) {}
+        if (Notification.permission === 'granted') {
+            novos.forEach(p => new Notification(`Novo pedido #${p.id}`, { body: `Cliente: ${p.nomeCliente || 'Anônimo'} | Total: R$ ${p.total}` }));
+        }
+    }
+    
+    const lista = document.getElementById('lista-pedidos');
+    if (!lista) return;
+    if (!pedidosFiltrados.length) {
+        lista.innerHTML = '<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido</p></div>';
+        return;
+    }
+    
+    lista.innerHTML = pedidosFiltrados.map(p => {
+        let itens = [];
+        if (p.itensJson) {
+            try {
+                itens = typeof p.itensJson === 'string' ? JSON.parse(p.itensJson) : p.itensJson;
+            } catch(e) {
+                console.error(`Erro ao parsear itens do pedido ${p.id}:`, e);
+                itens = [];
+            }
+        } else if (p.itens) {
+            itens = p.itens;
+        }
+        
+        const isNovo = novos.some(n => n.id === p.id);
+        
+        // 🔥 CORREÇÃO DO HORÁRIO (UTC para Brasília UTC-3)
+        const dataUTC = new Date(p.criadoEm);
+        const dataLocal = new Date(dataUTC.getTime() - (3 * 60 * 60 * 1000));
+        const hora = dataLocal.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const data = dataLocal.toLocaleDateString('pt-BR');
+        
+        const itensHtml = itens.map(item => {
+            const nome = item.nomeProduto || item.nome || item.name || 'Produto';
+            const qtd = item.quantidade || item.qtd || item.quantity || 1;
+            const precoUnit = item.precoUnitario || item.preco || item.price || 0;
+            const subtotal = (parseFloat(precoUnit) * parseInt(qtd)).toFixed(2);
+            let html = `<div class="pedido-item-linha"><span style="font-weight:800">${qtd}x</span><span>${nome}</span><span style="margin-left:auto;font-weight:700">R$ ${subtotal}</span></div>`;
+            const mods = [];
+            
+            const removidos = item.removals || item.removidos || [];
+            if (removidos.length) {
+                mods.push(`<span class="mod-chip removal">🚫 Sem: ${removidos.join(', ')}</span>`);
+            }
+            
+            const adicionais = item.extras || item.adicionais || [];
+            if (adicionais.length) {
+                adicionais.forEach(extra => {
+                    const nomeExtra = extra.nome || extra;
+                    const precoExtra = extra.preco ? ` (+ R$ ${extra.preco.toFixed(2)})` : '';
+                    mods.push(`<span class="mod-chip extra">➕ ${nomeExtra}${precoExtra}</span>`);
+                });
+            }
+            
+            const obs = item.observation || item.obs || '';
+            if (obs) mods.push(`<span class="mod-chip">💬 ${obs}</span>`);
+            
+            if (mods.length) html += `<div class="pedido-item-mods">${mods.join(' ')}</div>`;
+            return html;
+        }).join('');
+        
+        return `<div class="pedido-card ${isNovo ? 'pedido-novo' : ''}">
+            <div class="pedido-top">
+                <div>
+                    <span class="pedido-id">#${p.id}</span>
+                    <span class="pedido-hora">${data} às ${hora}</span>
+                    ${p.nomeCliente ? `<span style="font-weight:800">${p.nomeCliente}</span>` : ''}
+                </div>
+                <div>
+                    <span class="pedido-valor">R$ ${parseFloat(p.total).toFixed(2)}</span>
+                    <button class="status-badge status-${p.status}" onclick="avancarStatus(${p.id},'${p.status}')">${STATUS_LABEL[p.status] || p.status}</button>
+                    <button class="btn-del-pedido" onclick="excluirPedido(${p.id})"><i class="fa fa-trash"></i></button>
+                </div>
+            </div>
+            <div class="pedido-itens">${itensHtml}</div>
+            ${p.observacao ? `<div class="pedido-obs">💬 ${p.observacao}</div>` : ''}
+        </div>`;
+    }).join('');
+}
     function iniciarAutoRefresh() {
         if (refreshTimer) clearInterval(refreshTimer);
         refreshCountdown = REFRESH_INTERVAL;
