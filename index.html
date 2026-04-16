@@ -946,7 +946,7 @@
         }
         .btn-add-cart:hover { background: var(--green-dark); transform: translateY(-2px); }
 
-        /* ========== CHECKOUT MODAL ========== */
+        /* ========== CHECKOUT MODAL (corrigido responsividade) ========== */
         #checkoutModal .modal { padding: 0; }
         .checkout-header {
             background: linear-gradient(135deg, var(--green-dark), var(--green));
@@ -955,8 +955,18 @@
             position: relative;
         }
         .checkout-header h3 { font-weight: 700; font-size: 1.1rem; margin-bottom: 12px; }
-        .stepper { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
-        .step-item { display: flex; align-items: center; flex: 1; min-width: 0; }
+        .stepper {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+        .step-item {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
         .step-bubble {
             width: 26px;
             height: 26px;
@@ -974,11 +984,19 @@
         }
         .step-bubble.active { background: var(--gold); border-color: var(--gold); color: var(--green-dark); }
         .step-bubble.done { background: rgba(255,255,255,0.9); border-color: white; color: var(--green-dark); }
-        .step-label { font-size: 0.6rem; color: rgba(255,255,255,0.5); margin-left: 4px; font-weight: 500; white-space: nowrap; }
+        .step-label {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.5);
+            margin-left: 4px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
         .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.2); margin: 0 4px; border-radius: 2px; }
+        
         .checkout-body { padding: 18px; }
         .checkout-step-content { display: none; }
         .checkout-step-content.active { display: block; }
+        
         .form-label {
             font-weight: 600;
             font-size: 0.7rem;
@@ -1000,7 +1018,13 @@
             margin-bottom: 14px;
         }
         .form-input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(45,106,79,0.1); background: white; }
-        .delivery-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        
+        .delivery-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
         .delivery-card {
             border: 2px solid var(--border);
             border-radius: var(--r-md);
@@ -1013,9 +1037,16 @@
         .delivery-card .dc-icon { font-size: 1.6rem; margin-bottom: 4px; }
         .delivery-card .dc-label { font-weight: 600; font-size: 0.75rem; }
         .delivery-card .dc-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+        
         .address-fields { display: none; }
         .address-fields.show { display: block; }
-        .payment-cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        
+        .payment-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
         .payment-card {
             border: 2px solid var(--border);
             border-radius: var(--r-md);
@@ -1044,17 +1075,69 @@
             transition: var(--transition);
         }
         .payment-card.selected .pc-check { background: var(--green); border-color: var(--green); color: white; }
-        .order-review { background: var(--green-pale); border: 1.5px solid var(--green-light); border-radius: var(--r-lg); padding: 12px; margin-bottom: 16px; }
+        
+        .order-review {
+            background: var(--green-pale);
+            border: 1.5px solid var(--green-light);
+            border-radius: var(--r-lg);
+            padding: 12px;
+            margin-bottom: 16px;
+        }
         .review-title { font-weight: 700; font-size: 0.75rem; color: var(--green-dark); margin-bottom: 8px; }
         .review-item { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-mid); margin-bottom: 4px; }
         .review-divider { border: none; border-top: 1px dashed var(--border-strong); margin: 8px 0; }
         .review-total { display: flex; justify-content: space-between; align-items: center; }
         .review-total-label { font-weight: 700; font-size: 0.8rem; color: var(--green-dark); }
         .review-total-value { font-weight: 800; font-size: 1.2rem; color: var(--green-dark); }
-        .stepper-nav { display: flex; gap: 8px; }
-        .btn-prev { background: var(--surface-2); color: var(--text-mid); border: 1.5px solid var(--border); padding: 10px 16px; border-radius: var(--r-pill); font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: var(--transition); }
-        .btn-next { flex: 1; background: var(--green); color: white; border: none; padding: 10px; border-radius: var(--r-pill); font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-whatsapp { flex: 1; background: var(--whatsapp); color: white; border: none; padding: 12px; border-radius: var(--r-pill); font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .stepper-nav {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .btn-prev {
+            background: var(--surface-2);
+            color: var(--text-mid);
+            border: 1.5px solid var(--border);
+            padding: 10px 16px;
+            border-radius: var(--r-pill);
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-next {
+            flex: 1;
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: var(--r-pill);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-whatsapp {
+            flex: 1;
+            background: var(--whatsapp);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: var(--r-pill);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
         /* ========== TOAST ========== */
         .toast {
@@ -1083,11 +1166,13 @@
         .toast.error { background: var(--red); }
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
         .empty-message { text-align: center; padding: 48px 16px; color: var(--text-muted); }
         .empty-message .em-icon { font-size: 2.5rem; margin-bottom: 8px; opacity: 0.4; }
+        
         .store-schedule {
             font-size: 0.75rem;
             margin-top: 10px;
@@ -1101,19 +1186,16 @@
             border-radius: var(--r-pill);
             backdrop-filter: blur(4px);
         }
-
         .store-schedule i {
             font-size: 0.8rem;
             opacity: 0.9;
         }
-
         .schedule-item {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             white-space: nowrap;
         }
-
         @media (max-width: 480px) {
             .store-schedule {
                 font-size: 0.65rem;
@@ -1126,6 +1208,25 @@
                 white-space: normal;
                 text-align: center;
             }
+            .step-label {
+                font-size: 0.5rem;
+                white-space: normal;
+                text-align: center;
+                max-width: 50px;
+            }
+            .stepper-nav {
+                flex-direction: column;
+            }
+            .btn-prev, .btn-next, .btn-whatsapp {
+                width: 100%;
+            }
+            .delivery-cards {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .payment-card {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
@@ -1133,9 +1234,9 @@
 <div class="app">
     <header>
         <div class="header-pattern"></div>
-                    <div class="header-deco">🍔</div>
-                    <div class="header-inner">
-                        <div class="header-brand">
+        <div class="header-deco">🍔</div>
+        <div class="header-inner">
+            <div class="header-brand">
                 <div class="header-logo-wrap">
                     <div class="header-logo-icon">🍔</div>
                     <div class="header-title-block">
@@ -1489,51 +1590,49 @@
         try { const last = JSON.parse(localStorage.getItem(LAST_ORDER_KEY) || '[]'); if (last.length) { cart = last.map(i => ({ ...i })); saveCart(); showToast('🔄 Último pedido restaurado!'); } } catch(e) {}
     }
 
-    // ========== STORE STATUS ==========
+    // ========== STORE STATUS (corrigido) ==========
     async function fetchStoreStatus() {
-    try {
-        const r = await apiFetch(`/loja/${LOJA_SLUG}/status`);
-        if (r.ok) storeOpen = await r.json();
-        const sr = await apiFetch(`/loja/${LOJA_SLUG}`);
-        if (sr.ok) storeInfo = await sr.json();
-    } catch(e) {
-        console.warn("Erro ao buscar status da loja:", e);
-    }
-    
-    const ind = document.getElementById('statusIndicator');
-    const txt = document.getElementById('statusText');
-    const scheduleDiv = document.getElementById('storeSchedule');
-    
-    if (!scheduleDiv) return;
-    
-    if (storeOpen) {
-        // Loja aberta: não mostra horário/mensagem
-        ind.className = 'status-pill open';
-        txt.innerHTML = '<i class="fa-regular fa-circle-check"></i> Aberto agora';
-        scheduleDiv.style.display = 'none';
-        scheduleDiv.innerHTML = '';
-    } else {
-        // Loja fechada: mostra horário e mensagem (se existirem)
-        ind.className = 'status-pill closed';
-        txt.innerHTML = '<i class="fa-regular fa-circle-xmark"></i> Fechado no momento';
-        
-        let scheduleHtml = '';
-        if (storeInfo.horarioFuncionamento) {
-            scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-calendar-alt"></i> ${storeInfo.horarioFuncionamento}</span>`;
-        }
-        if (storeInfo.mensagemFechado) {
-            if (scheduleHtml) scheduleHtml += ' · ';
-            scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-bell"></i> ${storeInfo.mensagemFechado}</span>`;
+        try {
+            const r = await apiFetch(`/loja/${LOJA_SLUG}/status`);
+            if (r.ok) storeOpen = await r.json();
+            const sr = await apiFetch(`/loja/${LOJA_SLUG}`);
+            if (sr.ok) storeInfo = await sr.json();
+        } catch(e) {
+            console.warn("Erro ao buscar status da loja:", e);
         }
         
-        if (scheduleHtml) {
-            scheduleDiv.style.display = 'inline-flex';
-            scheduleDiv.innerHTML = scheduleHtml;
-        } else {
+        const ind = document.getElementById('statusIndicator');
+        const txt = document.getElementById('statusText');
+        const scheduleDiv = document.getElementById('storeSchedule');
+        
+        if (!scheduleDiv) return;
+        
+        if (storeOpen) {
+            ind.className = 'status-pill open';
+            txt.innerHTML = '<i class="fa-regular fa-circle-check"></i> Aberto agora';
             scheduleDiv.style.display = 'none';
+            scheduleDiv.innerHTML = '';
+        } else {
+            ind.className = 'status-pill closed';
+            txt.innerHTML = '<i class="fa-regular fa-circle-xmark"></i> Fechado no momento';
+            
+            let scheduleHtml = '';
+            if (storeInfo.horarioFuncionamento) {
+                scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-calendar-alt"></i> ${storeInfo.horarioFuncionamento}</span>`;
+            }
+            if (storeInfo.mensagemFechado) {
+                if (scheduleHtml) scheduleHtml += ' · ';
+                scheduleHtml += `<span class="schedule-item"><i class="fa-regular fa-bell"></i> ${storeInfo.mensagemFechado}</span>`;
+            }
+            
+            if (scheduleHtml) {
+                scheduleDiv.style.display = 'inline-flex';
+                scheduleDiv.innerHTML = scheduleHtml;
+            } else {
+                scheduleDiv.style.display = 'none';
+            }
         }
     }
-}
 
     // ========== PRODUCTS ==========
     async function fetchProducts() {
