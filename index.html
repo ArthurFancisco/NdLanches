@@ -1366,7 +1366,8 @@
 
 <script>
     // ==================== CONFIG ====================
-    const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
+    // 🔥 ALTERADO: URL da API no Render (substitua pela URL real do seu serviço)
+    const API_URL = "https://nd-lanches-api.onrender.com/api";
     const LOJA_SLUG = "nd-lanches";
     const LOJA_ID = 1;
     const CART_KEY = "ndlanches_cart_v2";
@@ -1424,11 +1425,12 @@
         toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
     }
 
+    // 🔥 ALTERADO: removido cabeçalho ngrok-skip-browser-warning
     async function apiFetch(path, opts = {}) {
         try {
             const response = await fetch(API_URL + path, {
                 ...opts,
-                headers: { 'ngrok-skip-browser-warning': 'any', 'Content-Type': 'application/json', ...(opts.headers || {}) }
+                headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) }
             });
             if (!response.ok && response.status !== 404) {
                 showToast(`Erro ao conectar com o servidor (${response.status})`, true);
@@ -1491,7 +1493,6 @@
         } catch(e) { 
             console.warn("Erro banners:", e); 
             bannersContainer.style.display = 'none';
-            // Não exibe toast para evitar spam
         }
     }
 
@@ -1610,7 +1611,7 @@
         try { const last = JSON.parse(localStorage.getItem(LAST_ORDER_KEY) || '[]'); if (last.length) { cart = last.map(i => ({ ...i })); saveCart(); showToast('🔄 Último pedido restaurado!'); } } catch(e) {}
     }
 
-    // ========== STORE STATUS (corrigido) ==========
+    // ========== STORE STATUS ==========
     async function fetchStoreStatus() {
         try {
             const r = await apiFetch(`/loja/${LOJA_SLUG}/status`);
@@ -1890,7 +1891,7 @@
     function closeCheckoutModal() { checkoutModal.classList.remove('open'); }
 
     function isValidPhone(phone) {
-        if (!phone) return true; // opcional
+        if (!phone) return true;
         const phoneRegex = /^\(?[1-9]{2}\)? ?[9]?[0-9]{4}-?[0-9]{4}$/;
         return phoneRegex.test(phone);
     }

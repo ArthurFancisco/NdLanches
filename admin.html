@@ -574,7 +574,9 @@
     <div class="feedback" id="feedback" aria-live="polite"><i class="fa-solid fa-circle-check"></i><span id="feedbackMsg">OK</span></div>
 
     <script>
-        const API_URL = "https://nell-punchiest-proddingly.ngrok-free.dev/api";
+        // ==================== CONFIG ====================
+        // 🔥 ALTERADO: URL da API no Render (substitua pela URL real do seu serviço)
+        const API_URL = "https://nd-lanches-api.onrender.com/api";
         const LOJA_SLUG = "nd-lanches";
         const LOJA_ID_NUM = 1;
         const REFRESH_INTERVAL = 30;
@@ -699,8 +701,9 @@
             return sessionStorage.getItem("admin_key") || "";
         }
 
+        // 🔥 ALTERADO: removido cabeçalho ngrok-skip-browser-warning
         async function apiFetch(url, options = {}) {
-            const headers = { "ngrok-skip-browser-warning": "true", ...(options.headers || {}) };
+            const headers = { ...(options.headers || {}) };
             if (!(options.body instanceof FormData)) headers["Content-Type"] = "application/json";
             const adminKey = getAdminKey();
             if (adminKey) headers["Admin-Key"] = adminKey;
@@ -1314,7 +1317,7 @@
                     apiFetch(`${API_URL}/loja/${LOJA_SLUG}`),
                     apiFetch(`${API_URL}/produtos/admin/loja/${LOJA_ID_NUM}`),
                     apiFetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`),
-                       apiFetch(`${API_URL}/banners/admin/loja/${LOJA_ID_NUM}`)   // 🔥 ALTERADO AQUI
+                    apiFetch(`${API_URL}/banners/admin/loja/${LOJA_ID_NUM}`)   // 🔥 ALTERADO: endpoint admin
                 ]);
 
                 state.lojaAberta = statusRes.ok ? await statusRes.json() : false;
@@ -1538,17 +1541,14 @@
             const banner = state.banners.find((b) => b.id === id);
             if (!banner) return;
             const novoEstado = !banner.ativo;
-            // Atualização local otimista
             banner.ativo = novoEstado;
             renderizarBanners();
             try {
                 const response = await apiFetch(`${API_URL}/banners/${id}/toggle`, { method: "PATCH" });
                 if (!response.ok) throw new Error();
                 toast(`Banner ${novoEstado ? "ativado" : "desativado"}.`, true);
-                // Recarrega para garantir consistência
                 await carregarDados();
             } catch {
-                // Reverte estado local em caso de erro
                 banner.ativo = !novoEstado;
                 renderizarBanners();
                 toast("Erro ao atualizar banner.", false);
