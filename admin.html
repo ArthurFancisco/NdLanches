@@ -1127,30 +1127,34 @@
         }
 
         function renderizarAdicionais() {
-            const lista = $("#lista-adicionais");
-            const busca = ($("#buscaAdicional")?.value || "").trim().toLowerCase();
-            const adicionaisFiltrados = busca
-                ? state.adicionais.filter((item) => String(item.nome || "").toLowerCase().includes(busca))
-                : [...state.adicionais];
-            $("#adicCount").textContent = String(adicionaisFiltrados.length);
-            if (!lista) return;
-            if (!adicionaisFiltrados.length) {
-                lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-circle-plus"></i><p>${busca ? "Nenhum adicional encontrado." : "Nenhum adicional cadastrado."}</p></div>`;
-                return updateHeroSummary();
-            }
-            lista.innerHTML = adicionaisFiltrados.map((item) => `
-                <article class="adic-item">
-                    <div class="adic-em">${escapeHtml(item.emoji || "➕")}</div>
-                    <div class="adic-info-col"><strong>${escapeHtml(item.nome || "Adicional")}</strong><span>+ ${formatMoney(item.preco)}</span></div>
-                    <div class="prod-actions">
-                        <button class="btn-ic duplicate" type="button" data-action="duplicar-adicional" data-id="${item.id}"><i class="fa-solid fa-copy"></i></button>
-                        <button class="btn-ic edit" type="button" data-action="editar-adicional" data-id="${item.id}"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-ic del" type="button" data-action="excluir-adicional" data-id="${item.id}"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </article>
-            `).join("");
-            updateHeroSummary();
-        }
+    const lista = $("#lista-adicionais");
+    const busca = ($("#buscaAdicional")?.value || "").trim().toLowerCase();
+    const adicionaisFiltrados = busca
+        ? state.adicionais.filter((item) => String(item.nome || "").toLowerCase().includes(busca))
+        : [...state.adicionais];
+    
+    // 🔥 CORREÇÃO: verifica se o elemento existe antes de definir textContent
+    const adicCountEl = $("#adicCount");
+    if (adicCountEl) adicCountEl.textContent = String(adicionaisFiltrados.length);
+    
+    if (!lista) return;
+    if (!adicionaisFiltrados.length) {
+        lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-circle-plus"></i><p>${busca ? "Nenhum adicional encontrado." : "Nenhum adicional cadastrado."}</p></div>`;
+        return updateHeroSummary();
+    }
+    lista.innerHTML = adicionaisFiltrados.map((item) => `
+        <article class="adic-item">
+            <div class="adic-em">${escapeHtml(item.emoji || "➕")}</div>
+            <div class="adic-info-col"><strong>${escapeHtml(item.nome || "Adicional")}</strong><span>+ ${formatMoney(item.preco)}</span></div>
+            <div class="prod-actions">
+                <button class="btn-ic duplicate" type="button" data-action="duplicar-adicional" data-id="${item.id}"><i class="fa-solid fa-copy"></i></button>
+                <button class="btn-ic edit" type="button" data-action="editar-adicional" data-id="${item.id}"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-ic del" type="button" data-action="excluir-adicional" data-id="${item.id}"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        </article>
+    `).join("");
+    updateHeroSummary();
+}
 
         function renderizarBanners() {
             const lista = $("#lista-banners");
