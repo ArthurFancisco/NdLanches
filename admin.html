@@ -573,9 +573,8 @@
 
     <div class="feedback" id="feedback" aria-live="polite"><i class="fa-solid fa-circle-check"></i><span id="feedbackMsg">OK</span></div>
 
-    <script>
+<script>
         // ==================== CONFIG ====================
-        // 🔥 ALTERADO: URL da API no Render (substitua pela URL real do seu serviço)
         const API_URL = "https://nd-lanches-api-b3gc.onrender.com/api";
         const LOJA_SLUG = "nd-lanches";
         const LOJA_ID_NUM = 1;
@@ -701,7 +700,6 @@
             return sessionStorage.getItem("admin_key") || "";
         }
 
-        // 🔥 ALTERADO: removido cabeçalho ngrok-skip-browser-warning
         async function apiFetch(url, options = {}) {
             const headers = { ...(options.headers || {}) };
             if (!(options.body instanceof FormData)) headers["Content-Type"] = "application/json";
@@ -740,13 +738,20 @@
         }
 
         function updateHeroSummary() {
-            $("#heroProdutos").textContent = String(state.todosProdutos.length);
-            $("#heroPedidos").textContent = String(state.todosPedidos.length);
-            $("#heroLoja").textContent = state.lojaAberta ? "Aberta" : "Fechada";
-            $("#heroReceita").textContent = $("#pedidos-receita")?.textContent || "R$ 0,00";
-            $("#heroBanners").textContent = String(state.banners.filter((item) => item.ativo).length);
-            $("#heroAdicionais").textContent = String(state.adicionais.length);
-            $("#heroRefresh").textContent = `${state.refreshCountdown}s`;
+            const prodEl = $("#heroProdutos");
+            if (prodEl) prodEl.textContent = String(state.todosProdutos.length);
+            const pedEl = $("#heroPedidos");
+            if (pedEl) pedEl.textContent = String(state.todosPedidos.length);
+            const lojaEl = $("#heroLoja");
+            if (lojaEl) lojaEl.textContent = state.lojaAberta ? "Aberta" : "Fechada";
+            const receitaEl = $("#heroReceita");
+            if (receitaEl) receitaEl.textContent = $("#pedidos-receita")?.textContent || "R$ 0,00";
+            const bannersEl = $("#heroBanners");
+            if (bannersEl) bannersEl.textContent = String(state.banners.filter((item) => item.ativo).length);
+            const adicionaisEl = $("#heroAdicionais");
+            if (adicionaisEl) adicionaisEl.textContent = String(state.adicionais.length);
+            const refreshEl = $("#heroRefresh");
+            if (refreshEl) refreshEl.textContent = `${state.refreshCountdown}s`;
         }
 
         function atualizarBotaoStatus() {
@@ -784,7 +789,8 @@
         }
 
         function updateDraftIndicator(visible) {
-            $("#produtoDraftState")?.classList.toggle("hidden", !visible);
+            const draftEl = $("#produtoDraftState");
+            if (draftEl) draftEl.classList.toggle("hidden", !visible);
         }
 
         function saveProdutoDraft() {
@@ -897,9 +903,12 @@
         }
 
         function updatePreview() {
-            $("#previewName").textContent = ($("#nome")?.value || "").trim() || "Produto";
-            $("#previewPrice").textContent = formatMoney($("#preco")?.value);
-            $("#previewEmoji").textContent = ($("#emoji")?.value || "").trim() || "🍔";
+            const nameEl = $("#previewName");
+            if (nameEl) nameEl.textContent = ($("#nome")?.value || "").trim() || "Produto";
+            const priceEl = $("#previewPrice");
+            if (priceEl) priceEl.textContent = formatMoney($("#preco")?.value);
+            const emojiEl = $("#previewEmoji");
+            if (emojiEl) emojiEl.textContent = ($("#emoji")?.value || "").trim() || "🍔";
         }
 
         function autoEmojiPorCategoria() {
@@ -979,10 +988,14 @@
             $("#imagemUrl").value = "";
             $("#imagemFile").value = "";
             $("#previewImagemDiv").innerHTML = "";
-            $("#formTitle").textContent = "Novo Produto";
-            $("#btnSalvarLabel").textContent = "Salvar";
-            $("#btnCancelarProduto").classList.add("hidden");
-            $("#editBanner").classList.remove("vis");
+            const titleEl = $("#formTitle");
+            if (titleEl) titleEl.textContent = "Novo Produto";
+            const btnLabel = $("#btnSalvarLabel");
+            if (btnLabel) btnLabel.textContent = "Salvar";
+            const cancelBtn = $("#btnCancelarProduto");
+            if (cancelBtn) cancelBtn.classList.add("hidden");
+            const editBanner = $("#editBanner");
+            if (editBanner) editBanner.classList.remove("vis");
             setRemoviveisFromArray([]);
             autoEmojiPorCategoria();
             clearProdutoDraft();
@@ -1000,10 +1013,14 @@
             $("#imagemUrl").value = produto.imagemUrl || "";
             $("#imagemFile").value = "";
             $("#previewImagemDiv").innerHTML = produto.imagemUrl ? `<img src="${escapeHtml(produto.imagemUrl)}" alt="Imagem atual do produto">` : "";
-            $("#formTitle").textContent = produto.nome || "Editar produto";
-            $("#btnSalvarLabel").textContent = "Salvar alterações";
-            $("#btnCancelarProduto").classList.remove("hidden");
-            $("#editBanner").classList.add("vis");
+            const titleEl = $("#formTitle");
+            if (titleEl) titleEl.textContent = produto.nome || "Editar produto";
+            const btnLabel = $("#btnSalvarLabel");
+            if (btnLabel) btnLabel.textContent = "Salvar alterações";
+            const cancelBtn = $("#btnCancelarProduto");
+            if (cancelBtn) cancelBtn.classList.remove("hidden");
+            const editBanner = $("#editBanner");
+            if (editBanner) editBanner.classList.add("vis");
             state.selectedImageFile = null;
             setRemoviveisFromArray(produto.removiveis || []);
             updateDraftIndicator(false);
@@ -1015,10 +1032,14 @@
             $("#adicNome").value = "";
             $("#adicPreco").value = "";
             $("#adicEmoji").value = "";
-            $("#adicFormTitle").textContent = "Novo Adicional";
-            $("#adicBtnLabel").textContent = "Salvar";
-            $("#adicCancelar").classList.add("hidden");
-            $("#adicEditBanner").classList.remove("vis");
+            const titleEl = $("#adicFormTitle");
+            if (titleEl) titleEl.textContent = "Novo Adicional";
+            const btnLabel = $("#adicBtnLabel");
+            if (btnLabel) btnLabel.textContent = "Salvar";
+            const cancelBtn = $("#adicCancelar");
+            if (cancelBtn) cancelBtn.classList.add("hidden");
+            const editBanner = $("#adicEditBanner");
+            if (editBanner) editBanner.classList.remove("vis");
         }
 
         function preencherAdicionalForm(item) {
@@ -1026,10 +1047,14 @@
             $("#adicNome").value = item.nome || "";
             $("#adicPreco").value = item.preco || "";
             $("#adicEmoji").value = item.emoji || "";
-            $("#adicFormTitle").textContent = item.nome || "Editar adicional";
-            $("#adicBtnLabel").textContent = "Salvar alterações";
-            $("#adicCancelar").classList.remove("hidden");
-            $("#adicEditBanner").classList.add("vis");
+            const titleEl = $("#adicFormTitle");
+            if (titleEl) titleEl.textContent = item.nome || "Editar adicional";
+            const btnLabel = $("#adicBtnLabel");
+            if (btnLabel) btnLabel.textContent = "Salvar alterações";
+            const cancelBtn = $("#adicCancelar");
+            if (cancelBtn) cancelBtn.classList.remove("hidden");
+            const editBanner = $("#adicEditBanner");
+            if (editBanner) editBanner.classList.add("vis");
         }
 
         function resetBannerForm() {
@@ -1039,10 +1064,14 @@
             $("#bannerCor").value = "amarelo";
             $("#bannerEmoji").value = "";
             $("#bannerAtivo").checked = false;
-            $("#bannerFormTitle").textContent = "Novo Banner";
-            $("#bannerBtnLabel").textContent = "Publicar";
-            $("#bannerCancelar").classList.add("hidden");
-            $("#bannerEditBanner").classList.remove("vis");
+            const titleEl = $("#bannerFormTitle");
+            if (titleEl) titleEl.textContent = "Novo Banner";
+            const btnLabel = $("#bannerBtnLabel");
+            if (btnLabel) btnLabel.textContent = "Publicar";
+            const cancelBtn = $("#bannerCancelar");
+            if (cancelBtn) cancelBtn.classList.add("hidden");
+            const editBanner = $("#bannerEditBanner");
+            if (editBanner) editBanner.classList.remove("vis");
         }
 
         function preencherBannerForm(item) {
@@ -1052,10 +1081,14 @@
             $("#bannerCor").value = item.cor || "amarelo";
             $("#bannerEmoji").value = item.emoji || "";
             $("#bannerAtivo").checked = item.ativo === true;
-            $("#bannerFormTitle").textContent = item.titulo || "Editar banner";
-            $("#bannerBtnLabel").textContent = "Salvar alterações";
-            $("#bannerCancelar").classList.remove("hidden");
-            $("#bannerEditBanner").classList.add("vis");
+            const titleEl = $("#bannerFormTitle");
+            if (titleEl) titleEl.textContent = item.titulo || "Editar banner";
+            const btnLabel = $("#bannerBtnLabel");
+            if (btnLabel) btnLabel.textContent = "Salvar alterações";
+            const cancelBtn = $("#bannerCancelar");
+            if (cancelBtn) cancelBtn.classList.remove("hidden");
+            const editBanner = $("#bannerEditBanner");
+            if (editBanner) editBanner.classList.add("vis");
         }
 
         function renderizarProdutos() {
@@ -1076,11 +1109,13 @@
                 return (Number(a.ordem) || 0) - (Number(b.ordem) || 0);
             });
 
-            $("#prodCount").textContent = String(filtrados.length);
+            const prodCountEl = $("#prodCount");
+            if (prodCountEl) prodCountEl.textContent = String(filtrados.length);
             if (!lista) return;
             if (!filtrados.length) {
                 lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-box-open"></i><p>Nenhum produto encontrado com esses filtros.</p></div>`;
-                return updateHeroSummary();
+                updateHeroSummary();
+                return;
             }
 
             const labels = { LANCHE: "🍔 Lanches", BEBIDA: "🥤 Bebidas", PASTEL: "🥟 Pastéis", BATATA: "🍟 Batatas", PIZZA: "🍕 Pizzas", "CACHORRO QUENTE": "🌭 Cachorro-quente" };
@@ -1127,34 +1162,34 @@
         }
 
         function renderizarAdicionais() {
-    const lista = $("#lista-adicionais");
-    const busca = ($("#buscaAdicional")?.value || "").trim().toLowerCase();
-    const adicionaisFiltrados = busca
-        ? state.adicionais.filter((item) => String(item.nome || "").toLowerCase().includes(busca))
-        : [...state.adicionais];
-    
-    // 🔥 CORREÇÃO: verifica se o elemento existe antes de definir textContent
-    const adicCountEl = $("#adicCount");
-    if (adicCountEl) adicCountEl.textContent = String(adicionaisFiltrados.length);
-    
-    if (!lista) return;
-    if (!adicionaisFiltrados.length) {
-        lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-circle-plus"></i><p>${busca ? "Nenhum adicional encontrado." : "Nenhum adicional cadastrado."}</p></div>`;
-        return updateHeroSummary();
-    }
-    lista.innerHTML = adicionaisFiltrados.map((item) => `
-        <article class="adic-item">
-            <div class="adic-em">${escapeHtml(item.emoji || "➕")}</div>
-            <div class="adic-info-col"><strong>${escapeHtml(item.nome || "Adicional")}</strong><span>+ ${formatMoney(item.preco)}</span></div>
-            <div class="prod-actions">
-                <button class="btn-ic duplicate" type="button" data-action="duplicar-adicional" data-id="${item.id}"><i class="fa-solid fa-copy"></i></button>
-                <button class="btn-ic edit" type="button" data-action="editar-adicional" data-id="${item.id}"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn-ic del" type="button" data-action="excluir-adicional" data-id="${item.id}"><i class="fa-solid fa-trash"></i></button>
-            </div>
-        </article>
-    `).join("");
-    updateHeroSummary();
-}
+            const lista = $("#lista-adicionais");
+            const busca = ($("#buscaAdicional")?.value || "").trim().toLowerCase();
+            const adicionaisFiltrados = busca
+                ? state.adicionais.filter((item) => String(item.nome || "").toLowerCase().includes(busca))
+                : [...state.adicionais];
+            
+            const adicCountEl = $("#adicCount");
+            if (adicCountEl) adicCountEl.textContent = String(adicionaisFiltrados.length);
+            
+            if (!lista) return;
+            if (!adicionaisFiltrados.length) {
+                lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-circle-plus"></i><p>${busca ? "Nenhum adicional encontrado." : "Nenhum adicional cadastrado."}</p></div>`;
+                updateHeroSummary();
+                return;
+            }
+            lista.innerHTML = adicionaisFiltrados.map((item) => `
+                <article class="adic-item">
+                    <div class="adic-em">${escapeHtml(item.emoji || "➕")}</div>
+                    <div class="adic-info-col"><strong>${escapeHtml(item.nome || "Adicional")}</strong><span>+ ${formatMoney(item.preco)}</span></div>
+                    <div class="prod-actions">
+                        <button class="btn-ic duplicate" type="button" data-action="duplicar-adicional" data-id="${item.id}"><i class="fa-solid fa-copy"></i></button>
+                        <button class="btn-ic edit" type="button" data-action="editar-adicional" data-id="${item.id}"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-ic del" type="button" data-action="excluir-adicional" data-id="${item.id}"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </article>
+            `).join("");
+            updateHeroSummary();
+        }
 
         function renderizarBanners() {
             const lista = $("#lista-banners");
@@ -1162,11 +1197,13 @@
             const bannersFiltrados = busca
                 ? state.banners.filter((item) => `${item.titulo || ""} ${item.descricao || ""}`.toLowerCase().includes(busca))
                 : [...state.banners];
-            $("#bannerCount").textContent = String(bannersFiltrados.length);
+            const bannerCountEl = $("#bannerCount");
+            if (bannerCountEl) bannerCountEl.textContent = String(bannersFiltrados.length);
             if (!lista) return;
             if (!bannersFiltrados.length) {
                 lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-bullhorn"></i><p>${busca ? "Nenhum banner encontrado." : "Nenhum banner cadastrado."}</p></div>`;
-                return updateHeroSummary();
+                updateHeroSummary();
+                return;
             }
             lista.innerHTML = bannersFiltrados.map((item) => `
                 <article class="banner-item">
@@ -1233,8 +1270,10 @@
                 });
             }
             const receita = pedidosFiltrados.reduce((acc, pedido) => acc + (Number(pedido.total) || 0), 0);
-            $("#pedidos-qtd").textContent = String(pedidosFiltrados.length);
-            $("#pedidos-receita").textContent = formatMoney(receita);
+            const pedidosQtdEl = $("#pedidos-qtd");
+            if (pedidosQtdEl) pedidosQtdEl.textContent = String(pedidosFiltrados.length);
+            const pedidosReceitaEl = $("#pedidos-receita");
+            if (pedidosReceitaEl) pedidosReceitaEl.textContent = formatMoney(receita);
             renderResumoPedidosStatus(pedidosFiltrados);
 
             const novosIds = new Set(state.todosPedidos.map((pedido) => pedido.id));
@@ -1250,7 +1289,8 @@
             if (!lista) return;
             if (!pedidosFiltrados.length) {
                 lista.innerHTML = `<div class="empty-adm"><i class="fa-solid fa-receipt"></i><p>Nenhum pedido para este filtro.</p></div>`;
-                return updateHeroSummary();
+                updateHeroSummary();
+                return;
             }
 
             lista.innerHTML = pedidosFiltrados.map((pedido) => {
@@ -1321,7 +1361,7 @@
                     apiFetch(`${API_URL}/loja/${LOJA_SLUG}`),
                     apiFetch(`${API_URL}/produtos/admin/loja/${LOJA_ID_NUM}`),
                     apiFetch(`${API_URL}/adicionais/loja/${LOJA_ID_NUM}`),
-                    apiFetch(`${API_URL}/banners/admin/loja/${LOJA_ID_NUM}`)   // 🔥 ALTERADO: endpoint admin
+                    apiFetch(`${API_URL}/banners/admin/loja/${LOJA_ID_NUM}`)
                 ]);
 
                 state.lojaAberta = statusRes.ok ? await statusRes.json() : false;
@@ -1690,7 +1730,8 @@
             state.countdownTimerId = window.setInterval(() => {
                 state.refreshCountdown -= 1;
                 if (state.refreshCountdown <= 0) state.refreshCountdown = REFRESH_INTERVAL;
-                $("#refreshLabel").textContent = `Atualiza em ${state.refreshCountdown}s`;
+                const refreshLabel = $("#refreshLabel");
+                if (refreshLabel) refreshLabel.textContent = `Atualiza em ${state.refreshCountdown}s`;
                 updateHeroSummary();
             }, 1000);
             state.refreshTimerId = window.setInterval(async () => {
@@ -1867,6 +1908,6 @@
             updatePreview();
             await initLogin();
         });
-    </script>
+</script>
 </body>
 </html>
