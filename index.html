@@ -1431,14 +1431,11 @@
     let deliveryType = "RETIRADA";
     let paymentMethod = "PIX";
 
-<<<<<<< Updated upstream
     // Pizza meio a meio (controles)
     let pizzaHalfActive = false;
     let pizzaSelectedSabor1 = null;
     let pizzaSelectedSabor2 = null;
 
-=======
->>>>>>> Stashed changes
     const productsContainer = document.getElementById('productsContainer');
     const cartItemsList = document.getElementById('cartItemsList');
     const cartSummary = document.getElementById('cartSummary');
@@ -1784,11 +1781,7 @@
     }
     window.toggleFav = (e, id) => { e.stopPropagation(); const btn = e.currentTarget; btn.classList.toggle('active'); };
 
-<<<<<<< Updated upstream
     // ========== PRODUCT MODAL COM SUPORTE PARA MEIO A MEIO ==========
-=======
-    // ========== PRODUCT MODAL COM SUPORTE PARA PIZZA MEIO A MEIO E ADICIONAIS PARA BATATA ==========
->>>>>>> Stashed changes
     function openProductModal(id) {
         if (!storeOpen) { showToast('⛔ Loja fechada no momento', true); return; }
         const p = products.find(x => x.id === id);
@@ -1798,15 +1791,11 @@
         selectedExtras = {};
         selectedRemovals = [];
         productQty = 1;
-<<<<<<< Updated upstream
         pizzaHalfActive = false;
         pizzaSelectedSabor1 = null;
         pizzaSelectedSabor2 = null;
 
         // Atualizar hero do modal
-=======
-
->>>>>>> Stashed changes
         const hero = document.getElementById('modalHero');
         const emojiEl = document.getElementById('modalHeroEmoji');
         if (p.imagemUrl) {
@@ -1831,12 +1820,7 @@
                 ${removiveis.map(ing => `<div class="ingredient-chip" data-ing="${ing}"><span class="chip-x"><i class="fa-solid fa-xmark"></i></span>${ing}</div>`).join('')}
              </div>` : '';
         
-<<<<<<< Updated upstream
         const extrasHtml = (p.categoria === 'LANCHE' && extras.length) ? 
-=======
-        // 🔥 ALTERADO: Adicionais também para BATATA
-        const extrasHtml = ((p.categoria === 'LANCHE' || p.categoria === 'BATATA') && extras.length) ? 
->>>>>>> Stashed changes
             `<div class="modal-section-label">Adicionais</div>
              <div class="extras-grid">
                 ${extras.map(ext => `<div class="extra-card" data-id="${ext.id}"><span class="extra-emoji">${ext.emoji || '➕'}</span><div class="extra-info"><div class="extra-name">${ext.nome}</div><div class="extra-price">+ R$ ${ext.preco.toFixed(2).replace('.', ',')}</div></div><div class="extra-check"><i class="fa fa-check fa-xs"></i></div></div>`).join('')}
@@ -1936,10 +1920,7 @@
     function updateModalTotal() {
         if (!currentProduct) return;
         let basePrice = currentProduct.preco;
-<<<<<<< Updated upstream
         // Verificar se é pizza e meio a meio está ativo
-=======
->>>>>>> Stashed changes
         const halfCheckbox = document.getElementById('pizzaHalfCheckbox');
         if (currentProduct.categoria === 'PIZZA' && halfCheckbox && halfCheckbox.checked) {
             const sabor1 = document.getElementById('pizzaSabor1');
