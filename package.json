@@ -1,0 +1,24 @@
+{
+  "name": "ndlanches",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArthurFancisco/NdLanches.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ArthurFancisco/NdLanches/issues"
+  },
+  "homepage": "https://github.com/ArthurFancisco/NdLanches#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}
