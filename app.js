@@ -364,7 +364,8 @@ function renderProducts(list, filter = 'TODOS') {
         fullHtml += `<div class="section-header"><div class="section-icon">${meta.emoji}</div><div class="section-title">${meta.label}</div><span class="section-count">${items.length} itens</span></div><div class="products-grid">`;
         items.forEach(p => {
             const price = p.preco.toFixed(2).replace('.', ',');
-            const imgUrl = p.imagemUrl ? p.imagemUrl.replace('/upload/', '/upload/w_400,f_webp,q_auto/') : null;
+            // *** OTIMIZAÇÃO: reduz largura da imagem para 200px no card (antes 400) ***
+            const imgUrl = p.imagemUrl ? p.imagemUrl.replace('/upload/', '/upload/w_200,f_webp,q_auto/') : null;
             const imgHtml = imgUrl ? `<img src="${imgUrl}" alt="${p.nome}" loading="lazy" decoding="async">` : `<div class="emoji-placeholder">${p.emoji || meta.emoji}</div>`;
             const tagHtml = p.tagTexto ? `<div class="product-tag">${p.tagTexto}</div>` : '';
             const isDisponivel = p.ativo === true;
@@ -450,7 +451,8 @@ function openProductModal(id) {
     const emojiEl = document.getElementById('modalHeroEmoji');
     hero.querySelector('img')?.remove();
     if (p.imagemUrl) {
-        const imgUrl = p.imagemUrl.replace('/upload/', '/upload/w_400,f_webp,q_auto/');
+        // *** Mantém 400 ou 600 no modal? Vamos usar 600 para melhor qualidade ***
+        const imgUrl = p.imagemUrl.replace('/upload/', '/upload/w_600,f_webp,q_auto/');
         const img = document.createElement('img');
         img.src = imgUrl;
         img.alt = p.nome;
@@ -778,7 +780,6 @@ async function init() {
         extras = cache.extras;
         banners = cache.banners || banners;
         renderProducts(products);
-        // Não exibe toast
     }
     
     // Busca dados novos (agora apenas 1 request)
@@ -791,7 +792,7 @@ async function init() {
         salvarCardapioCache(products, extras, banners);
     }
     
-    // Banners ainda podem ser buscados separadamente (opcional, pois já vem no payload)
-    await fetchBanners(); // pode remover se já usar os banners do cache/dadosNovos
+    // Banners já vêm no payload, mas mantemos como fallback
+    if (!banners.length) await fetchBanners();
 }
 init();

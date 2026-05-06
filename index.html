@@ -4,12 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
     <title>ND Lanches | Cardápio Digital</title>
+    <!-- Pré-conexão com origens de terceiros -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <!-- Google Fonts com display=swap (evita FOIT) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome: carregamento não bloqueante com preload -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>">
-    <link rel="stylesheet" href="style.min.css?v=1.0.0">
+    <!-- CSS próprio (minificado e versionado) -->
+    <link rel="stylesheet" href="style.min.css?v=1.0.1">
 </head>
 <body>
 <div class="app">
@@ -34,7 +40,6 @@
         </div>
     </header>
 
-    <!-- BANNERS SECTION -->
     <div id="bannersContainer" class="banners-section" style="display: none;"></div>
 
     <div class="two-columns">
@@ -140,6 +145,6 @@
 </div>
 <div id="toastMsg" class="toast"></div>
 
-    <script src="app.min.js?v=1.0.0" defer></script>
+<script src="app.min.js?v=1.0.1" defer></script>
 </body>
 </html>
