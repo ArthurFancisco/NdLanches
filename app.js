@@ -28,6 +28,9 @@ let pizzaHalfActive = false;
 let pizzaSelectedSabor1 = null;
 let pizzaSelectedSabor2 = null;
 
+// Controle para cancelar renderização anterior
+let cancelRender = null;
+
 const productsContainer = document.getElementById('productsContainer');
 const cartItemsList = document.getElementById('cartItemsList');
 const cartSummary = document.getElementById('cartSummary');
@@ -311,31 +314,10 @@ async function fetchStoreStatus() {
     }
 }
 
-async function fetchProducts() {
-    showSkeletons();
-    try {
-        const r = await apiFetch(`/produtos/loja/${LOJA_ID}/cardapio`);
-        if (r.ok) {
-            products = await r.json();
-        } else {
-            showToast("Não foi possível carregar o cardápio. Tente novamente.", true);
-            products = [];
-        }
-        const er = await apiFetch(`/adicionais/loja/${LOJA_ID}`);
-        if (er.ok) {
-            extras = await er.json();
-        } else {
-            extras = [];
-        }
-    } catch(e) { 
-        console.warn(e); 
-        showToast("Erro de conexão. Verifique sua internet.", true);
-    }
-    renderProducts(products);
-}
 function showSkeletons() {
     productsContainer.innerHTML = `<div class="products-grid">${Array(4).fill(0).map(() => `<div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="sk" style="height:18px;width:70%;"></div><div class="sk" style="height:30px;width:100%;"></div><div class="sk" style="height:18px;width:45%;"></div></div></div>`).join('')}</div>`;
 }
+
 const CAT_META = {
     LANCHE: { emoji: '🍔', label: 'Lanches' },
     BEBIDA: { emoji: '🥤', label: 'Bebidas' },
@@ -345,26 +327,59 @@ const CAT_META = {
     "CACHORRO QUENTE": { emoji: '🌭', label: 'Cachorro Quente' }
 };
 
+// Ordem fixa das categorias para a aba "Todos"
+const CATEGORIA_ORDEM = [
+    "LANCHE",
+    "BEBIDA",
+    "PASTEL",
+    "BATATA",
+    "PIZZA",
+    "CACHORRO QUENTE"
+];
+
 // ========== RENDERIZAÇÃO INCREMENTAL CORRIGIDA ==========
 function renderProducts(list, filter = 'TODOS') {
-    const filtered = filter === 'TODOS' ? list : list.filter(p => p.categoria === filter);
+    // Cancela qualquer renderização anterior ainda em andamento
+    if (cancelRender) {
+        cancelRender();
+        cancelRender = null;
+    }
+
+    // 1. Filtrar e deduplicar por ID (previne duplicatas da API)
+    let filtered = filter === 'TODOS' ? list : list.filter(p => p.categoria === filter);
+    const uniqueMap = new Map();
+    filtered.forEach(p => uniqueMap.set(p.id, p));
+    filtered = Array.from(uniqueMap.values());
+    
     if (!filtered.length) {
         productsContainer.innerHTML = `<div class="empty-message"><div class="em-icon">🔍</div><p>Nenhum produto encontrado</p></div>`;
         return;
     }
 
-    // Agrupar por categoria
+    // 2. Agrupar por categoria
     const grouped = {};
-    filtered.forEach(p => { (grouped[p.categoria] = grouped[p.categoria] || []).push(p); });
+    filtered.forEach(p => {
+        const cat = p.categoria;
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(p);
+    });
 
-    // Construir HTML completo
+    // 3. Ordenar as categorias conforme CATEGORIA_ORDEM
+    const orderedCategories = [...CATEGORIA_ORDEM];
+    // Adiciona categorias que não estão na ordem predefinida (caso existam) no final
+    for (const cat in grouped) {
+        if (!orderedCategories.includes(cat)) orderedCategories.push(cat);
+    }
+
+    // 4. Construir o HTML completo
     let fullHtml = '';
-    for (const [cat, items] of Object.entries(grouped)) {
+    for (const cat of orderedCategories) {
+        const items = grouped[cat];
+        if (!items) continue;
         const meta = CAT_META[cat] || { emoji: '🍽️', label: cat };
         fullHtml += `<div class="section-header"><div class="section-icon">${meta.emoji}</div><div class="section-title">${meta.label}</div><span class="section-count">${items.length} itens</span></div><div class="products-grid">`;
         items.forEach(p => {
             const price = p.preco.toFixed(2).replace('.', ',');
-            // *** OTIMIZAÇÃO: reduz largura da imagem para 200px no card (antes 400) ***
             const imgUrl = p.imagemUrl ? p.imagemUrl.replace('/upload/', '/upload/w_200,f_webp,q_auto/') : null;
             const imgHtml = imgUrl ? `<img src="${imgUrl}" alt="${p.nome}" loading="lazy" decoding="async">` : `<div class="emoji-placeholder">${p.emoji || meta.emoji}</div>`;
             const tagHtml = p.tagTexto ? `<div class="product-tag">${p.tagTexto}</div>` : '';
@@ -387,7 +402,7 @@ function renderProducts(list, filter = 'TODOS') {
         fullHtml += `</div>`;
     }
 
-    // Inserir em chunk via fragmento (renderização incremental)
+    // 5. Inserção em chunks (renderização incremental)
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = fullHtml;
     const fragment = document.createDocumentFragment();
@@ -399,17 +414,25 @@ function renderProducts(list, filter = 'TODOS') {
         chunks.push(allCards.slice(i, i + 10));
     }
 
+    // Limpa o container e cancela qualquer processo anterior
     productsContainer.innerHTML = '';
     let chunkIndex = 0;
+    let isCancelled = false;
+    
+    // Armazena a função de cancelamento
+    cancelRender = () => { isCancelled = true; };
 
     function renderNextChunk() {
-        if (chunkIndex >= chunks.length) return;
+        if (isCancelled || chunkIndex >= chunks.length) {
+            if (chunkIndex >= chunks.length) cancelRender = null;
+            return;
+        }
         const chunk = chunks[chunkIndex];
         for (const card of chunk) {
             productsContainer.appendChild(card);
-            // Reatribuir eventos de clique nos cards e botões
+            // Reatribuir eventos (já que foram clonados)
             const id = +card.dataset.id;
-            const product = products.find(p => p.id === id);
+            const product = filtered.find(p => p.id === id);
             const disponivel = product?.ativo === true;
             card.addEventListener('click', e => {
                 if (!e.target.closest('.add-btn') && !e.target.closest('.product-fav') && disponivel) openProductModal(id);
@@ -446,12 +469,10 @@ function openProductModal(id) {
     pizzaSelectedSabor1 = null;
     pizzaSelectedSabor2 = null;
 
-    // Atualizar hero do modal
     const hero = document.getElementById('modalHero');
     const emojiEl = document.getElementById('modalHeroEmoji');
     hero.querySelector('img')?.remove();
     if (p.imagemUrl) {
-        // *** Mantém 400 ou 600 no modal? Vamos usar 600 para melhor qualidade ***
         const imgUrl = p.imagemUrl.replace('/upload/', '/upload/w_600,f_webp,q_auto/');
         const img = document.createElement('img');
         img.src = imgUrl;
@@ -523,7 +544,6 @@ function openProductModal(id) {
     document.getElementById('qtyDec').onclick = () => { if (productQty > 1) { productQty--; document.getElementById('qtyVal').textContent = productQty; updateModalTotal(); } };
     document.getElementById('qtyInc').onclick = () => { if (productQty < 99) { productQty++; document.getElementById('qtyVal').textContent = productQty; updateModalTotal(); } else { showToast("Quantidade máxima é 99", true); } };
     
-    // Configurar eventos de pizza meio a meio
     if (p.categoria === 'PIZZA') {
         const halfCheckbox = document.getElementById('pizzaHalfCheckbox');
         const halfOptions = document.getElementById('pizzaHalfOptions');
@@ -575,7 +595,6 @@ function handleExtraToggle(card) {
 function updateModalTotal() {
     if (!currentProduct) return;
     let basePrice = currentProduct.preco;
-    // Verificar se é pizza e meio a meio está ativo
     const halfCheckbox = document.getElementById('pizzaHalfCheckbox');
     if (currentProduct.categoria === 'PIZZA' && halfCheckbox && halfCheckbox.checked) {
         const sabor1 = document.getElementById('pizzaSabor1');
@@ -635,7 +654,7 @@ document.getElementById('modalAddToCartBtn').onclick = () => {
     if (btn) { btn.classList.add('added'); btn.innerHTML = '<i class="fa-solid fa-check"></i>'; setTimeout(() => { btn.classList.remove('added'); btn.innerHTML = '<i class="fa-solid fa-plus"></i>'; }, 800); }
 };
 
-// ========== CHECKOUT (igual ao original) ==========
+// ========== CHECKOUT ==========
 function goStep(step) {
     if (step === 1 && !validateStep0()) return;
     if (step === 2 && !validateStep1()) return;
@@ -773,7 +792,10 @@ async function init() {
     loadCart();
     await fetchStoreStatus();
     
-    // Tenta cache local primeiro
+    // Cancela qualquer render pendente antes de começar o init (segurança)
+    if (cancelRender) cancelRender();
+    
+    // 1. Cache local
     const cache = obterCardapioCache();
     if (cache) {
         products = cache.produtos;
@@ -782,7 +804,7 @@ async function init() {
         renderProducts(products);
     }
     
-    // Busca dados novos (agora apenas 1 request)
+    // 2. Dados frescos da API
     const dadosNovos = await fetchCardapioCompleto();
     if (dadosNovos) {
         products = dadosNovos.produtos;
@@ -792,7 +814,7 @@ async function init() {
         salvarCardapioCache(products, extras, banners);
     }
     
-    // Banners já vêm no payload, mas mantemos como fallback
+    // 3. Fallback de banners (caso não venham no payload)
     if (!banners.length) await fetchBanners();
 }
 init();

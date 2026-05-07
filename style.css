@@ -326,11 +326,15 @@
         .products-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 16px;
-            margin-bottom: 8px;
+            gap: 32px;        /* aumenta espaçamento vertical */
+            margin-bottom: 12px;
+            padding: 8px;      /* pequeno respiro nas bordas */
         }
         @media (min-width: 640px) {
-            .products-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 32px;     /* mais espaço horizontal e vertical */
+            }
         }
         .skeleton-card {
             background: var(--surface);
@@ -355,6 +359,7 @@
         /* ========== PRODUCT CARD ========== */
         .product-card {
             background: var(--surface);
+            margin: 10px;
             border-radius: 20px;
             border: 1.5px solid var(--border);
             overflow: hidden;
