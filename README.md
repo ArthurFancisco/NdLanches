@@ -21,12 +21,12 @@ Frontend de um cardápio digital para lanchonetes, integrado a uma API própria 
 
 ## Integração
 
-Este frontend consome a API disponível em [ArthurFancisco/Nd-Lanches-API](https://github.com/ArthurFancisco/Nd-Lanches-API).
+Este frontend consome a API disponível em [arthur-amancio/Nd-Lanches-API](https://github.com/arthur-amancio/Nd-Lanches-API).
 
 ## Como executar
 
 ~~~bash
-git clone https://github.com/ArthurFancisco/NdLanches.git
+git clone https://github.com/arthur-amancio/NdLanches.git
 cd NdLanches
 npm install
 python -m http.server 5500
