@@ -8,16 +8,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ArthurFancisco/NdLanches.git"
+    "url": "git+https://github.com/arthur-amancio/NdLanches.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/ArthurFancisco/NdLanches/issues"
+    "url": "https://github.com/arthur-amancio/NdLanches/issues"
   },
-  "homepage": "https://github.com/ArthurFancisco/NdLanches#readme",
+  "homepage": "https://github.com/arthur-amancio/NdLanches#readme",
   "devDependencies": {
     "esbuild": "^0.28.0"
   }
